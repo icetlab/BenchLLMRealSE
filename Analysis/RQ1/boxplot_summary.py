@@ -47,34 +47,53 @@ def create_plots_from_csv_file(input_path, output_dir="comparison_plots"):
     df_long['Model'] = df_long['model'].apply(rename_model)
 
     # --- 2. Create Plots ---
-    # Increase figure width to accommodate more models
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    # Layout: (a)(b) on the first row, (c) on the second row spanning both columns.
+    fig = plt.figure(figsize=(16, 12))
+    gs = fig.add_gridspec(2, 4, height_ratios=[1.0, 1.0], hspace=0.35, wspace=0.3)
+    axes = [fig.add_subplot(gs[0, 0:2]), fig.add_subplot(gs[0, 2:4]), fig.add_subplot(gs[1, 1:4])]
     sns.set_style("whitegrid")
+    # Note: `tight_layout()` later can override spacing, so we apply `wspace`
+    # after layout is tightened (see Final Touches section).
 
     # Define Custom Color Palettes
     # For plot1 (by Prompt, hue=Model): 4 models - Original palette
     palette_plot1 = ["#9E9EE0", "#FFF2CC", "#D3D3D3", "#90EE90"]  # OpenAI, Gemini, DeepSeek V3, DeepSeek R1
     # For plot2 (by Model, hue=Prompt): 4 prompts - Gentle pastel palette
     # Order: NoHint, Bench, Problem, Both
-    palette_plot2 = ["#F5A5A5", "#E6D3C8", "#B3D9FF", "#D9B3E6"]  # NoHint (soft pastel red), Bench (soft pastel beige), Problem (soft pastel blue), Both (soft pastel purple)
+    palette_plot2 = ["#9E9EE0", "#FFF2CC", "#D3D3D3", "#90EE90"]
 
     # --- Plot 1: Prompt-Centric View ---
     ax1 = axes[0]
     prompt_order = ["NoHint", "Bench.", "Problem", "Both"]
     model_order_plot1 = ['o4 mini', 'Gemini', 'DS-V3', 'DS-R1']
     
-    sns.boxplot(data=df_long, x='Prompt', y='final_score', hue='Model', order=prompt_order, 
-                hue_order=model_order_plot1, showfliers=False, ax=ax1, palette=palette_plot1, width=0.5, linewidth=2)
+    sns.boxplot(
+        data=df_long,
+        x='Prompt',
+        y='final_score',
+        hue='Model',
+        order=prompt_order,
+        hue_order=model_order_plot1,
+        showfliers=False,
+        ax=ax1,
+        palette=palette_plot1,
+        width=0.75,
+        linewidth=1.2,
+        boxprops=dict(edgecolor='black', linewidth=1.2),
+        whiskerprops=dict(color='black', linewidth=1.2),
+        capprops=dict(color='black', linewidth=1.2),
+        medianprops=dict(color='black', linewidth=1.2),
+    )
     
-    ax1.axhline(y=1.0, color='r', linestyle='--', linewidth=2, label='Baseline')
+    ax1.axhline(y=1.0, color='r', linestyle='--', linewidth=1.2, label='Original')
     # Add developer median line
     if dev_median is not None:
-        ax1.axhline(y=dev_median, color='blue', linestyle=':', linewidth=2, label='Developer Median')
+        ax1.axhline(y=dev_median, color='blue', linestyle=':', linewidth=1.2, label='Developer Median')
     
     # ax1.set_yscale('log')
     ax1.set_title('(a) by Prompt Strategy', fontsize=19)
     ax1.set_xlabel('', fontsize=14)
-    ax1.set_ylabel('Performance (pss scores)', fontsize=19)
+    ax1.set_ylabel('Performance (pps scores)', fontsize=19)
     ax1.tick_params(axis='x', labelsize=19)
     ax1.tick_params(axis='y', labelsize=19)
     ax1.legend(loc='upper left', fontsize=13, frameon=False)
@@ -134,13 +153,28 @@ def create_plots_from_csv_file(input_path, output_dir="comparison_plots"):
     ax2 = axes[1]
     model_order = ['o4 mini', 'Gemini', 'DS-V3', 'DS-R1']
     
-    sns.boxplot(data=df_long, x='Model', y='final_score', hue='Prompt', order=model_order, 
-                hue_order=prompt_order, showfliers=False, ax=ax2, palette=palette_plot2, width=0.5, linewidth=2)
+    sns.boxplot(
+        data=df_long,
+        x='Model',
+        y='final_score',
+        hue='Prompt',
+        order=model_order,
+        hue_order=prompt_order,
+        showfliers=False,
+        ax=ax2,
+        palette=palette_plot2,
+        width=0.75,
+        linewidth=1.2,
+        boxprops=dict(edgecolor='black', linewidth=1.2),
+        whiskerprops=dict(color='black', linewidth=1.2),
+        capprops=dict(color='black', linewidth=1.2),
+        medianprops=dict(color='black', linewidth=1.2),
+    )
 
-    ax2.axhline(y=1.0, color='r', linestyle='--', linewidth=2, label='Baseline')
+    ax2.axhline(y=1.0, color='r', linestyle='--', linewidth=1.2, label='Original')
     # Add developer median line
     if dev_median is not None:
-        ax2.axhline(y=dev_median, color='blue', linestyle=':', linewidth=2, label='Developer Median')
+        ax2.axhline(y=dev_median, color='blue', linestyle=':', linewidth=1.5, label='Developer Median')
 
     # ax2.set_yscale('log')
     ax2.set_title('(b) by Model', fontsize=19)
@@ -175,16 +209,150 @@ def create_plots_from_csv_file(input_path, output_dir="comparison_plots"):
                     print(f"    Whisker Lower: {stats['whisker_lower']:.4f}")
                     print(f"    Whisker Upper: {stats['whisker_upper']:.4f}")
 
-    # --- Final Touches ---
-    plt.tight_layout()
-    
-    # Save the combined plot to a file
+    # --- Plot 3: Taxonomy Primary Category (same figure, axes[2]) ---
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    taxonomy_csv = os.path.normpath(
+        os.path.join(script_dir, '..', '..', 'Dataset', 'taxonomy', 'classification_results.csv')
+    )
+    print("\n" + "=" * 80)
+    print("Box Plot Statistics - By Taxonomy Primary Category")
+    print("=" * 80)
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    output_filename = os.path.join(output_dir, "RQ2_performance_comparison_plot.pdf")
+
+    tax_drawn = False
     try:
-        plt.savefig(output_filename, bbox_inches='tight')
-        print(f"Successfully saved plots to {output_filename}")
+        df_tax_raw = pd.read_csv(taxonomy_csv)
+    except FileNotFoundError:
+        print(f"Taxonomy CSV not found at {taxonomy_csv}; skipping taxonomy panel.")
+        df_tax_raw = None
+
+    if df_tax_raw is not None:
+        df_tax_raw = df_tax_raw.dropna(subset=['primary_category', 'repository', 'id'])
+        df_tax_raw = df_tax_raw.drop_duplicates(subset=['repository', 'id'], keep='first')
+
+        df_tax = pd.merge(
+            df_long,
+            df_tax_raw[['repository', 'id', 'primary_category']],
+            left_on=['project', 'hash_value'],
+            right_on=['repository', 'id'],
+            how='inner',
+        )
+        
+        # Also merge developer data with taxonomy for calculating per-category medians
+        df_dev_tax = pd.merge(
+            developer_df,
+            df_tax_raw[['repository', 'id', 'primary_category']],
+            left_on=['project', 'hash_value'],
+            right_on=['repository', 'id'],
+            how='inner',
+        )
+        
+        print(f"Rows for taxonomy boxplot after merge: {len(df_tax)}")
+        print(f"Developer rows with taxonomy: {len(df_dev_tax)}")
+
+        if not df_tax.empty:
+            taxonomy_order = sorted(df_tax['primary_category'].unique())
+            taxonomy_labels = list(taxonomy_order)
+
+            for cat in taxonomy_order:
+                cat_data = df_tax[df_tax['primary_category'] == cat]
+                if len(cat_data) > 0:
+                    s = calculate_box_stats(cat_data)
+                    if s is None:
+                        continue
+                    print(f"\n--- {cat} ---")
+                    print(f"  Count: {s['count']}")
+                    print(f"  Min: {s['min']:.4f}")
+                    print(f"  Q1 (25%): {s['q1']:.4f}")
+                    print(f"  Median (50%): {s['median']:.4f}")
+                    print(f"  Q3 (75%): {s['q3']:.4f}")
+                    print(f"  Max: {s['max']:.4f}")
+                    print(f"  Mean: {s['mean']:.4f}")
+                    print(f"  IQR: {s['iqr']:.4f}")
+                    print(f"  Whisker Lower: {s['whisker_lower']:.4f}")
+                    print(f"  Whisker Upper: {s['whisker_upper']:.4f}")
+
+            n_cat = len(taxonomy_order)
+            # Print developer medians per category
+            print("\n--- Developer Medians by Taxonomy ---")
+            for cat in taxonomy_order:
+                dev_cat = df_dev_tax[df_dev_tax['primary_category'] == cat]
+                if not dev_cat.empty:
+                    print(f"{cat}: {dev_cat['final_score'].median():.4f} (n={len(dev_cat)})")
+                else:
+                    print(f"{cat}: No developer data")
+
+            # Combine LLM and developer data for side-by-side boxplots
+            df_tax_plot = df_tax[['primary_category', 'final_score']].copy()
+            df_tax_plot['source'] = 'LLM'
+            df_dev_plot = df_dev_tax[['primary_category', 'final_score']].copy()
+            df_dev_plot['source'] = 'Developer'
+            df_combined = pd.concat([df_tax_plot, df_dev_plot], ignore_index=True)
+            hue_palette = {'LLM': '#9E9EE0', 'Developer': '#FFF2CC'}
+
+            def _draw_taxonomy(ax):
+                sns.boxplot(
+                    data=df_combined,
+                    y='primary_category',
+                    x='final_score',
+                    hue='source',
+                    hue_order=['LLM', 'Developer'],
+                    order=taxonomy_order,
+                    orient='h',
+                    showfliers=False,
+                    ax=ax,
+                    palette=hue_palette,
+                    width=0.6,
+                    linewidth=1.2,
+                    boxprops=dict(edgecolor='black', linewidth=1.2),
+                    whiskerprops=dict(color='black', linewidth=1.2),
+                    capprops=dict(color='black', linewidth=1.2),
+                    medianprops=dict(color='black', linewidth=1.2),
+                )
+                ax.axvline(x=1.0, color='r', linestyle='--', linewidth=1.2, label='Original')
+                ax.set_title('(c) by Taxonomy', fontsize=19)
+                ax.set_xlabel('Performance (pps scores, log scale)', fontsize=19)
+                ax.set_ylabel('')
+                ax.set_yticks(range(len(taxonomy_order)))
+                ax.set_yticklabels(taxonomy_labels)
+                ax.tick_params(axis='x', labelsize=19)
+                ax.tick_params(axis='y', labelsize=19)
+                ax.set_xscale('log')
+                ax.set_xlim(left=0.1)
+                ax.grid(axis='x', which='both', linestyle='--', alpha=0.7)
+                # Merge the hue legend with the baseline line
+                handles, labels = ax.get_legend_handles_labels()
+                ax.legend(handles, labels, loc='lower right', fontsize=13, frameon=False)
+
+            # Draw into the combined figure
+            _draw_taxonomy(axes[2])
+            tax_drawn = True
+
+            # Also save a standalone taxonomy figure as a backup
+            fig_tax, ax_tax = plt.subplots(figsize=(10, max(4.5, 0.55 * n_cat)))
+            _draw_taxonomy(ax_tax)
+            fig_tax.tight_layout()
+            output_tax = os.path.join(output_dir, 'boxplot_taxonomy_pps.pdf')
+            try:
+                fig_tax.savefig(output_tax, bbox_inches='tight')
+                print(f"\nSuccessfully saved taxonomy boxplot to {output_tax}")
+            except Exception as e:
+                print(f"Could not save taxonomy boxplot. Error: {e}")
+        else:
+            print("No rows after merging with taxonomy; taxonomy panel will be empty.")
+
+    if not tax_drawn:
+        axes[2].axis('off')
+
+    # --- Final Touches: save the combined figure ---
+    fig.tight_layout()
+
+    output_filename = os.path.join(output_dir, "RQ1_performance_comparison_plot.pdf")
+    try:
+        fig.savefig(output_filename, bbox_inches='tight')
+        print(f"Successfully saved combined plot to {output_filename}")
     except Exception as e:
         print(f"Could not save plot. Error: {e}")
 
@@ -193,7 +361,7 @@ def create_plots_from_csv_file(input_path, output_dir="comparison_plots"):
 
 if __name__ == "__main__":
     # Define the path to your input CSV file
-    input_csv_file = '../preprocessing/summary_tables/representative_benchmark_scores.csv'
+    input_csv_file = '../preprocessing/representative_benchmark_scores.csv'
 
     # Define the directory where the output plot will be saved
     output_plot_directory = "."
