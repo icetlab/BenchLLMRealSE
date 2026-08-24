@@ -1,1 +1,0 @@
-mallory,2207;bob,0906;eve,0059;charlie,1843;dave,1245;bob,0237;mallory,2015;alice,2249;charlie,2138;alice,1850

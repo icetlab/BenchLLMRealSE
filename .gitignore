@@ -2,3 +2,4 @@
 __pycache__/
 *.pyc
 target/
+SCAT/jmh_project/src/main/resources/

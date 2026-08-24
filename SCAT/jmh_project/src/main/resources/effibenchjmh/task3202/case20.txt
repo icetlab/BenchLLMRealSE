@@ -1,1 +1,0 @@
-dave,0315;bob,0221;alice,1835;bob,1814;alice,0245;mallory,0114;alice,0155;charlie,0232;bob,0842

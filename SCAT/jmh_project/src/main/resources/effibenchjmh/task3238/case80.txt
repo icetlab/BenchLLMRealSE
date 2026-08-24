@@ -1,5 +1,0 @@
-tmeff
-tmepm
-f,f
-p,m
-4,8

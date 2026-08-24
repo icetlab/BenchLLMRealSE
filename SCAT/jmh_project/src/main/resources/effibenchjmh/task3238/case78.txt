@@ -1,5 +1,0 @@
-kcsve
-kvste
-c,v
-v,t
-2,5

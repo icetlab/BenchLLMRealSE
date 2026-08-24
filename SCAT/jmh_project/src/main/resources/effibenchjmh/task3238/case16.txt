@@ -1,5 +1,0 @@
-hggr
-opcs
-h,g,g,r
-o,p,c,s
-2,1,9,1

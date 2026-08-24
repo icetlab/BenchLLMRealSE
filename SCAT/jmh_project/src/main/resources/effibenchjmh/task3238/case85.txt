@@ -1,5 +1,0 @@
-uml
-acy
-u,m,l,ml
-a,c,y,cy
-2,10,6,3

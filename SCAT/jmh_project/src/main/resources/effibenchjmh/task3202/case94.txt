@@ -1,1 +1,0 @@
-mallory,2038;alice,0150;charlie,0708;eve,0604

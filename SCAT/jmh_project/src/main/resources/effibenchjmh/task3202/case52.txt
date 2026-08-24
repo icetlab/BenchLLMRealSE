@@ -1,1 +1,0 @@
-bob,1542;alice,1813;dave,2216;charlie,0538

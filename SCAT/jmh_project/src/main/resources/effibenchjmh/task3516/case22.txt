@@ -1,2 +1,0 @@
-NeighborSum,adjacentSum,adjacentSum
-10,13,15,8;6,5,7,12;0,4,9,1;2,14,3,11 | 3 | 4

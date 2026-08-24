@@ -1,5 +1,0 @@
-fnppgm
-fapoxm
-n,p,g,np
-a,o,x,ap
-9,8,3,10

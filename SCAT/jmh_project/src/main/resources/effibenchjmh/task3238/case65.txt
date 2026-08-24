@@ -1,5 +1,0 @@
-bpm
-eoc
-b,p,m,pm
-e,o,c,oc
-6,10,3,7

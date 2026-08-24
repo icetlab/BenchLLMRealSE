@@ -1,5 +1,0 @@
-nudpt
-ilppt
-n,u,d
-i,l,p
-2,6,9

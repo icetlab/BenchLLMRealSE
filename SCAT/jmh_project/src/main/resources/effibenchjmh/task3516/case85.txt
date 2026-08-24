@@ -1,2 +1,0 @@
-NeighborSum,diagonalSum
-1,2,0;5,8,6;3,4,7 | 6

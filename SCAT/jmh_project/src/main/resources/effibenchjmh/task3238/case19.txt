@@ -1,5 +1,0 @@
-vhmd
-vhmc
-d
-c
-7
