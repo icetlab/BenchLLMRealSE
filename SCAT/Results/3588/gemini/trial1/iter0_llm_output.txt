@@ -1,0 +1,21 @@
+The performance of the recursive `dp` function can be improved by replacing the `HashMap`-based scoring rules with a `static final` 2D array. This change eliminates repeated string creation and hash map lookups within the tight loop of the recursion, replacing them with a much faster direct array indexing operation. This refactoring is accomplished in three steps: replacing the `Map` field with the new array, removing the now-obsolete map initialization logic, and updating the `dp` function to use the array for score lookups.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    private int n;\n    private Map<String, Integer> rules;\n    private Integer[][][] memo;",
+    "replace": "    private int n;\n    private static final int[][] RULES = {\n        {0, 1, -1},  // E vs (E, F, W)\n        {-1, 0, 1}, // F vs (E, F, W)\n        {1, -1, 0}  // W vs (E, F, W)\n    };\n    private Integer[][][] memo;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        this.memo = new Integer[n + 1][4][2 * n + 1];\n        initRules();\n        return dp(0, 3, 0);\n    }\n\n    private void initRules() {\n        rules = new HashMap<>();\n        rules.put(\"FE\", -1);\n        rules.put(\"FW\", 1);\n        rules.put(\"WF\", -1);\n        rules.put(\"WE\", 1);\n        rules.put(\"EF\", 1);\n        rules.put(\"EW\", -1);\n    }",
+    "replace": "        this.memo = new Integer[n + 1][4][2 * n + 1];\n        return dp(0, 3, 0);\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int result = 0;\n        char current = s.charAt(i);\n\n        for (int j = 0; j < 3; j++) {\n            if (j != last) {\n                char summon = \"EFW\".charAt(j);\n                int gain = rules.getOrDefault(\"\" + current + summon, 0);\n                result = (result + dp(i + 1, j, score + gain)) % MOD;\n            }\n        }",
+    "replace": "        int result = 0;\n        char current = s.charAt(i);\n        int currentIdx = (current == 'E') ? 0 : (current == 'F' ? 1 : 2);\n\n        for (int j = 0; j < 3; j++) {\n            if (j != last) {\n                int gain = RULES[currentIdx][j];\n                result = (result + dp(i + 1, j, score + gain)) % MOD;\n            }\n        }"
+  }
+]
+```

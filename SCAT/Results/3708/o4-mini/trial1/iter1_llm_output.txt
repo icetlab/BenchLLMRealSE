@@ -1,0 +1,26 @@
+I’ve removed the intermediate array and stream boxing to build the result list directly, reducing memory overhead and improving traversal speed.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.List;\\nimport java.util.ArrayList;\\n\\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int[] output = new int[out_len];",
+    "replace": "        List<Integer> result = new ArrayList<>(out_len);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            output[i] = grid[r][c]; ",
+    "replace": "            result.add(grid[r][c]);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        List<Integer> list = Arrays.stream(output).boxed().toList();\\n        return list;",
+    "replace": "        return result;"
+  }
+]
+```

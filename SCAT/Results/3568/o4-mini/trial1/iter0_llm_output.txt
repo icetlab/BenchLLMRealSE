@@ -1,0 +1,11 @@
+I replaced the string‐format and parse approach with direct arithmetic digit extraction and assembly, eliminating all temporary strings and reducing object allocation for a significant performance gain.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int generateKey(int num1, int num2, int num3) {\n      String s1 = String.format(\"%04d\",num1);\n      String s2 = String.format(\"%04d\",num2);\n      String s3= String.format(\"%04d\",num3);\n\n      StringBuilder sb = new StringBuilder();\n      for(int i=0;i<4;i++){\n        char min=(char)Math.min(s1.charAt(i),Math.min(s2.charAt(i),s3.charAt(i)));\n        sb.append(min);\n      }\n\n      return Integer.parseInt(sb.toString());\n      \n        \n        \n    }",
+    "replace": "    public int generateKey(int num1, int num2, int num3) {\n      int[] divs = {1000, 100, 10, 1};\n      int result = 0;\n      for (int d : divs) {\n        int a = (num1 / d) % 10;\n        int b = (num2 / d) % 10;\n        int c = (num3 / d) % 10;\n        int min = a;\n        if (b < min) min = b;\n        if (c < min) min = c;\n        result = result * 10 + min;\n      }\n      return result;\n    }"
+  }
+]
+```

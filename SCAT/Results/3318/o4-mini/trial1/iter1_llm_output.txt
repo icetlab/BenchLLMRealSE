@@ -1,0 +1,11 @@
+I updated the logic to only consider the three score values that the original recursive solution uses (nums[0]+nums[1], nums[n-1]+nums[n-2], nums[0]+nums[n-1]) instead of iterating over every possible sum. This ensures we match the original behavior while keeping the frequency-based speedup.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    int ans = 0;\n    // try every possible sum from 2*minVal to 2*maxVal\n    for (int s = minVal * 2; s <= maxVal * 2; s++) {\n        int count = 0;\n        int start = Math.max(minVal, s - maxVal);\n        int end = s / 2;\n        for (int x = start; x <= end; x++) {\n            int y = s - x;\n            if (y < minVal || y > maxVal) continue;\n            int fx = freq[x - minVal];\n            int fy = freq[y - minVal];\n            if (x < y) {\n                count += Math.min(fx, fy);\n            } else { // x == y\n                count += fx / 2;\n            }\n        }\n        if (count > ans) ans = count;\n    }\n    return ans;",
+    "replace": "    int ans = 0;\n    // consider only the three scores from the original recursive calls\n    int[] scores = new int[] { nums[0] + nums[1], nums[n - 1] + nums[n - 2], nums[0] + nums[n - 1] };\n    for (int s : scores) {\n        int count = 0;\n        int start = Math.max(minVal, s - maxVal);\n        int end = s / 2;\n        for (int x = start; x <= end; x++) {\n            int y = s - x;\n            if (y < minVal || y > maxVal) continue;\n            int fx = freq[x - minVal];\n            int fy = freq[y - minVal];\n            if (x < y) {\n                count += Math.min(fx, fy);\n            } else { // x == y\n                count += fx / 2;\n            }\n        }\n        if (count > ans) ans = count;\n    }\n    return ans;"
+  }
+]
+```

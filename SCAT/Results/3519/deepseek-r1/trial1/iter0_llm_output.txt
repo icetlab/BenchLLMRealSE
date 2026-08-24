@@ -1,0 +1,11 @@
+I will improve performance by eliminating the second pass over all players and instead check the winning condition immediately after each pick. This reduces the overall complexity from O(N + M) to O(M) and avoids iterating over all players when there are few picks. The code also uses `computeIfAbsent` and `merge` for conciseness and efficiency.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int winningPlayerCount(int n, int[][] pick) {\n        int count=0;\n        HashMap<Integer,HashMap<Integer,Integer>> map=new HashMap<>();\n        for(int arr[]:pick)\n        {\n            int i=arr[0];\n            int j=arr[1];\n            if(map.containsKey(i))\n            {\n               HashMap<Integer,Integer> h=map.get(i);\n               if(h.containsKey(j))\n               h.put(j,h.get(j)+1);\n               else\n               h.put(j,1);\n               map.put(i,h);\n            }\n            else\n            {\n                HashMap<Integer,Integer> h=new HashMap<>();\n                h.put(j,1);\n                map.put(i,h);\n            }\n        }\n\n        for(int i=0;i<n;i++)\n        {\n            if(!map.containsKey(i))\n            continue;\n\n            HashMap<Integer,Integer> h=map.get(i);\n            for(int k:h.values())\n            {\n                if(k>=i+1)\n                {\n                count++;\n                break;\n                }\n            }\n        }\n\n        return count;\n    }",
+    "replace": "public int winningPlayerCount(int n, int[][] pick) {\n    boolean[] won = new boolean[n];\n    int winningCount = 0;\n    Map<Integer, Map<Integer, Integer>> map = new HashMap<>();\n    for (int[] arr : pick) {\n        int player = arr[0];\n        int color = arr[1];\n        Map<Integer, Integer> colorCount = map.computeIfAbsent(player, k -> new HashMap<>());\n        int newCount = colorCount.merge(color, 1, Integer::sum);\n        if (!won[player] && newCount == player + 1) {\n            won[player] = true;\n            winningCount++;\n        }\n    }\n    return winningCount;\n}"
+  }
+]
+```

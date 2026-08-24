@@ -1,0 +1,16 @@
+I’m replacing the O(n!) permutation solution with an O(n log n) greedy approach: sort the strengths ascending and compute the cumulative break time directly. 
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int findMinimumTime(List<Integer> strength, int k) {",
+    "replace": "import java.util.Collections;\n\npublic int findMinimumTime(List<Integer> strength, int k) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public int findMinimumTime(List<Integer> strength, int k) {\n        int n = strength.size();\n        boolean visited[]= new boolean[n];\n        List<Integer> list = new ArrayList<>();\n        premutations(list,strength,visited,k);\n\n      return min;\n        \n    }",
+    "replace": "public int findMinimumTime(List<Integer> strength, int k) {\n    // Greedy: always break locks in ascending strength order\n    Collections.sort(strength);\n    int time = 0;\n    int x = 1;\n    for (int s : strength) {\n        // ceil division: (s + x - 1) / x\n        time += (s + x - 1) / x;\n        x += k;\n    }\n    return time;\n}"
+  }
+]
+```

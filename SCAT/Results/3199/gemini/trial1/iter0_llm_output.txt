@@ -1,0 +1,20 @@
+The original solution uses a brute-force approach with three nested loops, resulting in a time complexity of approximately O(limit³), which is inefficient for larger inputs.
+
+My improvement replaces this with a mathematical formula derived from combinatorics and the Principle of Inclusion-Exclusion. This approach calculates the result in constant time, O(1), by first finding the total ways to distribute `n` items into 3 bins (a "stars and bars" problem) and then systematically including and excluding the invalid distributions where any bin exceeds the `limit`. This is significantly more performant.
+
+I will introduce a private helper method `combinations(m)` to compute "m choose 2" and then use it to implement the O(1) formula in the main method.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int distributeCandies(int n, int limit) {",
+    "replace": "    // Helper to calculate C(m, 2) = m * (m - 1) / 2 for m >= 2\n    private long combinations(int m) {\n        if (m < 2) {\n            return 0;\n        }\n        return (long) m * (m - 1) / 2;\n    }\n\n    public int distributeCandies(int n, int limit) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int count=0;\n        for(int i=0; i<=n; i++){\n            if(i>limit) continue;\n            for(int j=0; j<=n; j++){\n                if(j>limit) continue;\n                for(int k=0; k<=n; k++){\n                    if(k>limit) continue;\n\n                    int sum=i+j+k;\n                    if(sum==n) count++;\n                }\n            }\n        }\n        return count;",
+    "replace": "        // Using combinatorics and the Principle of Inclusion-Exclusion for an O(1) solution.\n        // Total ways to solve x1+x2+x3=n is C(n+2, 2).\n        long v1 = combinations(n + 2);\n\n        // Subtract cases where one child has > limit candies.\n        long v2 = 3 * combinations(n - limit + 1);\n\n        // Add back cases where two children have > limit candies.\n        long v3 = 3 * combinations(n - 2 * limit);\n\n        // Subtract cases where three children have > limit candies.\n        long v4 = combinations(n - 3 * limit - 1);\n\n        return (int) (v1 - v2 + v3 - v4);"
+  }
+]
+```

@@ -1,0 +1,14 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.util.Arrays;\n\nclass Solution {",
+    "replace": "class Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        char[] newarray=s.toCharArray();\n        int[] holdval=new int[s.length()-1];\n        for(int i=0;i<newarray.length-1;i++){\n            //System.out.println(i+\" \"+(int)newarray[i]+\" \"+(int)newarray[i+1]);\n            var val=(int)newarray[i]-(int)newarray[i+1];\n            holdval[i]=Math.abs(val);\n        }\n        var sums=Arrays.stream(holdval).sum();\n        return sums;",
+    "replace": "        int sum = 0;\n        for (int i = 0; i < s.length() - 1; i++) {\n            sum += Math.abs(s.charAt(i) - s.charAt(i + 1));\n        }\n        return sum;"
+  }
+]
+```

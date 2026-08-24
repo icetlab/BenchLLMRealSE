@@ -1,0 +1,14 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "private HashMap<List<Character>, TrieNode> children = new HashMap<>();",
+    "replace": "private HashMap<Integer, TrieNode> children = new HashMap<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "ginti += (node = node.children.computeIfAbsent(\n      List.of(word.charAt(i), word.charAt(word.length() - i - 1)),\n      t -> new TrieNode())).ginti;",
+    "replace": "int key = (word.charAt(i) << 16) | word.charAt(word.length() - i - 1);\n   ginti += (node = node.children.computeIfAbsent(key, k -> new TrieNode())).ginti;"
+  }
+]
+```

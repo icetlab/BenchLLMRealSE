@@ -1,0 +1,17 @@
+The original code's performance is impacted by a complex, nested `if-else if` structure and an unnecessary `System.gc()` call. The logic is also susceptible to an `ArrayIndexOutOfBoundsException` due to a missing bounds check.
+
+My improvement refactors the entire method body to:
+1.  Use a single, streamlined `if` condition with short-circuiting logic. This condition efficiently identifies numbers that are *not* "good" (i.e., not strictly greater than all existing neighbors at distance `k`, or having no such neighbors), and skips them with `continue`.
+2.  This simplified control flow can improve performance by being more friendly to the CPU's branch predictor.
+3.  The refactoring inherently fixes the potential `ArrayIndexOutOfBoundsException` by ensuring all array accesses are bounds-checked.
+4.  The explicit garbage collection call (`System.gc()`) is removed, as it is generally detrimental to performance and predictability.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int sumOfGoodNumbers(int[] nums, int k) {\n        int n = nums.length, sum = 0;\n        for (int i = 0; i < n; i++) {\n            if (i - k >= 0 && i + k < n) {\n                if (nums[i + k] < nums[i] && nums[i - k] < nums[i])\n                    sum += nums[i];\n            } else if (i - k >= 0) {\n                if (nums[i - k] < nums[i])\n                    sum += nums[i];\n            } else if (nums[i + k] < nums[i]) {\n                sum += nums[i];\n            }\n        }\n        System.gc();\n        return sum;\n    }",
+    "replace": "public int sumOfGoodNumbers(int[] nums, int k) {\n        int n = nums.length;\n        int sum = 0;\n        for (int i = 0; i < n; i++) {\n            // A number is \"good\" if it's strictly greater than all its existing neighbors at distance k,\n            // and it must have at least one such neighbor.\n            // The following condition checks for cases where a number is *not* good, and skips it.\n            if ((i - k < 0 && i + k >= n) || // Case 1: No neighbors at distance k.\n                (i - k >= 0 && nums[i] <= nums[i - k]) || // Case 2: Not greater than left neighbor.\n                (i + k < n && nums[i] <= nums[i + k])) { // Case 3: Not greater than right neighbor.\n                continue;\n            }\n            sum += nums[i];\n        }\n        return sum;\n    }"
+  }
+]
+```

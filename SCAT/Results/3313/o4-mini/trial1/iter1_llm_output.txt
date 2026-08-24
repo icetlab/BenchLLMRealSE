@@ -1,0 +1,13 @@
+We need to avoid overflow when adding to the initial `curr = Long.MIN_VALUE`.  Instead of doing `curr + value` unconditionally (which can underflow and wrap to a huge positive), we should compute  
+`curr = Math.max(dp[i-1][j], curr) + value;`  
+so that on the first iteration (when `curr` is `Long.MIN_VALUE`) we always use `dp[i-1][j]` as the base.  
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        for (int i = 1; i <= k; i++) {\n            long maxsum = Long.MIN_VALUE;\n            long curr = Long.MIN_VALUE;\n            long valueMul = (i % 2 == 1) ? (long)(k + 1 - i) : (long)(i - 1 - k);\n            for (int j = i - 1; j < nums.length; j++) {\n                long value = nums[j] * valueMul;\n                curr = curr + value;\n                curr = Math.max(curr, dp[i - 1][j] + value);\n                maxsum = Math.max(maxsum, curr);\n                dp[i][j + 1] = maxsum;\n            }\n        }",
+    "replace": "        for (int i = 1; i <= k; i++) {\n            long maxsum = Long.MIN_VALUE;\n            long curr = Long.MIN_VALUE;\n            long valueMul = (i % 2 == 1) ? (long)(k + 1 - i) : (long)(i - 1 - k);\n            for (int j = i - 1; j < nums.length; j++) {\n                long value = nums[j] * valueMul;\n                // avoid underflow on the first add by taking the larger of dp[i-1][j] and curr\n                curr = Math.max(dp[i - 1][j], curr) + value;\n                maxsum = Math.max(maxsum, curr);\n                dp[i][j + 1] = maxsum;\n            }\n        }"
+  }
+]
+```

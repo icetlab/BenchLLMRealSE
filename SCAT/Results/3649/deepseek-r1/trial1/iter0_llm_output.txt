@@ -1,0 +1,11 @@
+The original code enumerates all permutations, which is O(n!). I replaced it with bitmask DP over subsets: `dp[mask]` stores the minimum time to process exactly the locks in `mask`, using the first `popcount(mask)` multipliers. This preserves the exact answer while reducing time complexity to O(n·2^n).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int n = strength.size();\n        boolean visited[]= new boolean[n];\n        List<Integer> list = new ArrayList<>();\n        premutations(list,strength,visited,k);\n\n      return min;",
+    "replace": "        int n = strength.size();\n        int[] strengths = new int[n];\n        for (int i = 0; i < n; i++) strengths[i] = strength.get(i);\n\n        long[][] cost = new long[n][n];\n        for (int pos = 0; pos < n; pos++) {\n            long x = 1L + (long) k * pos;\n            for (int j = 0; j < n; j++) {\n                int s = strengths[j];\n                cost[pos][j] = (s + x - 1) / x;\n            }\n        }\n\n        int totalMasks = 1 << n;\n        long[] dp = new long[totalMasks];\n        java.util.Arrays.fill(dp, Long.MAX_VALUE);\n        dp[0] = 0;\n\n        for (int mask = 0; mask < totalMasks; mask++) {\n            if (dp[mask] == Long.MAX_VALUE) continue;\n            int pos = Integer.bitCount(mask);\n            for (int j = 0; j < n; j++) {\n                if ((mask & (1 << j)) != 0) continue;\n                int nextMask = mask | (1 << j);\n                long nextTime = dp[mask] + cost[pos][j];\n                if (nextTime < dp[nextMask]) dp[nextMask] = nextTime;\n            }\n        }\n\n        return (int) dp[totalMasks - 1];"
+  }
+]
+```

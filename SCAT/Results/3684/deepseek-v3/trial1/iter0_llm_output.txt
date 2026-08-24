@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public boolean hasMatch(String str, String subStr) {\n         int startIndex = subStr.indexOf(\"*\");\n         String prefix = subStr.substring(0,startIndex);\n         String suffix = subStr.substring(startIndex+1);\n         String str2 = str.substring(str.indexOf(prefix)+prefix.length());\n         System.out.println(prefix);\n         System.out.println(suffix);\n         System.out.println(str2);\n         if(str.contains(prefix) && str2.contains(suffix))\n            return true;\n\n         return false;\n    }\n}",
+    "replace": "class Solution {\n    public boolean hasMatch(String str, String subStr) {\n        int starIdx = subStr.indexOf('*');\n        String prefix = subStr.substring(0, starIdx);\n        String suffix = subStr.substring(starIdx + 1);\n        int prefixPos = str.indexOf(prefix);\n        if (prefixPos == -1) return false;\n        int suffixStart = prefixPos + prefix.length();\n        return str.indexOf(suffix, suffixStart) != -1;\n    }\n}"
+  }
+]
+```

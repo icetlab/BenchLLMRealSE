@@ -1,0 +1,21 @@
+I improved the inclusion–exclusion counting by precomputing all subset LCMs and their parity once, and narrowed the binary-search upper bound to minCoin × k. This removes repeated gcd calls and reduces the search range, speeding up large queries.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "class Solution {\n    int n;\n    long[] subsetLcms;\n    int[] subsetParity;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public long findKthSmallest(int[] coins, int k) {\n        long l=1;long h=Long.MAX_VALUE;",
+    "replace": "    public long findKthSmallest(int[] coins, int k) {\n        n = coins.length;\n        long minCoin = coins[0];\n        for (int i = 1; i < n; i++) if (coins[i] < minCoin) minCoin = coins[i];\n        subsetLcms = new long[1<<n];\n        subsetParity = new int[1<<n];\n        subsetLcms[0] = 1;\n        subsetParity[0] = 0;\n        for (int mask = 1; mask < (1<<n); mask++) {\n            int lb = mask & -mask;\n            int bit = Integer.numberOfTrailingZeros(lb);\n            int prev = mask ^ lb;\n            long prevLcm = subsetLcms[prev];\n            subsetLcms[mask] = prevLcm * coins[bit] / gcd(prevLcm, coins[bit]);\n            subsetParity[mask] = subsetParity[prev] ^ 1;\n        }\n        long l = 1;\n        long h = minCoin * (long)k;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    boolean check(int[] coins, long k, long v) {\n        int n=coins.length;\n        long total =0;\n        for(int i=1;i<(1<<n);i++) {\n            long lcm=0;int count=0;\n            for(int j=0;j<n;j++) {\n                if((i&(1<<j))>0){\n                    count++;\n                    if(lcm==0) lcm=coins[j];\n                    else {\n                        lcm=lcm*coins[j]/gcd(lcm,(long)coins[j]);\n                    }\n                }\n            }\n            if(count%2==0) total-=v/lcm;\n            else total+=v/lcm;\n        }\n        return (total>=k);\n    }",
+    "replace": "    boolean check(int[] coins, long k, long v) {\n        long total = 0;\n        int maxMask = 1 << n;\n        for (int mask = 1; mask < maxMask; mask++) {\n            long lcm = subsetLcms[mask];\n            if (lcm == 0 || lcm > v) continue;\n            long cnt = v / lcm;\n            if (subsetParity[mask] == 1) total += cnt;\n            else total -= cnt;\n        }\n        return total >= k;\n    }"
+  }
+]
+```

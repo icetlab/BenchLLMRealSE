@@ -1,0 +1,11 @@
+I’ve revised the up‐move handling so that when we’re coming off a DOWN move and the very next UP lands exactly on k, we count that one landing directly and skip the deeper recursive call—avoiding the previous double‐count.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "res += helper(move.up(), k, cache);",
+    "replace": "Move upMove = move.up();\nif (move.lastDirection == Direction.DOWN && upMove.currentStair == k) {\n    // direct down→up landing exactly on k: count 1 and skip recursion\n    res += 1;\n} else {\n    res += helper(upMove, k, cache);\n}"
+  }
+]
+```

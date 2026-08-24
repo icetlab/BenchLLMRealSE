@@ -1,0 +1,31 @@
+The changes add a memo table to cache intermediate DFS results and avoid recomputing the same states, and they reset `res` on each `lenOfVDiagonal` call. This reduces the exponential DFS to linear work per state.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.Arrays;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int res = 0;",
+    "replace": "int res = 0;\n    private int[][][][][] memo;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public int lenOfVDiagonal(int[][] grid) {\n        // memo = new State[grid.length][grid[0].length];",
+    "replace": "public int lenOfVDiagonal(int[][] grid) {\n        res = 0;\n        int n = grid.length, m = grid[0].length;\n        memo = new int[n][m][4][2][2];\n        for (int i = 0; i < n; i++) {\n            for (int j = 0; j < m; j++) {\n                for (int d = 0; d < 4; d++) {\n                    for (int t = 0; t < 2; t++) {\n                        Arrays.fill(memo[i][j][d][t], -1);\n                    }\n                }\n            }\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private int dfs(int[][] grid, int target, int i, int j, int d, boolean turned) {\n        int[] dir = dirs[d];",
+    "replace": "    private int dfs(int[][] grid, int target, int i, int j, int d, boolean turned) {\n        int tIdx = (target == 2 ? 1 : 0);\n        int turnedIdx = turned ? 1 : 0;\n        if (memo[i][j][d][turnedIdx][tIdx] != -1) return memo[i][j][d][turnedIdx][tIdx];\n        int[] dir = dirs[d];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        return Math.max(turn, straight);",
+    "replace": "        int ans = Math.max(turn, straight);\n        memo[i][j][turnedIdx][tIdx] = ans;\n        return ans;"
+  }
+]
+```

@@ -1,0 +1,31 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int minOperations(int[] nums) {
+        var f = 0;
+
+        for (var v : nums) {
+            if ((v + f) % 2 == 0) {
+                f++;
+            }
+        }
+
+        return f;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1
+  expected output: 0
+Example 2:
+  input: 0
+  expected output: 1
+Example 3:
+  input: 0,1,1,0,1
+  expected output: 4
+Example 4:
+  input: 1,0,0,0
+  expected output: 1
+Example 5:
+  input: 0,0,0,0
+  expected output: 1

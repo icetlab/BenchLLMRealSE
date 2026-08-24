@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n\n    public boolean isGood(HashMap<Integer, Integer> map, int k) {\n        for (int val : map.values())\n            if (val > k)\n                return false;\n        return true;\n    }\n\n    public int maxSubarrayLength(int[] nums, int k) {\n        int ans = Integer.MIN_VALUE;\n        HashMap<Integer, Integer> map = new HashMap<>();\n        int left = 0;\n        for(int right = 0;right < nums.length;right++) {\n            map.put(nums[right], map.getOrDefault(nums[right], 0) + 1);\n\n            while(map.get(nums[right]) > k) {\n                map.put(nums[left], map.get(nums[left]) - 1);\n                if ((int) map.get(nums[left]) == 0)\n                    map.remove(nums[left]);\n                left++;\n            }\n\n            ans = Math.max(ans, right - left + 1);\n\n        }\n\n        return ans;\n\n    }\n}",
+    "replace": "class Solution {\n\n    public int maxSubarrayLength(int[] nums, int k) {\n        int ans = 0;\n        HashMap<Integer, Integer> map = new HashMap<>();\n        int left = 0;\n        for (int right = 0; right < nums.length; right++) {\n            map.put(nums[right], map.getOrDefault(nums[right], 0) + 1);\n\n            while (map.get(nums[right]) > k) {\n                int count = map.get(nums[left]) - 1;\n                if (count == 0)\n                    map.remove(nums[left]);\n                else\n                    map.put(nums[left], count);\n                left++;\n            }\n\n            ans = Math.max(ans, right - left + 1);\n        }\n        return ans;\n    }\n}"
+  }
+]
+```

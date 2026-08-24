@@ -1,0 +1,16 @@
+The main performance bottleneck is the use of `HashMap<String, Integer>` with a string key formed by concatenating indices and the AND value. String concatenation and hashing are expensive. The improvement replaces the key with a compact `long` encoding using bit shifts. This reduces key generation and lookup overhead significantly while preserving correctness.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "HashMap<String, Integer> dp;",
+    "replace": "HashMap<Long, Integer> dp;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "String key = i+\" \"+j+\" \"+and;",
+    "replace": "long key = ((long)i << 40) | ((long)j << 20) | (and & 0xFFFFF);"
+  }
+]
+```

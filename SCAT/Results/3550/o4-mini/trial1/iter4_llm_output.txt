@@ -1,0 +1,11 @@
+I’ve reverted the mistaken mask‐length calculation back to using the array’s column count (`arr[0].length`), fixing the compile error.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int n = arr.length;\n        int m = Integer.numberOfTrailingZeros(dp[0][0].length);",
+    "replace": "int n = arr.length;\n        int m = arr[0].length;"
+  }
+]
+```

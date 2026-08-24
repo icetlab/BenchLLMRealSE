@@ -1,0 +1,67 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int maxLength(int[] nums) {
+        int maxLength = 0;
+        for (int i = 0; i < nums.length; i++) {
+            for (int j = i; j < nums.length; j++) {
+                int[] subarray = new int[j - i + 1];
+                for (int k = i; k <= j; k++) {
+                    subarray[k - i] = nums[k];
+                }
+                if (isProductEquivalent(subarray)) {
+                    maxLength = Math.max(maxLength, subarray.length);
+                }
+            }
+        }
+        return maxLength;
+    }
+
+    private boolean isProductEquivalent(int[] arr) {
+        if (arr.length == 0) {
+            return false;
+        }
+        long product = 1;
+        for (int num : arr) {
+            product *= num;
+        }
+        long gcd = arr[0];
+        for (int i = 1; i < arr.length; i++) {
+            gcd = gcd(gcd, arr[i]);
+        }
+        long lcm = arr[0];
+        for (int i = 1; i < arr.length; i++) {
+            lcm = lcm(lcm, arr[i]);
+        }
+        return product == lcm * gcd;
+    }
+
+    private long gcd(long a, long b) {
+        while (b != 0) {
+            long temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+
+    private long lcm(long a, long b) {
+        return (a * b) / gcd(a, b);
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,1
+  expected output: 2
+Example 2:
+  input: 1,2,1,2,1,1,1
+  expected output: 5
+Example 3:
+  input: 2,3,4,5,6
+  expected output: 3
+Example 4:
+  input: 1,2,3,1,4,5,1
+  expected output: 5
+Example 5:
+  input: 10,10,10
+  expected output: 2

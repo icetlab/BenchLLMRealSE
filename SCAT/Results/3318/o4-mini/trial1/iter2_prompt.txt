@@ -1,0 +1,69 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search='    int ans = 0;\n    // try every possible sum from 2*minVal to 2*maxVal\n    for (int s = minVal * 2; s <= maxVal * 2; s++) {\n        int count = 0;\n        int start = Math.max(minVal, s - maxVal);\n        int end = s / 2;\n        for (int x = start; x <= end; x++) {\n            int y = s - x;\n            if (y < minVal || y > maxVal) continue;\n            int fx = freq[x - minVal];\n            int fy = freq[y - minVal];\n            if (x < y) {\n                count += Math.min(fx, fy);\n            } else { // x == y\n                count += fx / 2;\n            }\n        }\n        if (count > ans) ans = count;\n    }\n    return ans;'
+>>>> Your previous output was:
+I updated the logic to only consider the three score values that the original recursive solution uses (nums[0]+nums[1], nums[n-1]+nums[n-2], nums[0]+nums[n-1]) instead of iterating over every possible sum. This ensures we match the original behavior while keeping the frequency-based speedup.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    int ans = 0;\n    // try every possible sum from 2*minVal to 2*maxVal\n    for (int s = minVal * 2; s <= maxVal * 2; s++) {\n        int count = 0;\n        int start = Math.max(minVal, s - maxVal);\n        int end = s / 2;\n        for (int x = start; x <= end; x++) {\n            int y = s - x;\n            if (y < minVal || y > maxVal) continue;\n            int fx = freq[x - minVal];\n            int fy = freq[y - minVal];\n            if (x < y) {\n                count += Math.min(fx, fy);\n            } else { // x == y\n                count += fx / 2;\n            }\n        }\n        if (count > ans) ans = count;\n    }\n    return ans;",
+    "replace": "    int ans = 0;\n    // consider only the three scores from the original recursive calls\n    int[] scores = new int[] { nums[0] + nums[1], nums[n - 1] + nums[n - 2], nums[0] + nums[n - 1] };\n    for (int s : scores) {\n        int count = 0;\n        int start = Math.max(minVal, s - maxVal);\n        int end = s / 2;\n        for (int x = start; x <= end; x++) {\n            int y = s - x;\n            if (y < minVal || y > maxVal) continue;\n            int fx = freq[x - minVal];\n            int fy = freq[y - minVal];\n            if (x < y) {\n                count += Math.min(fx, fy);\n            } else { // x == y\n                count += fx / 2;\n            }\n        }\n        if (count > ans) ans = count;\n    }\n    return ans;"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+
+public int maxOperations(int[] nums) {
+    final int n = nums.length;
+    Map<String, Integer> mem = new HashMap<>();
+    return Math.max(Math.max(maxOperations(nums, 0, n - 1, nums[0] + nums[1], mem),
+                             maxOperations(nums, 0, n - 1, nums[n - 1] + nums[n - 2], mem)),
+                    maxOperations(nums, 0, n - 1, nums[0] + nums[n - 1], mem));
+  }
+
+  // Returns the maximum number of operations that can be performed for
+  // nums[i..j], s.t. all operations have the same `score`.
+  private int maxOperations(int[] nums, int i, int j, int score, Map<String, Integer> mem) {
+    if (i >= j)
+      return 0;
+    final String key = hash(i, j, score);
+    if (mem.containsKey(key))
+      return mem.get(key);
+    final int deleteFirstTwo =
+        nums[i] + nums[i + 1] == score ? 1 + maxOperations(nums, i + 2, j, score, mem) : 0;
+    final int deleteLastTwo =
+        nums[j] + nums[j - 1] == score ? 1 + maxOperations(nums, i, j - 2, score, mem) : 0;
+    final int deleteFirstAndLast =
+        nums[i] + nums[j] == score ? 1 + maxOperations(nums, i + 1, j - 1, score, mem) : 0;
+    mem.put(key, Math.max(Math.max(deleteFirstTwo, deleteLastTwo), deleteFirstAndLast));
+    return mem.get(key);
+  }
+
+  private String hash(int i, int j, int score) {
+    return i + "," + j + "," + score;
+  }
+    
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,1
+  expected output: 1
+Example 2:
+  input: 1,2
+  expected output: 1
+Example 3:
+  input: 5,5,5,5
+  expected output: 2
+Example 4:
+  input: 3,2,1,2,3,4
+  expected output: 3
+Example 5:
+  input: 3,2,6,1,4
+  expected output: 2
+

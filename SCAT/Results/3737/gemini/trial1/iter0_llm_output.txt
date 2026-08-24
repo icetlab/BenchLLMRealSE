@@ -1,0 +1,20 @@
+My overall improvement strategy is to optimize the recursive solution by eliminating unnecessary object allocations and reducing memory usage.
+
+The main performance bottleneck is the creation of two `ArrayList` objects inside the `func` method on every recursive call. I've replaced this logic with simple nested `for` loops and `if` statements to check for valid color choices. This avoids the overhead of heap allocation and garbage collection, which is critical in a recursive function.
+
+As a secondary optimization, I've reduced the size of the memoization table `dp`. The recursion only goes `n/2` levels deep, so I've changed the table's first dimension size from `n+1` to `n/2 + 1`. This reduces the memory footprint of the solution, which is beneficial for large inputs.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<Integer> PrevColorChoice = new ArrayList<>();\n        List<Integer> FwdColorChoice = new ArrayList<>();\n\n        for(int j = 0;j<3;j++)\n        {\n            if(pc != j){\n                PrevColorChoice.add(j);\n            }\n\n            if(fc != j){\n                FwdColorChoice.add(j);\n            }\n\n        }\n\n        long ans = Long.MAX_VALUE;\n\n        for(int p : PrevColorChoice){\n            for(int f : FwdColorChoice){\n                if(p==f)\n                    continue;\n\n                long cp = cost[i][p];\n                long cf = cost[n-i-1][f];\n\n                ans = Math.min(ans, cp + cf + func(i+1, p, f, cost));\n            }\n        }",
+    "replace": "        long ans = Long.MAX_VALUE;\n\n        for (int p = 0; p < 3; p++) {\n            if (p == pc) continue;\n            for (int f = 0; f < 3; f++) {\n                if (f == fc) continue;\n                if (p == f) continue;\n\n                long cp = cost[i][p];\n                long cf = cost[n-i-1][f];\n\n                ans = Math.min(ans, cp + cf + func(i+1, p, f, cost));\n            }\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "dp = new Long[n+1][4][4];",
+    "replace": "dp = new Long[n / 2 + 1][4][4];"
+  }
+]
+```

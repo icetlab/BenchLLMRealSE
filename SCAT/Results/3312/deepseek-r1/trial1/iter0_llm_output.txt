@@ -1,0 +1,11 @@
+The main improvement is to avoid creating a lowercased copy of the whole string. Instead, the method scans the original string once, converting each character on the fly and counting adjacent case-insensitive changes.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int countKeyChanges(String s) {\n         s=s.toLowerCase();\n        int count=0,len=s.length();\n        for(int i=0;i<len-1;i++)\n        {\n            if(s.charAt(i)!=s.charAt(i+1))\n            {\n                count++;\n            }\n        }\n        return count;\n    }",
+    "replace": "    public int countKeyChanges(String s) {\n        int len = s.length();\n        if (len == 0) {\n            return 0;\n        }\n        int count = 0;\n        int prev = Character.toLowerCase(s.charAt(0));\n        for (int i = 1; i < len; i++) {\n            int cur = Character.toLowerCase(s.charAt(i));\n            if (prev != cur) {\n                count++;\n                prev = cur;\n            }\n        }\n        return count;\n    }"
+  }
+]
+```

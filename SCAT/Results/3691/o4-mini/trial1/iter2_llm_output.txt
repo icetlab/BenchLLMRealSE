@@ -1,0 +1,11 @@
+I’ve replaced the O(m²n²) triple‐nested loops and incremental while‐loops with an O(m·n) single‐pass per column approach, tracking the previous height and directly accumulating needed increments.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int count=0;\nfor (int j=0;j<grid[0].length ;j++ )\n{\nfor (int i=0;i<grid.length ;i++ )\n{\nfor (int k=i+1;k<grid.length ;k++ )\n{\nwhile(grid[i][j]>=grid[k][j])\n{\ngrid[k][j]++;\ncount++;\n}\n}\n}\n}\nreturn count;",
+    "replace": "int count = 0;\nint m = grid.length, n = grid[0].length;\nfor (int j = 0; j < n; j++) {\n    int prev = grid[0][j];\n    for (int i = 1; i < m; i++) {\n        if (grid[i][j] > prev) {\n            prev = grid[i][j];\n        } else {\n            int need = prev + 1;\n            count += need - grid[i][j];\n            prev = need;\n        }\n    }\n}\nreturn count;"
+  }
+]
+```

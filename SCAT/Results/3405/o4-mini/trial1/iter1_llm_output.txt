@@ -1,0 +1,11 @@
+I’ve corrected the state machine to fully emulate the original bit-flag logic (tracking lowercase‐seen, uppercase‐seen, and counted flags) so that all count and cancel transitions—including “uppercase first” cases—match the original behavior precisely.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int numberOfSpecialChars(String word) {\n    int count = 0;\n    int[] state = new int[26];  // 0=none, 1=seen lowercase, 2=seen lowercase→uppercase (counted)\n    for (char c : word.toCharArray()) {\n        if (c >= 'a' && c <= 'z') {\n            int idx = c - 'a';\n            if (state[idx] == 2) {\n                // lowercase after counted uppercase cancels\n                count--;\n                state[idx] = 0;\n            } else if (state[idx] == 0) {\n                state[idx] = 1;\n            }\n        } else if (c >= 'A' && c <= 'Z') {\n            int idx = c - 'A';\n            if (state[idx] == 1) {\n                // uppercase following lowercase counts\n                count++;\n                state[idx] = 2;\n            }\n        }\n    }\n    return count;\n}",
+    "replace": "public int numberOfSpecialChars(String word) {\n    int count = 0;\n    int[] state = new int[26];\n    final int LOWER = 1, UPPER = 2, COUNTED = 4;\n    for (char c : word.toCharArray()) {\n        int idx;\n        if (c >= 'a' && c <= 'z') {\n            idx = c - 'a';\n        } else if (c >= 'A' && c <= 'Z') {\n            idx = c - 'A';\n        } else {\n            continue;\n        }\n        int bits = state[idx];\n        // if we've seen uppercase already\n        if ((bits & UPPER) != 0) {\n            if ((bits & COUNTED) != 0) {\n                // cancel a prior count\n                count--;\n                bits &= ~COUNTED;\n            } else {\n                // skip any further processing\n                continue;\n            }\n        }\n        // uppercase after lowercase → count\n        if (c >= 'A' && c <= 'Z' && (bits & LOWER) != 0) {\n            count++;\n            bits |= COUNTED;\n        }\n        // record presence of this case\n        if (c >= 'a' && c <= 'z') {\n            bits |= LOWER;\n        } else {\n            bits |= UPPER;\n        }\n        state[idx] = bits;\n    }\n    return count;\n}"
+  }
+]
+```

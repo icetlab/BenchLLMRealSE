@@ -1,0 +1,11 @@
+My overall improvement strategy is to enhance performance by replacing the use of a `Pair<Integer, Integer>` class with primitive `int[]` arrays. This change reduces memory overhead and eliminates the costs associated with boxing/unboxing integers. Furthermore, I will optimize the final step of populating the result array. Instead of draining the `PriorityQueue` element by element, which takes O(N log N) time, I will use its iterator to fill the array in O(N) time. These changes will improve both the time complexity and the constant factors of the algorithm.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int[] ans = new int[nums.length];\n    // (nums[i], i)\n    Queue<Pair<Integer, Integer>> minHeap = new PriorityQueue<>(\n        (a, b)\n            -> a.getKey().equals(b.getKey()) ? a.getValue().compareTo(b.getValue())\n                                             : a.getKey().compareTo(b.getKey()));\n\n    for (int i = 0; i < nums.length; ++i)\n      minHeap.offer(new Pair<>(nums[i], i));\n\n    while (k-- > 0) {\n      final int num = minHeap.peek().getKey();\n      final int i = minHeap.poll().getValue();\n      minHeap.offer(new Pair<>(num * multiplier, i));\n    }\n\n    while (!minHeap.isEmpty()) {\n      final int num = minHeap.peek().getKey();\n      final int i = minHeap.poll().getValue();\n      ans[i] = num;\n    }",
+    "replace": "int[] ans = new int[nums.length];\n    // {num, index}\n    Queue<int[]> minHeap = new PriorityQueue<>(\n        (a, b) -> a[0] != b[0] ? Integer.compare(a[0], b[0]) : Integer.compare(a[1], b[1]));\n\n    for (int i = 0; i < nums.length; ++i)\n      minHeap.offer(new int[] {nums[i], i});\n\n    while (k-- > 0) {\n      int[] top = minHeap.poll();\n      top[0] *= multiplier;\n      minHeap.offer(top);\n    }\n\n    for (int[] entry : minHeap) {\n      ans[entry[1]] = entry[0];\n    }"
+  }
+]
+```

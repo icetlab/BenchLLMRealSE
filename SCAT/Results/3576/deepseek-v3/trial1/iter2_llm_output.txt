@@ -1,0 +1,11 @@
+Looking at the error, the search text doesn't match because the original code uses `Set<Integer>[]` and `Integer[]` types, not `List<Integer>[]` and `int[]` as I had in my search. Let me provide the correct patch that matches the actual source code.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "void dfs(int node, Set<Integer>[] adj, String s, Integer[] closest, int parent, Set<Integer>[] adj2) {\n        int val = s.charAt(node) - 'a';\n\n        if (closest[val] != null) {\n            int newParent = closest[val];\n            adj2[parent].remove(node);\n            adj2[newParent].add(node);\n        } \n\n        Integer temp = closest[val];\n\n        closest[val] = node;\n\n        for(int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, node, adj2);\n        }\n\n        closest[val] = temp;\n    }",
+    "replace": "void dfs(int node, Set<Integer>[] adj, String s, Integer[] closest, int parent, Set<Integer>[] adj2) {\n        int val = s.charAt(node) - 'a';\n\n        if (closest[val] != null) {\n            int newParent = closest[val];\n            if (parent != -1) {\n                adj2[parent].remove(node);\n            }\n            adj2[newParent].add(node);\n        } \n\n        Integer temp = closest[val];\n\n        closest[val] = node;\n\n        for(int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, node, adj2);\n        }\n\n        closest[val] = temp;\n    }"
+  }
+]
+```

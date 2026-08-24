@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "String str=\"\";\n        for(int i=0;i<n;i++){\n            str+=s.charAt((i+k)%n);\n        }\n        return str;",
+    "replace": "char[] result = new char[n];\n        for(int i=0;i<n;i++){\n            result[i]=s.charAt((i+k)%n);\n        }\n        return new String(result);"
+  }
+]
+```

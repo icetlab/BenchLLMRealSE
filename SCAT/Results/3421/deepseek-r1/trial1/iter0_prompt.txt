@@ -1,0 +1,38 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int countCompleteDayPairs(int[] hours) {
+        HashMap<Integer, Integer> remainder_count = new HashMap<>();
+        int count = 0;
+        for(int h: hours){
+            int remainder = h%24;
+            if(remainder == 0){
+                if(remainder_count.containsKey(0)){count += remainder_count.get(0);}
+            }else{
+                int cur = 24-remainder;
+                if(remainder_count.containsKey(cur)){
+                    count += remainder_count.get(cur);
+                }
+            }
+            remainder_count.putIfAbsent(remainder, 0);
+            remainder_count.put(remainder, remainder_count.get(remainder)+1);
+        }
+        return count;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 24
+  expected output: 0
+Example 2:
+  input: 12,12
+  expected output: 1
+Example 3:
+  input: 12,12,30,24,24
+  expected output: 2
+Example 4:
+  input: 72,48,24,3
+  expected output: 3
+Example 5:
+  input: 1,23,2,22,3,21
+  expected output: 3

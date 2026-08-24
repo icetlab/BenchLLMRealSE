@@ -1,0 +1,11 @@
+I’ve replaced the boxed Integer arrays and reverse-order sorting (which incurred heavy boxing and comparator overhead) with in-place primitive `int[]` sorts and a two-pointer greedy merge from the end. This eliminates unnecessary allocations and should significantly improve performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "Integer[] hCuts = Arrays.stream(horizontalCut).boxed().toArray(Integer[]::new);\n        Integer[] vCuts = Arrays.stream(verticalCut).boxed().toArray(Integer[]::new);\n\n        // Sort in descending order\n        Arrays.sort(hCuts, Collections.reverseOrder());\n        Arrays.sort(vCuts, Collections.reverseOrder());\n\n        int h = 0, v = 0;\n        long cost = 0;\n        long hp = 1, vp = 1;  \n\n        while (h < hCuts.length && v < vCuts.length) {\n            if (vCuts[v] > hCuts[h]) {\n                cost += (long) vCuts[v] * hp;  \n                vp++;\n                v++;\n            } else {\n                cost += (long) hCuts[h] * vp;  \n                hp++;\n                h++;\n            }\n        }\n\n\n        while (h < hCuts.length) {\n            cost += (long) hCuts[h] * vp;\n            hp++;\n            h++;\n        }\n\n\n        while (v < vCuts.length) {\n            cost += (long) vCuts[v] * hp;\n            vp++;\n            v++;\n        }\n\n        return cost;",
+    "replace": "Arrays.sort(horizontalCut);\n        Arrays.sort(verticalCut);\n\n        int hi = horizontalCut.length - 1, vi = verticalCut.length - 1;\n        long cost = 0;\n        long hp = 1, vp = 1;\n\n        while (hi >= 0 && vi >= 0) {\n            if (horizontalCut[hi] > verticalCut[vi]) {\n                cost += (long) horizontalCut[hi] * vp;\n                hp++;\n                hi--;\n            } else {\n                cost += (long) verticalCut[vi] * hp;\n                vp++;\n                vi--;\n            }\n        }\n\n        while (hi >= 0) {\n            cost += (long) horizontalCut[hi] * vp;\n            hp++;\n            hi--;\n        }\n\n        while (vi >= 0) {\n            cost += (long) verticalCut[vi] * hp;\n            vp++;\n            vi--;\n        }\n\n        return cost;"
+  }
+]
+```

@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int[] minBitwiseArray(List<Integer> nums) {\n        int[] arr = new int[nums.size()];\n        for (int i=0; i<nums.size(); i++){\n            for (int j=0; j<nums.get(i); j++){\n                if ((j | (j+1)) == nums.get(i)){\n                    arr[i]=j;\n                    break;\n                }\n                if (arr[i]==0){\n                    arr[i]=-1;\n                } \n            }\n        }\n        return arr;\n    }\n}",
+    "replace": "class Solution {\n    public int[] minBitwiseArray(List<Integer> nums) {\n        int[] arr = new int[nums.size()];\n        for (int i=0; i<nums.size(); i++){\n            int n = nums.get(i);\n            // If n is even, no solution exists because j|(j+1) is always odd\n            if ((n & 1) == 0) {\n                arr[i] = -1;\n                continue;\n            }\n            // Find the lowest 0 bit in n (after the trailing 1s)\n            // For odd n, n = ...0111...1, we need j = n with that 0 bit set to 0\n            // This gives the minimal j satisfying j|(j+1)=n\n            int lowestZero = 1;\n            while ((n & lowestZero) != 0) {\n                lowestZero <<= 1;\n            }\n            arr[i] = n ^ lowestZero;\n        }\n        return arr;\n    }\n}"
+  }
+]
+```

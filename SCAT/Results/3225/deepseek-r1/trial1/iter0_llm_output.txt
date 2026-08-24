@@ -1,0 +1,16 @@
+The sliding-window logic is already O(n). I improved performance by avoiding repeated hash lookups, reducing map churn when counts reach zero, pre-sizing the HashMap to minimize resizing, and adding the missing import so the file compiles cleanly.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.HashMap;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int maxSubarrayLength(int[] nums, int k) {\n        int ans = Integer.MIN_VALUE;\n        HashMap<Integer, Integer> map = new HashMap<>();\n        int left = 0;\n        for(int right = 0;right < nums.length;right++) {\n            map.put(nums[right], map.getOrDefault(nums[right], 0) + 1);\n\n            while(map.get(nums[right]) > k) {\n                map.put(nums[left], map.get(nums[left]) - 1);\n                if ((int) map.get(nums[left]) == 0)\n                    map.remove(nums[left]);\n                left++;\n            }\n\n            ans = Math.max(ans, right - left + 1);\n\n        }\n\n        return ans;\n\n    }",
+    "replace": "    public int maxSubarrayLength(int[] nums, int k) {\n        int n = nums.length;\n        HashMap<Integer, Integer> map = new HashMap<>(n * 2);\n        int ans = 0;\n        int left = 0;\n        for (int right = 0; right < n; right++) {\n            int num = nums[right];\n            int freq = map.getOrDefault(num, 0) + 1;\n            map.put(num, freq);\n\n            while (freq > k) {\n                int leftNum = nums[left++];\n                int leftFreq = map.get(leftNum);\n                if (leftFreq == 1) {\n                    map.remove(leftNum);\n                    leftFreq = 0;\n                } else {\n                    leftFreq--;\n                    map.put(leftNum, leftFreq);\n                }\n                if (leftNum == num) {\n                    freq = leftFreq;\n                }\n            }\n\n            int windowLen = right - left + 1;\n            if (windowLen > ans) {\n                ans = windowLen;\n            }\n        }\n\n        return ans;\n    }"
+  }
+]
+```

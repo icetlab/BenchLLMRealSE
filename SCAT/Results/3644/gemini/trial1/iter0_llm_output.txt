@@ -1,0 +1,18 @@
+The original solution has a time complexity of approximately O(N^3) due to three nested loops that iterate through all possible subarrays of lengths between `l` and `r` and calculate their sums. This is highly inefficient for larger inputs.
+
+My approach improves the performance to O(N) by using a combination of prefix sums and a sliding window technique with a deque:
+1.  First, I compute a prefix sum array. This allows calculating the sum of any subarray in O(1) time, reducing the problem complexity to O(N^2).
+2.  To further optimize, the problem of finding the minimum subarray sum `prefixSum[j] - prefixSum[i]` for a fixed endpoint `j` is transformed into `prefixSum[j] - max(prefixSum[i])` over a sliding window of start indices `i`.
+3.  I use a deque (double-ended queue) to efficiently find the maximum prefix sum within this sliding window in amortized O(1) time per step. I also use `long` for prefix sums to prevent potential integer overflow.
+
+This combination of techniques reduces the overall time complexity to O(N) and uses O(N) space for the prefix sums and the deque, which is a significant improvement.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    int size = nums.size(), res = -1;\n\tfor(int s=l; s<=r; s++) \n    {\n\t\tfor(int i=0; i<=size-s; i++) \n        {\n\t\t\tint sum = 0;\n\t\t\tfor(int j=i; j<i+s; j++) \n            {\n\t\t\t\tsum += nums.get(j);\n\t\t\t}\n\t\t\tif(sum > 0) \n            {\n\t\t\t\tif(res == -1 || res > sum) res = sum;\n\t\t\t}\n\t\t}\n\t}\n\treturn res;",
+    "replace": "    int size = nums.size();\n    \n    // Use long for prefix sums to avoid potential integer overflow.\n    long[] prefixSum = new long[size + 1];\n    for (int i = 0; i < size; i++) {\n        prefixSum[i + 1] = prefixSum[i] + nums.get(i);\n    }\n\n    long minSum = Long.MAX_VALUE;\n    // Deque to store indices for sliding window maximum of prefix sums.\n    java.util.Deque<Integer> dq = new java.util.LinkedList<>();\n\n    // Iterate through all possible subarray endpoints j.\n    for (int j = l; j <= size; j++) {\n        // The window for prefix sum start indices 'i' is [j-r, j-l].\n        // We need to find max(prefixSum[i]) in this window.\n        \n        // Add the new candidate index (j-l) to the window.\n        int candidateIdx = j - l;\n        if (candidateIdx >= 0) {\n            // Maintain monotonic decreasing property of prefix sums for indices in deque.\n            while (!dq.isEmpty() && prefixSum[dq.peekLast()] <= prefixSum[candidateIdx]) {\n                dq.pollLast();\n            }\n            dq.offerLast(candidateIdx);\n        }\n\n        // Remove indices from the front that are out of the window [j-r, j-l].\n        if (!dq.isEmpty() && dq.peekFirst() < j - r) {\n            dq.pollFirst();\n        }\n\n        // Calculate sum using max prefix sum from the window.\n        if (!dq.isEmpty()) {\n            long maxPrefixSum = prefixSum[dq.peekFirst()];\n            long sum = prefixSum[j] - maxPrefixSum;\n            if (sum > 0) {\n                minSum = Math.min(minSum, sum);\n            }\n        }\n    }\n\n    return minSum == Long.MAX_VALUE ? -1 : (int) minSum;"
+  }
+]
+```

@@ -1,0 +1,24 @@
+The provided Java code uses a recursive approach with memoization to solve the problem. The main performance bottleneck lies in its memoization strategy. It uses string concatenation to form a key for a `HashMap`, which is inefficient due to repeated string object creation and the overhead of string hashing. Additionally, the code performs a sub-optimal pruning check and misses an opportunity to memoize failing states, leading to redundant computations.
+
+My improvements address these points:
+1.  **Efficient Memoization Key:** I replaced the `String` key with a `long` key. The three state variables (`i`, `j`, `and`) are packed into the bits of a single `long`, which is significantly faster to compute and use as a `HashMap` key.
+2.  **Stronger Pruning:** I've implemented a more effective pruning condition. The new check, `(currentAnd & andValues[j]) != andValues[j]`, more accurately determines if a path is futile, allowing the search to be abandoned earlier.
+3.  **Memoizing Failures:** When a state is pruned, the result (`MAX`) is now stored in the memoization table. This ensures that if the same failing state is reached again, the result is retrieved instantly without re-computation.
+4.  **Code Clarity and Efficiency:** I introduced a named constant for the initial "all ones" bitmask and pre-calculated the result of `and & nums[i]` to avoid redundant calculations within the recursive function.
+
+These changes collectively enhance the performance by reducing object creation overhead, improving cache efficiency, and cutting down the number of recursive calls through more effective pruning.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int MAX = Integer.MAX_VALUE/2;\n    HashMap<String, Integer> dp;\n\n    public int minimumValueSum(int[] nums, int[] andValues) {\n\n        int n = nums.length;\n        dp = new HashMap<>();\n        int sum = getSum(0, (1<<19) - 1, 0, nums, andValues);",
+    "replace": "static final int MAX = Integer.MAX_VALUE / 2;\n    static final int ALL_ONES = (1 << 19) - 1;\n    HashMap<Long, Integer> dp;\n\n    public int minimumValueSum(int[] nums, int[] andValues) {\n\n        int n = nums.length;\n        dp = new HashMap<>();\n        int sum = getSum(0, ALL_ONES, 0, nums, andValues);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "String key = i+\" \"+j+\" \"+and;\n        if(dp.containsKey(key)) return dp.get(key);\n\n        if((and & nums[i]) < andValues[j] ) return MAX;\n\n        //pick the current and check stop and update answer.\n\n        if((and & nums[i]) == andValues[j]) {\n            ans = Math.min(nums[i] + getSum(i+1, (1<<19) - 1, j+1, nums, andValues), ans);\n        } \n\n        //pick the current and continue\n        ans = Math.min(ans, getSum(i+1, and&nums[i], j, nums, andValues));\n\n        dp.put(key, ans);",
+    "replace": "long key = ((long) i << 33) | ((long) j << 19) | and;\n        if (dp.containsKey(key)) {\n            return dp.get(key);\n        }\n\n        int currentAnd = and & nums[i];\n\n        // Pruning: if current AND can't possibly become andValues[j]\n        if ((currentAnd & andValues[j]) != andValues[j]) {\n            dp.put(key, MAX);\n            return MAX;\n        }\n\n        // Option 1: End the current segment with nums[i]\n        if (currentAnd == andValues[j]) {\n            ans = Math.min(ans, nums[i] + getSum(i + 1, ALL_ONES, j + 1, nums, andValues));\n        }\n\n        // Option 2: Continue the current segment with nums[i]\n        ans = Math.min(ans, getSum(i + 1, currentAnd, j, nums, andValues));\n\n        dp.put(key, ans);"
+  }
+]
+```

@@ -1,0 +1,46 @@
+I’ve replaced the Map-based rules with a static int matrix for O(1) lookups, switched the memo table to a primitive `int[][][]` with fast fills, removed the now-unneeded `initRules` method and call, added an `Arrays` import, and adjusted the DP to use direct matrix indexing.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public class Solution {",
+    "replace": "import java.util.Arrays;\n\npublic class Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private Map<String, Integer> rules;",
+    "replace": "    private static final int[][] gainRules = {\n        {0, 1, -1},\n        {-1, 0, 1},\n        {1, -1, 0}\n    };"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private Integer[][][] memo;",
+    "replace": "    private int[][][] memo;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        this.memo = new Integer[n + 1][4][2 * n + 1];",
+    "replace": "        this.memo = new int[n + 1][4][2 * n + 1];\n        for (int x = 0; x <= n; x++) {\n            for (int y = 0; y < 4; y++) {\n                Arrays.fill(this.memo[x][y], -1);\n            }\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        initRules();",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private void initRules\\(\\) \\{[\\s\\S]*?    \\}",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        char current = s.charAt(i);",
+    "replace": "        char current = s.charAt(i);\n        int curIdx = current == 'E' ? 0 : current == 'F' ? 1 : 2;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "                int gain = rules\\.getOrDefault\\(\"\" \\+ current \\+ summon, 0\\);",
+    "replace": "                int gain = gainRules[curIdx][j];"
+  }
+]
+```

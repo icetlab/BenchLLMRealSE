@@ -1,0 +1,31 @@
+I’ve optimized the DP array to use only the needed dimensions and accelerated its initialization with Arrays.fill, and replaced costly Math.ceil calls with equivalent integer arithmetic for performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.Arrays;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int dp\\[\\]\\[]\\[]=new int\\[101\\]\\[101\\]\\[101\\];\n        for(int i=0;i<101;i++){\\s*\n            for(int j=0;j<101;j++){\\s*\n                for(int k1=0;k1<101;k1++){\\s*\n                    dp\\[i\\]\\[j\\]\\[k1\\]=-1;\n                }\n            }\n        }",
+    "replace": "        int n = nums.length;\n        int dp[][][] = new int[n+1][op1+1][op2+1];\n        for (int i = 0; i <= n; i++) {\n            for (int j = 0; j <= op1; j++) {\n                Arrays.fill(dp[i][j], -1);\n            }\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "if(op1>0){\n            int newval=(int)Math.ceil(nums[i]/2.0);",
+    "replace": "if(op1>0){\n            int newval = (nums[i] + 1) / 2;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "if(op1>0 && op2>0 && nums\\[i\\]>=k){\n            int newval=(int)Math.ceil(nums[i]/2.0);",
+    "replace": "if(op1>0 && op2>0 && nums[i]>=k){\n            int newval = (nums[i] + 1) / 2;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            newval=\\(int\\)Math\\.ceil\\(newval/2\\.0\\);",
+    "replace": "            newval = (newval + 1) / 2;"
+  }
+]
+```

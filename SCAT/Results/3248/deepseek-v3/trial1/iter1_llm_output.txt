@@ -1,0 +1,14 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "List<Integer> lastInc = new ArrayList<>();\n        lastInc.add(nums[nums.length - 1]);\n        for (int i = nums.length - 2; i >= 0; --i) {  // find the increasing sequence from the right most side\n            if (nums[i] >= nums[i + 1]) break;\n            lastInc.add(nums[i]);\n        }\n        Collections.reverse(lastInc);  // reverse it to set it to ascending order",
+    "replace": "int[] suffix = new int[nums.length];\n        int suffixLen = 0;\n        suffix[suffixLen++] = nums[nums.length - 1];\n        for (int i = nums.length - 2; i >= 0; --i) {\n            if (nums[i] >= nums[i + 1]) break;\n            suffix[suffixLen++] = nums[i];\n        }\n        // Reverse suffix in place to make it ascending.\n        for (int i = 0, j = suffixLen - 1; i < j; ++i, --j) {\n            int tmp = suffix[i];\n            suffix[i] = suffix[j];\n            suffix[j] = tmp;\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "if (nums.length == lastInc.size()) return ((long) nums.length * (nums.length + 1) / 2);  // If the complete array is in increasing then total no of way we can remove = total number of subarray possible = (n*(n+1))/2\n\n        long ans = 1 + lastInc.size();\n        int n = nums.length - lastInc.size();\n        int last = -1;\n        for (int i = 0; i < n; ++i) {\n            if (nums[i] <= last) break;\n            last = nums[i];\n            ans += lastInc.size() - upperBoundII2972(lastInc, nums[i]) + 1;\n        }\n        return ans;\n    }\n\n    private int upperBoundII2972(List<Integer> list, int target) {\n        int left = 0, right = list.size();\n        while (left < right) {\n            int mid = left + (right - left) / 2;\n            if (list.get(mid) > target) {\n                right = mid;\n            } else {\n                left = mid + 1;\n            }\n        }\n        return left;\n    }\n}",
+    "replace": "if (nums.length == suffixLen) {\n            return ((long) nums.length * (nums.length + 1) / 2);\n        }\n\n        long ans = 1 + suffixLen;\n        int n = nums.length - suffixLen;\n        int last = -1;\n        for (int i = 0; i < n; ++i) {\n            if (nums[i] <= last) break;\n            last = nums[i];\n            ans += suffixLen - upperBound(suffix, suffixLen, nums[i]) + 1;\n        }\n        return ans;\n    }\n\n    private int upperBound(int[] arr, int len, int target) {\n        int left = 0, right = len;\n        while (left < right) {\n            int mid = left + (right - left) / 2;\n            if (arr[mid] > target) {\n                right = mid;\n            } else {\n                left = mid + 1;\n            }\n        }\n        return left;\n    }\n}"
+  }
+]
+```

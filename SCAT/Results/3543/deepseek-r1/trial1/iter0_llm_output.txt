@@ -1,0 +1,11 @@
+The original code enumerates every substring and rescans it, making it O(n³). I replaced it with a linear-time sliding-window approach that counts invalid substrings (both zeros and ones exceed k) and subtracts them from the total number of substrings.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int countKConstraintSubstrings(String s, int k) {\n        int c = 0;\n        for (int i = 0; i<s.length(); i++){\n            for (int j = i+1; j<=s.length();j++){\n                if(cot(s.substring(i,j),k)){\n                    c++;\n                }\n            }\n        }\n        return c;\n    }",
+    "replace": "    public int countKConstraintSubstrings(String s, int k) {\n        int n = s.length();\n        int needZero = k + 1;\n        int needOne = k + 1;\n        long total = (long) n * (n + 1) / 2;\n        long bad = 0;\n        int zeros = 0;\n        int ones = 0;\n        int r = 0;\n\n        for (int l = 0; l < n; l++) {\n            while (r < n && !(zeros >= needZero && ones >= needOne)) {\n                if (s.charAt(r) == '0') {\n                    zeros++;\n                } else {\n                    ones++;\n                }\n                r++;\n            }\n\n            if (zeros >= needZero && ones >= needOne) {\n                bad += n - r + 1;\n            }\n\n            if (s.charAt(l) == '0') {\n                zeros--;\n            } else {\n                ones--;\n            }\n        }\n\n        return (int) (total - bad);\n    }"
+  }
+]
+```

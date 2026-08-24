@@ -1,0 +1,18 @@
+The original code uses a two-pass approach with an auxiliary `dp` array to solve the problem. The first pass calculates the lengths of consecutive increasing sequences, storing them in the `dp` array, which consumes O(N) extra space. The second pass then iterates through the `dp` array to construct the final result.
+
+The improved solution refactors this into a single pass. It eliminates the need for the O(N) `dp` array by tracking the length of the current consecutive sequence using a single counter variable. This reduces the auxiliary space complexity from O(N) to O(1), which is a significant performance improvement for large input arrays.
+
+Additionally, the new implementation:
+1.  Removes a debug `System.out.println` statement.
+2.  Simplifies the condition for checking consecutive numbers.
+3.  Adds a boundary check for `nums.length < k` to prevent a `NegativeArraySizeException`, making the code more robust.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int[] dp=new int[nums.length];\n        Arrays.fill(dp,1);\n        int count=1;\n        for(int i=1;i<nums.length;i++)\n        {\n            if(nums[i]>nums[i-1] && 1+nums[i-1]==nums[i])\n            {\n                count++;\n                dp[i]=count;\n            }\n            else\n            {\n                count=1;\n                dp[i]=1;\n            }\n        }\n        System.out.println(Arrays.toString(dp));\n        int f=0;\n        int[] ans=new int[nums.length-k+1];\n        for(int i=k-1;i<nums.length;i++)\n        {\n            if(dp[i]>=k)\n            {\n                ans[f]=nums[i];\n            }\n            else ans[f]=-1;\n            f++;\n        }\n        return ans;",
+    "replace": "        if (nums.length < k) {\n            return new int[0];\n        }\n\n        int[] ans = new int[nums.length - k + 1];\n        int consecutiveLength = 0;\n\n        for (int i = 0; i < nums.length; i++) {\n            if (i > 0 && nums[i] == nums[i - 1] + 1) {\n                consecutiveLength++;\n            } else {\n                consecutiveLength = 1;\n            }\n\n            if (i >= k - 1) {\n                if (consecutiveLength >= k) {\n                    ans[i - k + 1] = nums[i];\n                } else {\n                    ans[i - k + 1] = -1;\n                }\n            }\n        }\n        return ans;"
+  }
+]
+```

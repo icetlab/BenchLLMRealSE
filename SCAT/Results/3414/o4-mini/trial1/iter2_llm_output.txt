@@ -1,0 +1,11 @@
+I’ve added counting of the “up after down” landing on k, which was previously omitted. 
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int upFromDown = downPos + (1 << j);\n                    if (upFromDown - k <= 1 && upFromDown >= 0 && upFromDown < limit) {\n                        next[upFromDown] += ways;\n                    }",
+    "replace": "int upFromDown = downPos + (1 << j);\n                    if (upFromDown == k) ans += ways;\n                    if (upFromDown - k <= 1 && upFromDown >= 0 && upFromDown < limit) {\n                        next[upFromDown] += ways;\n                    }"
+  }
+]
+```

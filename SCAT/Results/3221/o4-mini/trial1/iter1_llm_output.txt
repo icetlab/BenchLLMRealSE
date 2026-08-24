@@ -1,0 +1,21 @@
+I’ve removed the unused Scanner instantiation, pre-sized the ArrayList to avoid repeated resizing, and cached `mountain.length` in a local `n` variable to speed up the loop’s boundary checks.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "      Scanner sc=new Scanner(System.in);",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "      List<Integer>l=new ArrayList<>();",
+    "replace": "      List<Integer> l = new ArrayList<>(Math.max(0, mountain.length - 2));\n      int n = mountain.length;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "      for(int i=1;i<mountain.length-1;i++){",
+    "replace": "      for(int i=1;i<n-1;i++){"
+  }
+]
+```

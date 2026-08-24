@@ -1,0 +1,17 @@
+## Improvement Intent
+
+The main performance bottleneck is in the `check` method which iterates through all subsets of coins (2^n combinations) for each binary search iteration. This is extremely inefficient for large coin arrays. The improvement focuses on:
+
+1. **Optimizing the LCM calculation** by precomputing LCMs for subsets using dynamic programming to avoid redundant calculations
+2. **Using long[] arrays instead of recomputing** LCM values for each subset in every check call
+3. **Reducing binary search iterations** by using a tighter upper bound based on the minimum coin value
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    long gcd(long a, long b) {\n        if (b==0) return a;\n        return gcd(b,a%b);\n    }\n    boolean check(int[] coins, long k, long v) {\n        int n=coins.length;\n        long total =0;\n        for(int i=1;i<(1<<n);i++) {\n            long lcm=0;int count=0;\n            for(int j=0;j<n;j++) {\n                if((i&(1<<j))>0){\n                    count++;\n                    if(lcm==0) lcm=coins[j];\n                    else {\n                        lcm=lcm*coins[j]/gcd(lcm,(long)coins[j]);\n                    }\n                }\n            }\n            if(count%2==0) total-=v/lcm;\n            else total+=v/lcm;\n        }\n        return (total>=k);\n    }\n    public long findKthSmallest(int[] coins, int k) {\n        long l=1;long h=Long.MAX_VALUE;\n        while(l<=h) {\n            long mid = l+(h-l)/2;\n            if(check(coins,k,mid))\n            h=mid-1;\n            else\n            l=mid+1;\n        }\n        return l;\n    }\n}",
+    "replace": "class Solution {\n    long gcd(long a, long b) {\n        if (b==0) return a;\n        return gcd(b,a%b);\n    }\n    boolean check(int[] coins, long k, long v, long[] lcms, int[] counts) {\n        int n=coins.length;\n        long total =0;\n        for(int i=1;i<(1<<n);i++) {\n            if(lcms[i]==0) continue;\n            if(counts[i]%2==0) total-=v/lcms[i];\n            else total+=v/lcms[i];\n        }\n        return (total>=k);\n    }\n    public long findKthSmallest(int[] coins, int k) {\n        int n=coins.length;\n        long[] lcms = new long[1<<n];\n        int[] counts = new int[1<<n];\n        for(int i=1;i<(1<<n);i++) {\n            int lsb = i & -i;\n            int j = Integer.numberOfTrailingZeros(lsb);\n            int prev = i ^ lsb;\n            if(prev==0) {\n                lcms[i] = coins[j];\n                counts[i] = 1;\n            } else {\n                if(lcms[prev]==0) {\n                    lcms[i]=0;\n                } else {\n                    long g = gcd(lcms[prev], (long)coins[j]);\n                    if(lcms[prev] > Long.MAX_VALUE / coins[j]) {\n                        lcms[i]=0;\n                    } else {\n                        lcms[i] = lcms[prev] / g * coins[j];\n                    }\n                }\n                counts[i] = counts[prev] + 1;\n            }\n        }\n        long minCoin = Long.MAX_VALUE;\n        for(int c : coins) minCoin = Math.min(minCoin, c);\n        long l=1;long h=minCoin*k;\n        while(l<=h) {\n            long mid = l+(h-l)/2;\n            if(check(coins,k,mid,lcms,counts))\n            h=mid-1;\n            else\n            l=mid+1;\n        }\n        return l;\n    }\n}"
+  }
+]
+```

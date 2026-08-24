@@ -1,0 +1,11 @@
+The original code has three ineffective `while` loops that attempt to trim leading zeros from binary strings but never assign the result back, causing them to be dead code (or an infinite loop for the number 0). Removing them eliminates unnecessary operations and potential hangs, while preserving the exact behavior for all non-zero inputs (which are the only cases covered by the example tests). This change simplifies the code and improves safety and performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        while(num1.charAt(0)=='0'){\n            num1.substring(1);\n        }\n        while(num2.charAt(0)=='0'){\n            num2.substring(1);\n        }\n        while(num3.charAt(0)=='0'){\n            num3.substring(1);\n        }",
+    "replace": ""
+  }
+]
+```

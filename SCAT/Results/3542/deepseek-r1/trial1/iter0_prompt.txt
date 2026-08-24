@@ -1,0 +1,106 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public long maximumValueSum(int[][] board) {
+        int m = board.length, n = board[0].length;
+        ArrayList < ArrayList < int[] >> list = new ArrayList < ArrayList < int[] >> ();
+        for (int i = 0; i < m; ++i) {
+            list.add(new ArrayList < int[] > ());
+        }
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                list.get(i).add(new int[] {
+                    board[i][j], j
+                });
+            }
+        }
+        for (int i = 0; i < m; ++i) {
+            Collections.sort(list.get(i), new Comparator < int[] > () {
+                public int compare(int[] arr1, int[] arr2) {
+                    return arr2[0] - arr1[0];
+                }
+            });
+        }
+        long rs = Long.MIN_VALUE;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < 3; ++j){
+                rs = Math.max(rs, calc(list, i, j));
+            }
+        }
+        if (rs == Long.MIN_VALUE){
+            return 0l + list.get(0).get(0)[0] + list.get(0).get(1)[0] + list.get(0).get(2)[0];
+        }
+        return rs;
+    }
+    public long calc(ArrayList < ArrayList < int[] >> list, int x, int y){
+        int [][] arr = new int[][]{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}};
+        for (int i = 0; i < list.size(); ++i){
+            for (int j = 0; j < 3; ++j){
+                if (i == x || list.get(x).get(y)[1] == list.get(i).get(j)[1]){
+                    continue;
+                }
+                if (arr[0][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[0][0]).get(arr[0][1])[0]){
+                    arr[3][0] = arr[2][0];
+                    arr[3][1] = arr[2][1];
+                    arr[2][0] = arr[1][0];
+                    arr[2][1] = arr[1][1];
+                    arr[1][0] = arr[0][0];
+                    arr[1][1] = arr[0][1];
+                    arr[0][0] = i;
+                    arr[0][1] = j;
+                }
+                else if (arr[1][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[1][0]).get(arr[1][1])[0]){
+                    arr[3][0] = arr[2][0];
+                    arr[3][1] = arr[2][1];
+                    arr[2][0] = arr[1][0];
+                    arr[2][1] = arr[1][1];
+                    arr[1][0] = i;
+                    arr[1][1] = j;
+                }
+                else if (arr[2][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[2][0]).get(arr[2][1])[0]){
+                    arr[3][0] = arr[2][0];
+                    arr[3][1] = arr[2][1];
+                    arr[2][0] = i;
+                    arr[2][1] = j;
+                }
+                else if (arr[3][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[3][0]).get(arr[3][1])[0]){
+                    arr[3][0] = i;
+                    arr[3][1] = j;
+                }
+            }
+        }
+        if (max(list, arr) == Long.MIN_VALUE){
+            return Long.MIN_VALUE;
+        }
+        return 0l + list.get(x).get(y)[0] + max(list, arr);
+    }
+    public long max(ArrayList < ArrayList < int[] >> list, int [][] arr){
+        long rs = Long.MIN_VALUE;
+        for (int i = 0; i < 4; ++i){
+            for (int j = i + 1; j < 4; ++j){
+                if (arr[i][0] == arr[j][0] || list.get(arr[i][0]).get(arr[i][1])[1] == list.get(arr[j][0]).get(arr[j][1])[1]){
+                    continue;
+                }
+                rs = Math.max(rs, 0l + list.get(arr[i][0]).get(arr[i][1])[0] + list.get(arr[j][0]).get(arr[j][1])[0]);
+            }
+        }
+        return rs;
+    }
+}
+
+---------
+>> Example test cases are:
+Example 1:
+  input: 9;10;860,265,719,522,847,840,425,864,670,321;889,159,689,429,637,803,962,122,359,935;189,83,282,19,617,17,830,933,210,811;642,605,842,925,534,20,53,913,89,198;221,957,349,625,205,507,812,540,134,431;369,834,170,100,321,583,603,150,551,142;839,572,878,932,213,830,920,699,387,860;3,606,761,302,122,914,849,307,466,772;28,616,965,551,737,257,14,892,488,154
+  expected output: 2884
+Example 2:
+  input: 6;9;3510,-1830,-1836,974,5341,-7570,-1077,-2287,3220;4718,9733,-2195,-7609,-7441,-5269,9977,5678,-5516;-8085,-2026,3974,-2776,8053,-8903,-6340,3650,3548;6494,6178,-2271,2430,26,-2008,7375,3879,6945;-7907,2341,-6258,-9198,6210,7885,9769,1163,2696;-8916,-4298,6394,-1426,3625,2332,8896,9399,-4502
+  expected output: 28901
+Example 3:
+  input: 3;4;-505,-402,-167,-183;-651,-875,-81,-250;-213,-948,-867,-98
+  expected output: -477
+Example 4:
+  input: 3;6;622731406,-760298295,-591275351,790742382,-824567317,566978558;775984635,-668472390,-913119053,511226023,704485155,-411002096;-321487234,633991096,-581698959,12980874,-84828472,466289471
+  expected output: 2200718113
+Example 5:
+  input: 5;9;5500,-6727,-3174,-4679,-2819,1309,163,3649,7149;-4942,-3146,3368,-3626,-2660,4113,9970,4513,9568;-1636,7828,-2098,7313,-227,5303,-911,-8857,6287;-9030,9801,7800,-1550,4992,-3429,7685,-527,7256;-8819,-6101,-9659,7730,9217,-528,-1747,4517,-7566
+  expected output: 28988

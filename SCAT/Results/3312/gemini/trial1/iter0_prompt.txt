@@ -1,0 +1,32 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int countKeyChanges(String s) {
+         s=s.toLowerCase();
+        int count=0,len=s.length();
+        for(int i=0;i<len-1;i++)
+        {
+            if(s.charAt(i)!=s.charAt(i+1))
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: aAbBcC
+  expected output: 2
+Example 2:
+  input: AaAaAaaA
+  expected output: 0
+Example 3:
+  input: a
+  expected output: 0
+Example 4:
+  input: Z
+  expected output: 0
+Example 5:
+  input: uuUuuuuuUuuuuuuuUuUUuuUUUuuUuuUuUUUuUuUuUUuuuuUuuuUUUUuUUuUuuuuUUUuUuuuUUUuuUuUUUuUuuUUUUuuUuuuuuUuU
+  expected output: 0

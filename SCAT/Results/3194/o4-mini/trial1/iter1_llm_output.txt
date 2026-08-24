@@ -1,0 +1,16 @@
+I’ve replaced the manual character‐list construction in `ans` with a single `String.indexOf` call, and removed the unnecessary intermediate `List<String>` in `findWordsContaining`, iterating directly over the input array.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public static boolean ans(String s,char w){\n        boolean re=true;\n        List<Character> l=new ArrayList<>();\n        for(char i:s.toCharArray()) l.add(i);\n        if(!l.contains(w)) re=false;\n        return re;\n    }",
+    "replace": "public static boolean ans(String s, char w) {\n        return s.indexOf(w) >= 0;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        List<String> l=new ArrayList<>();\n\tList<Integer> l1=new ArrayList<>();\n        for(String i:words){\n            l.add(i);\n        }\n        for(int i=0;i<l.size();i++){\n            boolean s=ans(l.get(i),x);\n            if(s) l1.add(i);\n        }\n        return l1;",
+    "replace": "        List<Integer> l1 = new ArrayList<>();\n        for (int i = 0; i < words.length; i++) {\n            if (ans(words[i], x)) {\n                l1.add(i);\n            }\n        }\n        return l1;"
+  }
+]
+```

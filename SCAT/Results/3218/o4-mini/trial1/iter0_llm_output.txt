@@ -1,0 +1,21 @@
+I’ve replaced the full subtree aggregation with a constant‐space min/max tracking approach, dramatically reducing time and memory overhead while preserving the original behavior.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {\n    private static class NodeRes {\n        long min1, min2, max1, max2, max3;\n        int count;\n        NodeRes(long value) {\n            min1 = value;\n            min2 = Long.MAX_VALUE;\n            max1 = value;\n            max2 = Long.MIN_VALUE;\n            max3 = Long.MIN_VALUE;\n            count = 1;\n        }\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    ArrayList<Long> fn(int source, ArrayList<ArrayList<Integer>> G, int[] vis, int[] cost) {\n        vis[source] = 1;\n        ArrayList<Long> local = new ArrayList<>();\n        local.add((long) cost[source]);\n        ArrayList<Integer> children = G.get(source);\n        for (int j = 0; j < children.size(); j++) {\n            if (vis[children.get(j)] == -1) {\n                ArrayList<Long> res = fn(children.get(j), G, vis, cost);\n                for (int k = 0; k < res.size(); k++) {\n                    local.add(res.get(k));\n                }\n            }\n        }\n        Collections.sort(local);\n        if (local.size() < 3) {\n            ans[source] = 1;\n        } else {\n            for(int j = 0;j<local.size();j++){\n                System.out.println(local.get(j));\n            }\n            long first = local.get(local.size() - 1) *\n                    (local.get(local.size() - 2) * local.get(local.size() - 3));\n            long last = local.get(0) * local.get(1) * local.get(local.size() - 1);\n            ans[source] = Math.max(first, last);\n            if(ans[source]<0){\n                ans[source]=0;\n            }\n        }\n        vis[source] = 2;\n        if (local.size() <= 5) {\n            return local;\n        }\n        ArrayList<Long> res = new ArrayList<>();\n        res.add(local.get(0));\n        res.add(local.get(1));\n        res.add(local.get(local.size() - 3));\n        res.add(local.get(local.size() - 2));\n        res.add(local.get(local.size() - 1));\n        return res;\n    }",
+    "replace": "    NodeRes fn(int source, ArrayList<ArrayList<Integer>> G, int[] vis, int[] cost) {\n        vis[source] = 1;\n        NodeRes local = new NodeRes(cost[source]);\n        ArrayList<Integer> children = G.get(source);\n        for (int child : children) {\n            if (vis[child] == -1) {\n                NodeRes res = fn(child, G, vis, cost);\n                local.count += res.count;\n                long[] minC = {local.min1, local.min2, res.min1, res.min2};\n                Arrays.sort(minC);\n                local.min1 = minC[0];\n                local.min2 = minC[1];\n                long[] maxC = {local.max1, local.max2, local.max3, res.max1, res.max2, res.max3};\n                Arrays.sort(maxC);\n                local.max1 = maxC[5];\n                local.max2 = maxC[4];\n                local.max3 = maxC[3];\n            }\n        }\n        if (local.count < 3) {\n            ans[source] = 1;\n        } else {\n            long first = local.max1 * local.max2 * local.max3;\n            long last = local.min1 * local.min2 * local.max1;\n            ans[source] = Math.max(Math.max(first, last), 0L);\n        }\n        vis[source] = 2;\n        return local;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        ArrayList<Long> res = fn(0, G, vis, cost);",
+    "replace": "        NodeRes root = fn(0, G, vis, cost);"
+  }
+]
+```

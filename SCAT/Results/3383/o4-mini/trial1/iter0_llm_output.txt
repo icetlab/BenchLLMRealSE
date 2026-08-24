@@ -1,0 +1,11 @@
+I replaced the full-array sort with a simple linear scan to track the maximum prefix sum, dropping the O(n log n) sort down to O(n).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        Arrays.sort(pre);\n\n        return pre[n-1];",
+    "replace": "        int max = pre[0];\n        for (int i = 1; i < n; i++) {\n            if (pre[i] > max) {\n                max = pre[i];\n            }\n        }\n        return max;"
+  }
+]
+```

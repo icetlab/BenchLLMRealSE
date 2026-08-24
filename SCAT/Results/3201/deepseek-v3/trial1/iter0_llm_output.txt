@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public long distributeCandies(int n, int limit) {\n        long res = 0;\n        for (int i = 0; i <= limit; i++) {\n            res += cnt(n - i, limit);\n          //  System.out.println(i + \" \" + res);\n        }\n        return res;\n    }",
+    "replace": "public long distributeCandies(int n, int limit) {\n        if (n > limit * 3L) return 0;\n        long res = 0;\n        int maxI = Math.min(limit, n);\n        for (int i = 0; i <= maxI; i++) {\n            res += cnt(n - i, limit);\n        }\n        return res;\n    }"
+  }
+]
+```

@@ -1,0 +1,11 @@
+The original code stores every index for each value in a `HashSet`, but only occurrence counts are needed to check whether `half` exists after removing the current candidate. Replacing the index-set map with a frequency map reduces memory and allocation overhead while preserving the same O(n) logic.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int sum = 0;\n        Map<Integer, Set<Integer>> num2indices = new HashMap<>();\n        for (int i = 0; i < nums.length; i ++) {\n            sum += nums[i];\n            Set<Integer> set = num2indices.getOrDefault(nums[i], new HashSet<Integer>());\n            set.add(i);\n            num2indices.put(nums[i], set);\n        }\n\n        int result = Integer.MIN_VALUE;\n        for (int i = 0; i < nums.length; i ++) {\n            if (nums[i] <= result) {\n                continue;\n            }\n            int s = sum - nums[i];\n            if (s % 2 == 0) {\n                int half = s / 2;\n                if (num2indices.containsKey(half)) {\n                    Set<Integer> set = num2indices.get(half);\n                    if (!set.contains(i) || (set.contains(i) && set.size() > 1)) {\n                        result = Math.max(result, nums[i]);\n                    }\n                }\n            }\n        }\n\n        return result;",
+    "replace": "int sum = 0;\n        Map<Integer, Integer> freq = new HashMap<>();\n        for (int num : nums) {\n            sum += num;\n            freq.put(num, freq.getOrDefault(num, 0) + 1);\n        }\n\n        int result = Integer.MIN_VALUE;\n        for (int num : nums) {\n            if (num <= result) {\n                continue;\n            }\n            int rest = sum - num;\n            if (rest % 2 == 0) {\n                int half = rest / 2;\n                int count = freq.getOrDefault(half, 0);\n                if (count > (half == num ? 1 : 0)) {\n                    result = num;\n                }\n            }\n        }\n\n        return result;"
+  }
+]
+```

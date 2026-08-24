@@ -1,0 +1,11 @@
+Main improvement: removing the explicit `System.gc()` call, which can be very expensive, and simplifying the neighbor checks with short-circuit evaluation while caching `nums[i]`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int sumOfGoodNumbers(int[] nums, int k) {\n        int n = nums.length, sum = 0;\n        for (int i = 0; i < n; i++) {\n            if (i - k >= 0 && i + k < n) {\n                if (nums[i + k] < nums[i] && nums[i - k] < nums[i])\n                    sum += nums[i];\n            } else if (i - k >= 0) {\n                if (nums[i - k] < nums[i])\n                    sum += nums[i];\n            } else if (nums[i + k] < nums[i]) {\n                sum += nums[i];\n            }\n        }\n        System.gc();\n        return sum;\n    }",
+    "replace": "public int sumOfGoodNumbers(int[] nums, int k) {\n        int n = nums.length;\n        int sum = 0;\n        for (int i = 0; i < n; i++) {\n            int v = nums[i];\n            int left = i - k;\n            int right = i + k;\n            if ((right >= n || nums[right] < v) && (left < 0 || nums[left] < v)) {\n                sum += v;\n            }\n        }\n        return sum;\n    }"
+  }
+]
+```

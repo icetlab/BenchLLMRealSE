@@ -1,0 +1,30 @@
+The user wants to improve the performance of the provided Java code.
+
+### Method Explanation
+
+The original `maxLength` method has a high time complexity, likely `O(N^4)` or `O(N^3 * log(M))`, because it iterates through all `O(N^2)` subarrays, creates a copy of each subarray (`O(N)`), and then calls `isProductEquivalent`, which itself contains loops to calculate product, GCD, and LCM (`O(N * log(M))`).
+
+My approach is to eliminate the redundant computations by calculating the required properties (product, GCD, and LCM) incrementally for each subarray.
+
+1.  **`O(N^2)` Approach**: I will refactor the `maxLength` method to use two nested loops. The outer loop fixes the starting point `i` of a subarray, and the inner loop extends the subarray by including elements from `i` to `j`.
+2.  **Incremental Calculation**: Inside the inner loop, I'll maintain the `product`, `gcd`, and `lcm` of the current subarray `nums[i...j]`. When extending the subarray to include `nums[j]`, these values can be updated efficiently in `O(log(M))` time (where `M` is the maximum value in `nums`) based on the values from the subarray `nums[i...j-1]`. This avoids re-calculating from scratch for each subarray.
+3.  **Overflow Prevention**:
+    *   The original `lcm` method calculates `(a * b) / gcd(a, b)`, where `a * b` can easily overflow. I will change this to `(a / gcd(a, b)) * b`, which is mathematically equivalent but prevents intermediate overflow.
+    *   The `product` of subarray elements can also overflow. I'll add a check before multiplication to detect potential overflows. If an overflow is about to occur, we can stop extending the current subarray, as the condition `product == lcm * gcd` is highly unlikely to be met.
+
+These changes will reduce the overall time complexity to `O(N^2 * log(M))`, which is a significant improvement.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int maxLength(int[] nums) {\n        int maxLength = 0;\n        for (int i = 0; i < nums.length; i++) {\n            for (int j = i; j < nums.length; j++) {\n                int[] subarray = new int[j - i + 1];\n                for (int k = i; k <= j; k++) {\n                    subarray[k - i] = nums[k];\n                }\n                if (isProductEquivalent(subarray)) {\n                    maxLength = Math.max(maxLength, subarray.length);\n                }\n            }\n        }\n        return maxLength;\n    }",
+    "replace": "public int maxLength(int[] nums) {\n        int n = nums.length;\n        if (n == 0) {\n            return 0;\n        }\n\n        int maxLength = 0;\n\n        for (int i = 0; i < n; i++) {\n            long product = 1;\n            long currentGcd = 0; // gcd(0, x) = x\n            long currentLcm = 1; // lcm(1, x) = x\n\n            for (int j = i; j < n; j++) {\n                long num = nums[j];\n\n                currentGcd = gcd(currentGcd, num);\n                currentLcm = lcm(currentLcm, num);\n\n                // Check for potential product overflow before multiplication.\n                if (num != 0 && Long.MAX_VALUE / num < product) {\n                    // Product will overflow. The equality check will fail, so we can stop extending this subarray.\n                    break;\n                }\n                product *= num;\n\n                if (product == currentLcm * currentGcd) {\n                    maxLength = Math.max(maxLength, j - i + 1);\n                }\n            }\n        }\n        return maxLength;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "private long lcm(long a, long b) {\n        return (a * b) / gcd(a, b);\n    }",
+    "replace": "private long lcm(long a, long b) {\n        if (a == 0 || b == 0) {\n            return 0;\n        }\n        // To prevent overflow, divide before multiplying\n        return (a / gcd(a, b)) * b;\n    }"
+  }
+]
+```

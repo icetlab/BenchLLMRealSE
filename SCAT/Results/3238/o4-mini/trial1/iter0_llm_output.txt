@@ -1,0 +1,16 @@
+I’ve optimized the substring scan to correctly cap its length (avoiding an unintended full scan on each DP step) and replaced the TreeSet‐based Dijkstra with a faster PriorityQueue implementation to speed up all-pairs shortest‐path computations.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "for (int j = i; j <= Math.min(j + 100, source.length() - 1); j++) {",
+    "replace": "for (int j = i; j <= Math.min(i + 100, source.length() - 1); j++) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public Map<Integer, MyBean> findDistances(Map<Integer, List<MyBean>> adjMap, int source) {\n        TreeSet<MyBean> ts = new TreeSet<>((b1, b2) -> {\n            if (Long.compare(b1.distance, b2.distance) != 0) {\n                return Long.compare(b1.distance, b2.distance);\n            } else {\n                return Integer.compare(b1.word, b2.word);\n            }\n        });\n\n        Map<Integer, MyBean> distanceMap = new HashMap<>();\n\n        distanceMap.put(source, new MyBean(source, (long)0));\n\n        ts.add(distanceMap.get(source));\n\n        while (!ts.isEmpty()) {\n            MyBean top = ts.pollFirst();\n\n            for (MyBean adjBean : adjMap.getOrDefault(top.word, new ArrayList<>())) {\n                MyBean adjDistance = distanceMap.getOrDefault(adjBean.word, new MyBean(adjBean.word, Long.MAX_VALUE));\n\n                if (top.distance + adjBean.distance < adjDistance.distance) {\n                    ts.remove(adjDistance);\n                    adjDistance.distance = top.distance + adjBean.distance;\n                    ts.add(adjDistance);\n                    distanceMap.put(adjBean.word, adjDistance);\n                }\n            }\n        }\n\n        return distanceMap;\n    }",
+    "replace": "public Map<Integer, MyBean> findDistances(Map<Integer, List<MyBean>> adjMap, int source) {\n    PriorityQueue<MyBean> pq = new PriorityQueue<>((b1, b2) -> {\n        if (Long.compare(b1.distance, b2.distance) != 0) {\n            return Long.compare(b1.distance, b2.distance);\n        } else {\n            return Integer.compare(b1.word, b2.word);\n        }\n    });\n    Map<Integer, MyBean> distanceMap = new HashMap<>();\n    distanceMap.put(source, new MyBean(source, 0L));\n    pq.add(distanceMap.get(source));\n    while (!pq.isEmpty()) {\n        MyBean top = pq.poll();\n        if (top.distance > distanceMap.get(top.word).distance) continue;\n        for (MyBean adjBean : adjMap.getOrDefault(top.word, Collections.emptyList())) {\n            long newDist = top.distance + adjBean.distance;\n            MyBean current = distanceMap.get(adjBean.word);\n            if (current == null || newDist < current.distance) {\n                MyBean newBean = new MyBean(adjBean.word, newDist);\n                distanceMap.put(adjBean.word, newBean);\n                pq.add(newBean);\n            }\n        }\n    }\n    return distanceMap;\n}"
+  }
+]
+```

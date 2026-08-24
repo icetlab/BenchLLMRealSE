@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "The original code converts arrays to ArrayLists and appends a sentinel 0, then computes differences with get() calls. This creates unnecessary boxing and allocations. The improved version computes the same result directly on the arrays, using a sentinel previous value of 0, and avoids creating lists. It also simplifies the loop by handling the first element naturally. The logic is unchanged: it accumulates positive differences between consecutive differences of nums and target, which equals the minimum number of operations.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "class Solution {\n    public long minimumOperations(int[] nums, int[] target) {\n        List<Integer> a = Arrays.stream(nums).boxed().collect(Collectors.toList());\n        List<Integer> b = Arrays.stream(target).boxed().collect(Collectors.toList());\n        \n        int n = a.size() + 1;\n        a.add(0);\n        b.add(0);\n        \n        long add = 0, sub = 0;\n        for (int i = 0; i < n; i++) {\n            int diff1 = a.get(i);\n            int diff2 = b.get(i);\n            if (i > 0) {\n                diff1 -= a.get(i - 1);\n                diff2 -= b.get(i - 1);\n            }\n            if (diff1 < diff2) {\n                add += (diff2 - diff1);\n            } else {\n                sub += (diff1 - diff2);\n            }\n        }\n        return add;\n    }\n}",
+      "replace": "class Solution {\n    public long minimumOperations(int[] nums, int[] target) {\n        long add = 0;\n        int prevNum = 0, prevTarget = 0;\n        for (int i = 0; i < nums.length; i++) {\n            int diff1 = nums[i] - prevNum;\n            int diff2 = target[i] - prevTarget;\n            if (diff1 < diff2) {\n                add += (diff2 - diff1);\n            }\n            prevNum = nums[i];\n            prevTarget = target[i];\n        }\n        return add;\n    }\n}"
+    }
+  ]
+}

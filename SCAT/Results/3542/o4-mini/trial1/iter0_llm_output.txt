@@ -1,0 +1,12 @@
+Overall Improvement Intent:
+Replace the per-row full sort of all columns with a single linear scan to extract just the top three values (and their column indices) per row. This cuts the O(n log n) sort per row down to O(n), greatly improving performance when n is large, while preserving the existing logic which only ever uses the top three entries in each row.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "ArrayList < ArrayList < int[] >> list = new ArrayList < ArrayList < int[] >> ();\n        for (int i = 0; i < m; ++i) {\n            list.add(new ArrayList < int[] > ());\n        }\n        for (int i = 0; i < m; ++i) {\n            for (int j = 0; j < n; ++j) {\n                list.get(i).add(new int[] {\n                    board[i][j], j\n                });\n            }\n        }\n        for (int i = 0; i < m; ++i) {\n            Collections.sort(list.get(i), new Comparator < int[] > () {\n                public int compare(int[] arr1, int[] arr2) {\n                    return arr2[0] - arr1[0];\n                }\n            });\n        }",
+    "replace": "ArrayList<ArrayList<int[]>> list = new ArrayList<>();\n        for (int i = 0; i < m; ++i) {\n            // find the top 3 values and their columns in row i by a single pass\n            int v1 = Integer.MIN_VALUE, v2 = Integer.MIN_VALUE, v3 = Integer.MIN_VALUE;\n            int c1 = -1, c2 = -1, c3 = -1;\n            for (int j = 0; j < n; ++j) {\n                int v = board[i][j];\n                if (v > v1) {\n                    v3 = v2; c3 = c2;\n                    v2 = v1; c2 = c1;\n                    v1 = v;  c1 = j;\n                } else if (v > v2) {\n                    v3 = v2; c3 = c2;\n                    v2 = v;  c2 = j;\n                } else if (v > v3) {\n                    v3 = v;  c3 = j;\n                }\n            }\n            // build a small list of up to three entries, already in descending order\n            ArrayList<int[]> row = new ArrayList<>(3);\n            row.add(new int[]{v1, c1});\n            if (c2 != -1) row.add(new int[]{v2, c2});\n            if (c3 != -1) row.add(new int[]{v3, c3});\n            list.add(row);\n        }"
+  }
+]
+```

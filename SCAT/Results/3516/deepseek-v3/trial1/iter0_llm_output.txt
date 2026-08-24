@@ -1,0 +1,19 @@
+## Improvement Intent
+
+The current implementation has several performance issues:
+1. **Unused `HashMap` cache** (`h`) that adds overhead without benefit since `make()` is already O(1)
+2. **Redundant array lookups** in `get()` and `make()` methods
+3. **Inefficient initialization** - the `v` array is initialized with zeros but values are overwritten
+4. **Unnecessary boxing/unboxing** with `HashMap<Integer,HashMap<Integer,int[]>>`
+
+The main optimization is to remove the unused caching mechanism and simplify the code to directly compute sums when requested, which eliminates HashMap overhead and reduces memory usage.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class NeighborSum\n{\n    int [][] g;\n    int [][] v;\n    int n;\n    HashMap<Integer,HashMap<Integer,int[]>> h;\n    \n    public NeighborSum(int[][] grid)\n    {\n        g = grid;\n        n = g.length;\n        v = new int[n*n][2];\n        h = new HashMap<>();\n        int [] a;\n\n        for(int i=0; i<n; i++)\n            for(int j=0; j<n; j++)\n            {\n                a = v[g[i][j]];\n                a[0] = i;\n                a[1] = j;\n            }\n    }\n    \n    public int adjacentSum(int value)\n    {\n        return get(v[value])[0];\n    }\n    \n    public int diagonalSum(int value)\n    {\n        return get(v[value])[1];\n    }\n\n    private int [] get(int [] a)\n    {\n        return h.computeIfAbsent(a[0],k->new HashMap<>()).computeIfAbsent(a[1],j->make(a[0],a[1]));\n    }\n\n    private int [] make(int x, int y)\n    {\n        return new int[]\n        {   (x>0 ? g[x-1][y] : 0)\n            + (x<n-1 ? g[x+1][y] : 0)\n            + (y>0 ? g[x][y-1] : 0)\n            + (y<n-1 ? g[x][y+1] : 0),\n\n            (x>0 && y>0 ? g[x-1][y-1] : 0)\n            + (x<n-1 && y<n-1 ? g[x+1][y+1] : 0)\n            + (x>0 && y<n-1 ? g[x-1][y+1] : 0)\n            + (x<n-1 && y>0 ? g[x+1][y-1] : 0)\n        };\n    }\n}",
+    "replace": "class NeighborSum\n{\n    int [][] g;\n    int [][] v;\n    int n;\n    \n    public NeighborSum(int[][] grid)\n    {\n        g = grid;\n        n = g.length;\n        v = new int[n*n][2];\n\n        for(int i=0; i<n; i++)\n            for(int j=0; j<n; j++)\n            {\n                v[g[i][j]][0] = i;\n                v[g[i][j]][1] = j;\n            }\n    }\n    \n    public int adjacentSum(int value)\n    {\n        int x = v[value][0];\n        int y = v[value][1];\n        int sum = 0;\n        if (x > 0) sum += g[x-1][y];\n        if (x < n-1) sum += g[x+1][y];\n        if (y > 0) sum += g[x][y-1];\n        if (y < n-1) sum += g[x][y+1];\n        return sum;\n    }\n    \n    public int diagonalSum(int value)\n    {\n        int x = v[value][0];\n        int y = v[value][1];\n        int sum = 0;\n        if (x > 0 && y > 0) sum += g[x-1][y-1];\n        if (x < n-1 && y < n-1) sum += g[x+1][y+1];\n        if (x > 0 && y < n-1) sum += g[x-1][y+1];\n        if (x < n-1 && y > 0) sum += g[x+1][y-1];\n        return sum;\n    }\n}"
+  }
+]
+```

@@ -1,0 +1,11 @@
+The original solution has a time complexity of O(n log n) due to sorting and a space complexity of O(n) for an auxiliary array. The improved solution optimizes this by calculating the path sums and finding the maximum in a single pass, which reduces the time complexity to O(n). Furthermore, it eliminates the need for the auxiliary array by processing each of the `k` independent paths separately, thus reducing the space complexity to O(1). This is achieved by iterating backwards from the last element of each path, calculating suffix sums, and tracking the maximum sum found.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int n=energy.length;\n        int pre[]=new int[n];\n\n        for(int i=n-1;i>=0;i--){\n            pre[i]=energy[i];\n            if(i+k<n){\n                pre[i]+=pre[i+k];\n            }\n        }\n\n        Arrays.sort(pre);\n\n        return pre[n-1];",
+    "replace": "        int n = energy.length;\n        int maxEnergy = Integer.MIN_VALUE;\n\n        for (int i = n - 1; i >= n - k && i >= 0; i--) {\n            int currentPathSum = 0;\n            for (int j = i; j >= 0; j -= k) {\n                currentPathSum += energy[j];\n                maxEnergy = Math.max(maxEnergy, currentPathSum);\n            }\n        }\n        return maxEnergy;"
+  }
+]
+```

@@ -1,0 +1,60 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public long minimumCost(int m, int n, int[] horizontalCut, int[] verticalCut) {
+         Integer[] hCuts = Arrays.stream(horizontalCut).boxed().toArray(Integer[]::new);
+        Integer[] vCuts = Arrays.stream(verticalCut).boxed().toArray(Integer[]::new);
+
+        // Sort in descending order
+        Arrays.sort(hCuts, Collections.reverseOrder());
+        Arrays.sort(vCuts, Collections.reverseOrder());
+
+        int h = 0, v = 0;
+        long cost = 0;
+        long hp = 1, vp = 1;  
+
+        while (h < hCuts.length && v < vCuts.length) {
+            if (vCuts[v] > hCuts[h]) {
+                cost += (long) vCuts[v] * hp;  
+                vp++;
+                v++;
+            } else {
+                cost += (long) hCuts[h] * vp;  
+                hp++;
+                h++;
+            }
+        }
+
+
+        while (h < hCuts.length) {
+            cost += (long) hCuts[h] * vp;
+            hp++;
+            h++;
+        }
+
+
+        while (v < vCuts.length) {
+            cost += (long) vCuts[v] * hp;
+            vp++;
+            v++;
+        }
+
+        return cost;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 3 2 1,3;5
+  expected output: 13
+Example 2:
+  input: 2 2 7;4
+  expected output: 15
+Example 3:
+  input: 1 1 ;
+  expected output: 0
+Example 4:
+  input: 1 5 ;10,20,5,15
+  expected output: 50
+Example 5:
+  input: 4 1 8,2,12;
+  expected output: 22

@@ -1,0 +1,11 @@
+I corrected the closed-form summation by partitioning the valid sum range into two regions (t ≤ L and t > L) and applying the appropriate arithmetic series formulas, ensuring accurate results for all inputs.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public long distributeCandies(int n, int limit) {\n        long res = 0;\n        for (int i = 0; i <= limit; i++) {\n            res += cnt(n - i, limit);\n          //  System.out.println(i + \" \" + res);\n        }\n        return res;\n    }",
+    "replace": "public long distributeCandies(int n, int limit) {\n        long nn = n;\n        long L = limit;\n        long a = Math.max(0L, nn - L);\n        long b = Math.min(2 * L, nn);\n        long res = 0;\n        // region1: t in [a..min(b, L)]\n        long end1 = Math.min(b, L);\n        if (a <= end1) {\n            long len1 = end1 - a + 1;\n            res += len1 * (a + end1 + 2) / 2;\n        }\n        // region2: t in [max(a, L+1)..b]\n        long start2 = Math.max(a, L + 1);\n        if (start2 <= b) {\n            long len2 = b - start2 + 1;\n            res += len2 * (2 * L + 1) - (start2 + b) * len2 / 2;\n        }\n        return res;\n    }"
+  }
+]
+```

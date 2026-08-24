@@ -1,0 +1,11 @@
+**Improvement intent:** Replace `Pair<Integer, Integer>` with `int[]` entries in the priority queue to eliminate autoboxing/unboxing overhead, reduce object allocations, and improve cache locality. Reuse the same `int[]` object after polling for each multiplication operation to avoid creating new objects. Add the required `import java.util.PriorityQueue;` to maintain compilation.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n  public int[] getFinalState(int[] nums, int k, int multiplier) {\n    int[] ans = new int[nums.length];\n    // (nums[i], i)\n    Queue<Pair<Integer, Integer>> minHeap = new PriorityQueue<>(\n        (a, b)\n            -> a.getKey().equals(b.getKey()) ? a.getValue().compareTo(b.getValue())\n                                             : a.getKey().compareTo(b.getKey()));\n\n    for (int i = 0; i < nums.length; ++i)\n      minHeap.offer(new Pair<>(nums[i], i));\n\n    while (k-- > 0) {\n      final int num = minHeap.peek().getKey();\n      final int i = minHeap.poll().getValue();\n      minHeap.offer(new Pair<>(num * multiplier, i));\n    }\n\n    while (!minHeap.isEmpty()) {\n      final int num = minHeap.peek().getKey();\n      final int i = minHeap.poll().getValue();\n      ans[i] = num;\n    }\n\n    return ans;\n  }\n}",
+    "replace": "import java.util.PriorityQueue;\n\nclass Solution {\n  public int[] getFinalState(int[] nums, int k, int multiplier) {\n    int n = nums.length;\n    int[] ans = new int[n];\n    PriorityQueue<int[]> minHeap = new PriorityQueue<>(\n        (a, b) -> a[0] == b[0] ? Integer.compare(a[1], b[1]) : Integer.compare(a[0], b[0]));\n\n    for (int i = 0; i < n; ++i)\n      minHeap.offer(new int[]{nums[i], i});\n\n    while (k-- > 0) {\n      int[] top = minHeap.poll();\n      top[0] *= multiplier;\n      minHeap.offer(top);\n    }\n\n    while (!minHeap.isEmpty()) {\n      int[] top = minHeap.poll();\n      ans[top[1]] = top[0];\n    }\n\n    return ans;\n  }\n}"
+  }
+]
+```

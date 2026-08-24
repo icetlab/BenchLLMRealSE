@@ -1,0 +1,103 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search="void dfs(int node, Set<Integer>[] adj, String s, Integer[] closest, int parent, Set<Integer>[] adj2) {\n        int val = s.charAt(node) - 'a';\n\n        if (closest[val] != null) {\n            int newParent = closest[val];\n            adj2[parent].remove(node);\n            adj2[newParent].add(node);\n        } \n\n        Integer temp = closest[val];\n\n        closest[val] = node;\n\n        for(int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, node, adj2);\n        }\n\n        closest[val] = temp;\n    }"
+>>>> Your previous output was:
+Looking at the error, the search text doesn't match because the original code uses `Set<Integer>[]` and `Integer[]` types, not `List<Integer>[]` and `int[]` as I had in my search. Let me provide the correct patch that matches the actual source code.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "void dfs(int node, Set<Integer>[] adj, String s, Integer[] closest, int parent, Set<Integer>[] adj2) {\n        int val = s.charAt(node) - 'a';\n\n        if (closest[val] != null) {\n            int newParent = closest[val];\n            adj2[parent].remove(node);\n            adj2[newParent].add(node);\n        } \n\n        Integer temp = closest[val];\n\n        closest[val] = node;\n\n        for(int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, node, adj2);\n        }\n\n        closest[val] = temp;\n    }",
+    "replace": "void dfs(int node, Set<Integer>[] adj, String s, Integer[] closest, int parent, Set<Integer>[] adj2) {\n        int val = s.charAt(node) - 'a';\n\n        if (closest[val] != null) {\n            int newParent = closest[val];\n            if (parent != -1) {\n                adj2[parent].remove(node);\n            }\n            adj2[newParent].add(node);\n        } \n\n        Integer temp = closest[val];\n\n        closest[val] = node;\n\n        for(int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, node, adj2);\n        }\n\n        closest[val] = temp;\n    }"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int[] findSubtreeSizes(int[] parent, String s) {
+        int n = parent.length;
+
+        Set<Integer>[] adj = new Set[n];
+        Set<Integer>[] adj2 = new Set[n];
+
+        for(int i = 0; i < n; i++) {
+            adj[i] = new HashSet();
+            adj2[i] = new HashSet();
+        }
+
+        for(int i = 1; i < n; i++) {
+            adj[parent[i]].add(i);
+            adj2[parent[i]].add(i);
+        }
+
+       // System.out.println(adj2[1].toString());
+
+        dfs(0, adj, s, new Integer[27], -1, adj2);
+    
+        int[] sizes = new int[n];
+
+
+
+        findSize(0, adj2, sizes);
+
+      //  System.out.println(adj2[1].toString());
+
+        return sizes;
+    }
+
+    int findSize(int node, Set<Integer>[] adj, int[] sizes) {
+        int ans = 1;
+
+        for(int neigh : adj[node]) {
+            ans += findSize(neigh, adj, sizes);
+        }
+
+        return sizes[node] = ans;
+    }
+
+    void dfs(int node, Set<Integer>[] adj, String s, Integer[] closest, int parent, Set<Integer>[] adj2) {
+        int val = s.charAt(node) - 'a';
+
+     //   System.out.println("Came to " + node);
+
+        if (closest[val] != null) {
+            int newParent = closest[val];
+       //     System.out.println("Removing from " + parent + " adding to " + newParent);
+            adj2[parent].remove(node);
+            adj2[newParent].add(node);
+        } 
+
+        Integer temp = closest[val];
+
+        closest[val] = node;
+
+        //System.out.println("Set " + val + " for node " + node);
+
+        for(int neigh : adj[node]) {
+            dfs(neigh, adj, s, closest, node, adj2);
+        }
+
+        closest[val] = temp;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: -1 a
+  expected output: 1
+Example 2:
+  input: -1,0,0,1,1,1 abaabc
+  expected output: 6,3,1,1,1,1
+Example 3:
+  input: -1,0,4,0,1 abbba
+  expected output: 5,2,1,1,1
+Example 4:
+  input: -1,0,1,0,1 baada
+  expected output: 5,3,1,1,1
+Example 5:
+  input: -1,0 bb
+  expected output: 2,1
+

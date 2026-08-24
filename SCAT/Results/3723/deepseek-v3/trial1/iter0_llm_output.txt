@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        System.gc();\n        return sum;",
+    "replace": "        return sum;"
+  }
+]
+```

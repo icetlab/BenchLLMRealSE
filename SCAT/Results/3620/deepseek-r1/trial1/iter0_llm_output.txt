@@ -1,0 +1,11 @@
+The main optimization is to sort the input array directly instead of building range objects, and to replace the `HashSet` with a simple counter and `next` value. Since `k` is fixed, sorting `nums` is equivalent to sorting the intervals, and the `HashSet` was unnecessary because `next` is always greater than any previously selected value.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int maxDistinctElements(int[] nums, int k) {\n        List<int[]> ranges = new ArrayList<>();\n        for (int num : nums) {\n            ranges.add(new int[]{num - k, num + k});\n        }\n        ranges.sort(Comparator.comparingInt(a -> a[0]));\n        Set<Integer> selected = new HashSet<>();\n        int cnt = Integer.MIN_VALUE; \n        for (int[] range : ranges) {\n            int start = range[0], end = range[1];\n            int val = Math.max(cnt, start);\n            if (val <= end && (selected.isEmpty() || !selected.contains(val))) {\n                selected.add(val);\n                cnt = val + 1; \n            }\n        }\n        return selected.size();\n    }\n}",
+    "replace": "class Solution {\n    public int maxDistinctElements(int[] nums, int k) {\n        java.util.Arrays.sort(nums);\n        long next = Long.MIN_VALUE;\n        int count = 0;\n        for (int num : nums) {\n            long left = (long) num - k;\n            long right = (long) num + k;\n            long val = Math.max(next, left);\n            if (val <= right) {\n                count++;\n                next = val + 1;\n            }\n        }\n        return count;\n    }\n}"
+  }
+]
+```

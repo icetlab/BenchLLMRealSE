@@ -1,0 +1,13 @@
+My improvement strategy focuses on eliminating significant overhead from the original implementation. The original code converts the input arrays to `List<Integer>`, which involves boxing primitives, creating new collections, and using less efficient `List.get()` access. My proposed solution avoids this by operating directly on the input arrays.
+
+The core logic, which calculates the sum of positive differences in the `target[i] - nums[i]` sequence (padded with zeros at both ends), is preserved. However, I've reimplemented it in a single, efficient loop. This new approach avoids intermediate data structures, reducing memory allocation from O(N) to O(1) and improving runtime performance by using direct array access and avoiding object creation overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "List<Integer> a = Arrays.stream(nums).boxed().collect(Collectors.toList());\n        List<Integer> b = Arrays.stream(target).boxed().collect(Collectors.toList());\n        \n        int n = a.size() + 1;\n        a.add(0);\n        b.add(0);\n        \n        long add = 0, sub = 0;\n        for (int i = 0; i < n; i++) {\n            int diff1 = a.get(i);\n            int diff2 = b.get(i);\n            if (i > 0) {\n                diff1 -= a.get(i - 1);\n                diff2 -= b.get(i - 1);\n            }\n            if (diff1 < diff2) {\n                add += (diff2 - diff1);\n            } else {\n                sub += (diff1 - diff2);\n            }\n        }\n        return add;",
+    "replace": "long totalIncrements = 0;\n        long prev_delta = 0;\n\n        for (int i = 0; i <= nums.length; i++) {\n            long current_delta = (i == nums.length) ? 0 : (long)target[i] - nums[i];\n            if (current_delta > prev_delta) {\n                totalIncrements += current_delta - prev_delta;\n            }\n            prev_delta = current_delta;\n        }\n\n        return totalIncrements;"
+  }
+]
+```

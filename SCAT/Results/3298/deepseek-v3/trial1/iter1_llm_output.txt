@@ -1,0 +1,19 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int[] dp = new int[1000002 + 2];  // dp of size 1e6 + 2 (maximum nums[i] is 1e6)",
+    "replace": "Map<Integer, Integer> dp = new HashMap<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for (int j = n - 1; j >= 0; j--) {\n            dp[nums[j]] = Math.max(dp[nums[j]], 1 + dp[nums[j] + 1]);\n            dp[nums[j] + 1] = Math.max(dp[nums[j] + 1], 1 + dp[nums[j] + 2]);\n        }",
+    "replace": "for (int j = n - 1; j >= 0; j--) {\n            int v = nums[j];\n            dp.put(v, Math.max(dp.getOrDefault(v, 0), 1 + dp.getOrDefault(v + 1, 0)));\n            dp.put(v + 1, Math.max(dp.getOrDefault(v + 1, 0), 1 + dp.getOrDefault(v + 2, 0)));\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for (int val : dp) {\n            ans = Math.max(ans, val);\n        }",
+    "replace": "for (int val : dp.values()) {\n            ans = Math.max(ans, val);\n        }"
+  }
+]
+```

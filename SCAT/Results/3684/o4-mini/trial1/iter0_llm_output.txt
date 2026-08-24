@@ -1,0 +1,11 @@
+I’ve removed the unnecessary substring/print operations, added proper checks for missing prefix or empty suffix, and replaced them with direct indexOf calls to improve performance and correctness.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "         String suffix = subStr.substring(startIndex+1);\n         String str2 = str.substring(str.indexOf(prefix)+prefix.length());\n         System.out.println(prefix);\n         System.out.println(suffix);\n         System.out.println(str2);\n         if(str.contains(prefix) && str2.contains(suffix))\n            return true;\n\n         return false;",
+    "replace": "         String suffix = subStr.substring(startIndex+1);\n         int idx = str.indexOf(prefix);\n         if (idx < 0) return false;\n         int from = idx + prefix.length();\n         if (suffix.isEmpty()) return true;\n         return str.indexOf(suffix, from) >= 0;"
+  }
+]
+```

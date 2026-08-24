@@ -1,0 +1,17 @@
+Looking at this code, I can see several performance issues:
+
+1. **Unnecessary data structures**: Using `List<int[]>` and `Set<Integer>` adds overhead. The problem can be solved with simple sorting and greedy selection.
+2. **Redundant checks**: The `selected.contains(val)` check is unnecessary since we're already ensuring `val >= cnt` (which tracks the next available value).
+3. **Inefficient memory usage**: Storing ranges as arrays and using a HashSet when we only need a count.
+
+The optimal approach is to sort the original array, then greedily assign the smallest possible value in each range while ensuring distinctness. This reduces time complexity from O(n log n) with extra overhead to O(n log n) with minimal overhead, and space from O(n) to O(1) extra space.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int maxDistinctElements(int[] nums, int k) {\n        List<int[]> ranges = new ArrayList<>();\n        for (int num : nums) {\n            ranges.add(new int[]{num - k, num + k});\n        }\n        ranges.sort(Comparator.comparingInt(a -> a[0]));\n        Set<Integer> selected = new HashSet<>();\n        int cnt = Integer.MIN_VALUE; \n        for (int[] range : ranges) {\n            int start = range[0], end = range[1];\n            int val = Math.max(cnt, start);\n            if (val <= end && (selected.isEmpty() || !selected.contains(val))) {\n                selected.add(val);\n                cnt = val + 1; \n            }\n        }\n        return selected.size();\n    }\n}",
+    "replace": "class Solution {\n    public int maxDistinctElements(int[] nums, int k) {\n        Arrays.sort(nums);\n        int count = 0;\n        int nextVal = Integer.MIN_VALUE;\n        for (int num : nums) {\n            int start = num - k;\n            int end = num + k;\n            int val = Math.max(nextVal, start);\n            if (val <= end) {\n                count++;\n                nextVal = val + 1;\n            }\n        }\n        return count;\n    }\n}"
+  }
+]
+```

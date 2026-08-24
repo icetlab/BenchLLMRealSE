@@ -1,0 +1,31 @@
+We replaced the expensive `HashSet`-based adjacency and recursive DFS with a single iterative DFS using primitive arrays. The new private `solve` method computes the same re-parenting and subtree sizes directly, avoiding recursion, boxing, and repeated `Set` operations.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {\n\n    private int[] solve(int[] parent, String s) {\n        int n = parent.length;\n\n        int[] head = new int[n];\n        int[] next = new int[n];\n        int[] saved = new int[n];\n        int[] res = new int[n];\n        java.util.Arrays.fill(head, -1);\n\n        int[] closest = new int[27];\n        java.util.Arrays.fill(closest, -1);\n\n        for (int i = 1; i < n; i++) {\n            int p = parent[i];\n            next[i] = head[p];\n            head[p] = i;\n        }\n\n        int[] stack = new int[n];\n        int top = 0;\n\n        int root = 0;\n        closest[s.charAt(root) - 'a'] = root;\n        saved[root] = -1;\n        res[root] = 1;\n        stack[top++] = root;\n\n        while (top > 0) {\n            int u = stack[top - 1];\n            int v = head[u];\n\n            if (v != -1) {\n                head[u] = next[v];\n\n                int ch = s.charAt(v) - 'a';\n                saved[v] = closest[ch];\n                closest[ch] = v;\n                res[v] = 1;\n                stack[top++] = v;\n            } else {\n                top--;\n\n                int p = (saved[u] != -1) ? saved[u] : parent[u];\n                if (p != -1) {\n                    res[p] += res[u];\n                }\n\n                closest[s.charAt(u) - 'a'] = saved[u];\n            }\n        }\n\n        return res;\n    }\n"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        Set<Integer>[] adj = new Set[n];\n        Set<Integer>[] adj2 = new Set[n];\n\n        for(int i = 0; i < n; i++) {\n            adj[i] = new HashSet();\n            adj2[i] = new HashSet();\n        }\n\n        for(int i = 1; i < n; i++) {\n            adj[parent[i]].add(i);\n            adj2[parent[i]].add(i);\n        }",
+    "replace": "        // adjacency is built in solve(parent, s)"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        dfs(0, adj, s, new Integer[27], -1, adj2);",
+    "replace": "        // dfs moved into solve(parent, s)"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int[] sizes = new int[n];",
+    "replace": "        int[] sizes = solve(parent, s);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        findSize(0, adj2, sizes);",
+    "replace": "        // findSize moved into solve(parent, s)"
+  }
+]
+```

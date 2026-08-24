@@ -1,0 +1,17 @@
+## Analysis of the Error
+
+The test case expected `66` but got `4`, which indicates my prefix-sum approach was fundamentally incorrect. The issue is that the condition `(vowelCount * consonantCount) % k == 0` when `vowelCount == consonantCount` simplifies to `(vowelCount²) % k == 0`. My hashmap approach didn't correctly track this condition because I only stored `vowelCount % k`, but the condition depends on `vowelCount² % k`, not `vowelCount % k`.
+
+The correct optimization: when `vowelCount == consonantCount`, the product is `vowelCount²`. We need `vowelCount² % k == 0`. This means `vowelCount` must be a multiple of `sqrt(k)` or contain the necessary prime factors. Since we're counting substrings where vowelCount equals consonantCount, we can track the difference (vowelCount - consonantCount) and when it's 0, check if the current vowelCount satisfies the modulo condition.
+
+However, the simple O(n²) approach might be the most straightforward correct solution. Let me optimize it slightly by precomputing vowel positions and using a more efficient inner loop.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int beautifulSubstrings(String s, int k) {\n        int n = s.length();\n        int count = 0;\n        String vowels = \"aeiou\";\n\n        for(int i = 0; i < n; i++){\n            int vowelCount = 0;\n            int consonantCount = 0;\n            \n            for(int j = i; j < n; j++){\n                char c = s.charAt(j);\n\n                if(vowels.indexOf(c) != -1){\n                    vowelCount++;\n                } else{\n                    consonantCount++;\n                }\n                if(vowelCount == consonantCount && ( vowelCount * consonantCount) % k == 0){\n                        count++;\n                    }\n                }\n            }\n            return count;\n        }   \n}",
+    "replace": "class Solution {\n    public int beautifulSubstrings(String s, int k) {\n        int n = s.length();\n        int count = 0;\n        boolean[] isVowel = new boolean[26];\n        String vowels = \"aeiou\";\n        for (int i = 0; i < vowels.length(); i++) {\n            isVowel[vowels.charAt(i) - 'a'] = true;\n        }\n        \n        // Precompute prefix sums: prefixVowels[i] = vowel count in s[0..i-1]\n        int[] prefixVowels = new int[n + 1];\n        int[] prefixConsonants = new int[n + 1];\n        for (int i = 0; i < n; i++) {\n            prefixVowels[i + 1] = prefixVowels[i] + (isVowel[s.charAt(i) - 'a'] ? 1 : 0);\n            prefixConsonants[i + 1] = prefixConsonants[i] + (isVowel[s.charAt(i) - 'a'] ? 0 : 1);\n        }\n        \n        // For each pair (i, j), check if substring s[i..j] is beautiful\n        for (int i = 0; i < n; i++) {\n            for (int j = i; j < n; j++) {\n                int vowelCount = prefixVowels[j + 1] - prefixVowels[i];\n                int consonantCount = prefixConsonants[j + 1] - prefixConsonants[i];\n                if (vowelCount == consonantCount && (vowelCount * consonantCount) % k == 0) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}"
+  }
+]
+```

@@ -1,0 +1,13 @@
+The original code is inefficient for two main reasons. First, the `findWordsContaining` method creates an unnecessary `ArrayList` copy of the input `words` array, which consumes extra time and memory. Second, the helper method `ans` uses a very slow approach to check for a character's existence in a string: it converts the string to a list of characters (involving object creation and boxing for each character) and then performs a linear scan.
+
+My improvement replaces this multi-step, inefficient process with a single, streamlined implementation inside `findWordsContaining`. The new version iterates directly over the input `words` array, avoiding any intermediate data structures. For each word, it uses the highly optimized, built-in `String.indexOf(char)` method to check for the character. This is significantly faster than the original approach. The redundant and inefficient `ans` helper method is removed entirely, resulting in cleaner, more concise, and much more performant code.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public static boolean ans(String s,char w){\n        boolean re=true;\n        List<Character> l=new ArrayList<>();\n        for(char i:s.toCharArray()) l.add(i);\n        if(!l.contains(w)) re=false;\n        return re;\n    }\n    public List<Integer> findWordsContaining(String[] words, char x) {\n        List<String> l=new ArrayList<>();\n\t\tList<Integer> l1=new ArrayList<>();\n        for(String i:words){\n            l.add(i);\n        }\n        for(int i=0;i<l.size();i++){\n            boolean s=ans(l.get(i),x);\n            if(s) l1.add(i);\n        }\n        return l1;\n\n\n    }",
+    "replace": "    public List<Integer> findWordsContaining(String[] words, char x) {\n        List<Integer> result = new ArrayList<>();\n        for (int i = 0; i < words.length; i++) {\n            if (words[i].indexOf(x) != -1) {\n                result.add(i);\n            }\n        }\n        return result;\n    }"
+  }
+]
+```

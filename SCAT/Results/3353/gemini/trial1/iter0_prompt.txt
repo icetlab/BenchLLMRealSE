@@ -1,0 +1,38 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public boolean isSubstringPresent(String s) {
+    String k = "";
+    HashSet<String> common = new HashSet<>();
+    for (int i = s.length()-1; i >= 0; i--) {
+        k += s.charAt(i);
+    }
+
+    for (int h = 0; h < (s.length()-1); h += 1) {
+        common.add(s.substring(h,h+2));
+    }
+
+    for (int i = 0; i < s.length() - 1; i++) {
+        if (common.contains(k.substring(i,i+2))) {
+            return true;
+        }
+    }
+    return false;
+}
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: leetcode
+  expected output: true
+Example 2:
+  input: abcba
+  expected output: true
+Example 3:
+  input: abcd
+  expected output: false
+Example 4:
+  input: a
+  expected output: false
+Example 5:
+  input: aa
+  expected output: true

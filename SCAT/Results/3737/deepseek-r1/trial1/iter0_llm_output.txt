@@ -1,0 +1,16 @@
+The main improvement is to replace the recursive DP call with an iterative bottom-up DP using rolling `long` arrays. This avoids deep recursion, per-call `ArrayList` allocations, and boxed `Long` memo entries while preserving the exact same color constraints.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "*/\nclass Solution {",
+    "replace": "*/\n\nimport java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        dp = new Long[n+1][4][4];\n        return func(0,3,3,cost);",
+    "replace": "        int total = n;\n        int half = total / 2;\n\n        long[][] next = new long[4][4];\n        long[][] cur = new long[4][4];\n\n        for (int i = half - 1; i >= 0; i--) {\n            int[] left = cost[i];\n            int[] right = cost[total - i - 1];\n\n            for (int pc = 0; pc < 4; pc++) {\n                for (int fc = 0; fc < 4; fc++) {\n                    long best = Long.MAX_VALUE;\n\n                    for (int p = 0; p < 3; p++) {\n                        if (p == pc) {\n                            continue;\n                        }\n                        for (int f = 0; f < 3; f++) {\n                            if (f == fc || p == f) {\n                                continue;\n                            }\n                            long candidate = (long) left[p] + right[f] + next[p][f];\n                            if (candidate < best) {\n                                best = candidate;\n                            }\n                        }\n                    }\n\n                    cur[pc][fc] = best;\n                }\n            }\n\n            long[][] temp = next;\n            next = cur;\n            cur = temp;\n        }\n\n        return next[3][3];"
+  }
+]
+```

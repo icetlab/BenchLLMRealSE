@@ -1,0 +1,17 @@
+Overall improvement intent:
+Compute a prefix‐sum array once and replace the triple‐nested summation with constant‐time range‐sum lookups, reducing the algorithm from O(n³) to O(n²).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int size = nums.size(), res = -1;",
+    "replace": "int size = nums.size(), res = -1;\n    // build prefix sums for O(1) subarray sums\n    int[] prefix = new int[size + 1];\n    for (int k = 0; k < size; k++) {\n        prefix[k + 1] = prefix[k] + nums.get(k);\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for(int s=l; s<=r; s++) \n    {\\s*for\\(int i=0; i<=size-s; i\\+\\+\\) \\n    \\{[\\s\\S]*?\\n    \\}",
+    "replace": "for(int s = l; s <= r; s++) {\n        for(int i = 0; i <= size - s; i++) {\n            int sum = prefix[i + s] - prefix[i];\n            if (sum > 0 && (res == -1 || res > sum)) {\n                res = sum;\n            }\n        }\n    }"
+  }
+]
+```

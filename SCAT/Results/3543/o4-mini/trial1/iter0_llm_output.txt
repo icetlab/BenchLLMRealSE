@@ -1,0 +1,16 @@
+The changes replace the O(n³) substring enumeration with an O(n) inclusion–exclusion approach using three sliding-window counts (at most k zeros, at most k ones, and at most k of both) to compute the same result.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int countKConstraintSubstrings(String s, int k) {\n        int c = 0;\n        for (int i = 0; i<s.length(); i++){\n            for (int j = i+1; j<=s.length();j++){\n                if(cot(s.substring(i,j),k)){\n                    c++;\n                }\n            }\n        }\n        return c;\n    }",
+    "replace": "    public int countKConstraintSubstrings(String s, int k) {\n        int n = s.length();\n        long cntZero = countAtMost(s, k, '0');\n        long cntOne = countAtMost(s, k, '1');\n        long cntBoth = countAtMostBoth(s, k);\n        return (int)(cntZero + cntOne - cntBoth);\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public boolean cot(String s,int k){\n        int z = 0;\n        int o = 0;\n        for(char c : s.toCharArray()){\n            if (c == '0'){\n                z++;\n            }\n            else{\n                o++;\n            }\n        }\n        if (o > k && z > k){\n            return false;\n        } \n        return true;\n    }",
+    "replace": "    private long countAtMost(String s, int k, char target) {\n        int l = 0, n = s.length();\n        long count = 0;\n        int c = 0;\n        for (int r = 0; r < n; r++) {\n            if (s.charAt(r) == target) c++;\n            while (c > k) {\n                if (s.charAt(l) == target) c--;\n                l++;\n            }\n            count += r - l + 1;\n        }\n        return count;\n    }\n\n    private long countAtMostBoth(String s, int k) {\n        int l = 0, n = s.length();\n        long count = 0;\n        int z = 0, o = 0;\n        for (int r = 0; r < n; r++) {\n            if (s.charAt(r) == '0') z++;\n            else o++;\n            while (z > k || o > k) {\n                if (s.charAt(l) == '0') z--;\n                else o--;\n                l++;\n            }\n            count += r - l + 1;\n        }\n        return count;\n    }"
+  }
+]
+```

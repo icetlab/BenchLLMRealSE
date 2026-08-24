@@ -1,0 +1,11 @@
+The original code uses a nested loop to count equal sides and has a complex branching structure with redundant sorting. The improved version simplifies the logic by first sorting the array. This allows checking the triangle inequality with a single condition, and then determining the triangle type (equilateral, isosceles, or scalene) with a few direct comparisons. This approach is more efficient, readable, and eliminates the O(n^2) complexity of the nested loop, debug prints, and redundant work.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "            int count=0;\n        for(int i=0;i<nums.length-1;i++){\n            for(int j=i+1;j<nums.length;j++){\n                if(nums[i]==nums[j]){\n                    count++;\n                    System.out.println(count);\n                }\n            }\n        }\n        if(count==0) {\n//            return \"scalene\";\n            Arrays.sort(nums);\n            if(nums[0]+nums[1]<=nums[2])\n                return \"none\";\n            else return \"scalene\";\n        }\n        else if(count==1){\n            Arrays.sort(nums);\n        if(nums[0]+nums[1]<=nums[2])\n            return \"none\";\n        else return \"isosceles\";\n        }\n        else if(count==3)\n            return \"equilateral\";\n        return null;",
+    "replace": "        Arrays.sort(nums);\n        if (nums[0] + nums[1] <= nums[2]) {\n            return \"none\";\n        }\n        if (nums[0] == nums[2]) {\n            return \"equilateral\";\n        }\n        if (nums[0] == nums[1] || nums[1] == nums[2]) {\n            return \"isosceles\";\n        }\n        return \"scalene\";"
+  }
+]
+```

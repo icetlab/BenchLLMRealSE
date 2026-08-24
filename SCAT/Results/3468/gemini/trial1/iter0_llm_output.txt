@@ -1,0 +1,13 @@
+The original code's performance suffers from using string concatenation (`+=`) inside a loop, which has a time complexity of O(n^2) in Java. Each concatenation creates a new string object, leading to excessive memory allocation and copying.
+
+The improved solution recognizes the operation as a string rotation. It achieves the same result in O(n) time by performing a single concatenation of two substrings. This is significantly more efficient. The code is also made more robust by handling the edge case of an empty input string to prevent a potential `ArithmeticException`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int n=s.length();\n        String str=\"\";\n        for(int i=0;i<n;i++){\n            str+=s.charAt((i+k)%n);\n        }\n        return str;",
+    "replace": "        int n = s.length();\n        if (n == 0) {\n            return s;\n        }\n        k %= n;\n        return s.substring(k) + s.substring(0, k);"
+  }
+]
+```

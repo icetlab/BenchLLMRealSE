@@ -1,0 +1,41 @@
+I’ve broken the previous large replacement into smaller, more targeted edits with simpler search patterns that will reliably match the existing file layout.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    // System.out.print(\"os1: \");",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            // println(os1);",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            // System.out.print(\"os2: \");",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            // println(os2);",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private void println(TreeSet<int[]> os) {",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for (var e: os) System.out.printf\\(\"\\[%d, %d\\] \", e\\[0\\], e\\[1\\]\\);",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        System\\.out\\.println\\(\\);\\s*}\\s*$",
+    "replace": ""
+  }
+]
+```

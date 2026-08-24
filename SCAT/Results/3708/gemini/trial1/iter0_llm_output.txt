@@ -1,0 +1,13 @@
+The original code's performance can be improved by avoiding unnecessary intermediate data structures and operations. The current implementation first populates a primitive `int[]` array and then converts it into a `List<Integer>` using `Arrays.stream().boxed().toList()`. This stream pipeline introduces overhead from stream creation, boxing each `int` primitive into an `Integer` object (which requires heap allocation for each element), and finally collecting them into a new list.
+
+My proposed change refactors the method to be more direct and efficient. It eliminates the intermediate `int[]` array and the stream pipeline altogether. Instead, it creates an `ArrayList` upfront, pre-sized to the exact number of elements required. This pre-allocation of capacity prevents the `ArrayList` from needing to resize its internal array as elements are added, which avoids costly array copy operations. Elements are then added directly to this list within the loop. This approach significantly reduces object creation overhead and memory churn, resulting in a more performant solution.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        //define input variables\n        int cols = grid[0].length;\n        int rows = grid.length;\n        int inp_len = cols*rows;\n        //define output variables\n        int out_len = (inp_len-1)/2 + 1;\n        int[] output = new int[out_len];\n\n        for(int i = 0; i < out_len; i++){\n            int r = (i*2)/cols;\n            //int c = ((r%2)*(cols-1)) + (1-(r%2)*2)*((i*2)%cols);\n            int c = (i*2)%cols;\n            if(r%2==1){c=cols-1-c;}\n            output[i] = grid[r][c]; \n        }\n        List<Integer> list = Arrays.stream(output).boxed().toList();\n        return list;",
+    "replace": "        int cols = grid[0].length;\n        int rows = grid.length;\n        int inp_len = cols * rows;\n        int out_len = (inp_len - 1) / 2 + 1;\n        List<Integer> result = new java.util.ArrayList<>(out_len);\n\n        for (int i = 0; i < out_len; i++) {\n            int r = (i * 2) / cols;\n            int c = (i * 2) % cols;\n            if (r % 2 == 1) {\n                c = cols - 1 - c;\n            }\n            result.add(grid[r][c]);\n        }\n        return result;"
+  }
+]
+```

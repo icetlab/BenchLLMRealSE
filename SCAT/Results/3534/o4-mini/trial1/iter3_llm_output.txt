@@ -1,0 +1,21 @@
+The error occurs because the previous patch was looking for variables (`bVal`, `freq`, `seen`, etc.) that don’t actually exist in your `Solution.java`. We need to match exactly what’s in your source. A more robust approach is to:
+
+1. Introduce a local `int bVal = Integer.parseInt(b);` at the top of `same(…)` so we only parse `b` once.
+2. Replace the repeated `Integer.parseInt(b)` in the inner loop with the new `bVal`.
+
+Here are two independent, minimal patches that should each apply cleanly:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public boolean same(String a, String b){",
+    "replace": "public boolean same(String a, String b){\n        int bVal = Integer.parseInt(b);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "if(Integer.parseInt(curr)==Integer.parseInt(b)) return true;",
+    "replace": "if (Integer.parseInt(curr) == bVal) return true;"
+  }
+]
+```

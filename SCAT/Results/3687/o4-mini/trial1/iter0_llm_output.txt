@@ -1,0 +1,26 @@
+I’ve replaced the dynamic list used to track the path weights with a fixed int[] array, eliminating boxing/unboxing and list add/remove overhead for each DFS step. This should improve both time and memory performance while preserving the original behavior.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "Map<Integer, Integer> map = new HashMap<>();\n        List<Integer> path = new ArrayList<>();",
+    "replace": "Map<Integer, Integer> map = new HashMap<>();\n        int[] path = new int[n];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public void DFS(int node, int parent, ArrayList<ArrayList<int[]>> adj, int[] nums,\n                    int pathSum, int start, int end, Map<Integer, Integer> map, List<Integer> path) {",
+    "replace": "public void DFS(int node, int parent, ArrayList<ArrayList<int[]>> adj, int[] nums,\n                    int pathSum, int start, int end, Map<Integer, Integer> map, int[] path) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "while (start <= prevDepth) {\n            pathSum -= path.get(start++);\n        }",
+    "replace": "while (start <= prevDepth) {\n            pathSum -= path[start++];\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for (int[] edge : adj.get(node)) {\n            if (edge[0] != parent) {\n                path.add(edge[1]);\n                DFS(edge[0], node, adj, nums, pathSum + edge[1], start, end + 1, map, path);\n                path.remove(path.size() - 1);\n            }\n        }",
+    "replace": "for (int[] edge : adj.get(node)) {\n            if (edge[0] != parent) {\n                path[end] = edge[1];\n                DFS(edge[0], node, adj, nums, pathSum + edge[1], start, end + 1, map, path);\n            }\n        }"
+  }
+]
+```

@@ -1,0 +1,46 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search='import java.util.*;\n\nclass Solution {\n    public List<Integer> findPeaks(int[] mountain) {\n      Scanner sc=new Scanner(System.in);\n      List<Integer>l=new ArrayList<>();\n      for(int i=1;i<mountain.length-1;i++){\n        \n            if(mountain[i]>mountain[i-1] && mountain[i]>mountain[i+1])\n            l.add(i);\n        }\n      return l;  \n    }\n}'
+>>>> Your previous output was:
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.util.*;\n\nclass Solution {\n    public List<Integer> findPeaks(int[] mountain) {\n      Scanner sc=new Scanner(System.in);\n      List<Integer>l=new ArrayList<>();\n      for(int i=1;i<mountain.length-1;i++){\n        \n            if(mountain[i]>mountain[i-1] && mountain[i]>mountain[i+1])\n            l.add(i);\n        }\n      return l;  \n    }\n}",
+    "replace": "import java.util.*;\n\nclass Solution {\n    public List<Integer> findPeaks(int[] mountain) {\n      List<Integer>l=new ArrayList<>();\n      for(int i=1;i<mountain.length-1;i++){\n        \n            if(mountain[i]>mountain[i-1] && mountain[i]>mountain[i+1])\n            l.add(i);\n        }\n      return l;  \n    }\n}"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public List<Integer> findPeaks(int[] mountain) {
+      Scanner sc=new Scanner(System.in);
+      List<Integer>l=new ArrayList<>();
+      for(int i=1;i<mountain.length-1;i++){
+        
+            if(mountain[i]>mountain[i-1] && mountain[i]>mountain[i+1])
+            l.add(i);
+        }
+      return l;  
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 2,4,4
+  expected output: 
+Example 2:
+  input: 1,4,3,8,5
+  expected output: 1,3
+Example 3:
+  input: 3,5,3
+  expected output: 1
+Example 4:
+  input: 1,2,3
+  expected output: 
+Example 5:
+  input: 3,2,1
+  expected output: 
+

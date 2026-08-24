@@ -1,0 +1,16 @@
+The changes replace the expensive List<Character> key allocations with a single primitive int key encoding both characters, greatly reducing object churn and hashing overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    private HashMap<List<Character>, TrieNode> children = new HashMap<>();",
+    "replace": "    private HashMap<Integer, TrieNode> children = new HashMap<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    ginti += (node = node.children.computeIfAbsent(\n      List.of(word.charAt(i), word.charAt(word.length() - i - 1)),\n      t -> new TrieNode())).ginti;",
+    "replace": "    ginti += (node = node.children.computeIfAbsent((word.charAt(i) << 16) | word.charAt(word.length() - i - 1), t -> new TrieNode())).ginti;"
+  }
+]
+```

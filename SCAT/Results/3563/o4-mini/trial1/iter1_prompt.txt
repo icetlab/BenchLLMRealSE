@@ -1,0 +1,78 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 3: expected='15' got='11'
+>>>> Your previous output was:
+I replaced the recursive, exponential-time search with a simple greedy scan over values in descending order, assigning each value to any available (unused) row. This reduces time complexity from exponential to O(V log V + E), where V is the number of distinct values and E is total grid entries.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int maxScore(List<List<Integer>> grid) {\n        TreeMap<Integer, Set<Integer>> tm = createTreeMap(grid);\n        return maxHelper(tm, tm.lastKey() + 1, new HashSet<>());\n    }",
+    "replace": "    public int maxScore(List<List<Integer>> grid) {\n        TreeMap<Integer, Set<Integer>> tm = createTreeMap(grid);\n        int rows = grid.size();\n        boolean[] used = new boolean[rows];\n        int remaining = rows;\n        long sum = 0;\n        for (Integer val : tm.descendingKeySet()) {\n            if (remaining == 0) break;\n            for (int r : tm.get(val)) {\n                if (!used[r]) {\n                    used[r] = true;\n                    sum += val;\n                    remaining--;\n                    break;\n                }\n            }\n        }\n        return (int) sum;\n    }"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+
+    private TreeMap<Integer, Set<Integer>> createTreeMap(List<List<Integer>> grid) {
+        TreeMap<Integer, Set<Integer>> tm = new TreeMap<>();
+        for (int rIdx = 0, n = grid.size(); rIdx < n; rIdx++) {
+            List<Integer> g = grid.get(rIdx);
+            for (int cIdx = 0, m = g.size(); cIdx < m; cIdx++) {
+                int ele = g.get(cIdx);
+                if (!tm.containsKey(ele)) {
+                    tm.put(ele, new HashSet<>());
+                }
+                tm.get(ele).add(rIdx);
+            }
+        }
+        return tm;
+    }
+
+    private int maxHelper(TreeMap<Integer, Set<Integer>> tm, Integer num, Set<Integer> vis) {
+        Integer curr = tm.lowerKey(num);
+        if (curr == null) {
+            return 0;
+        }
+
+        Set<Integer> rSet = tm.get(curr);
+        boolean flg = false;
+        int max = 0;
+        for (int rs : rSet) {
+            if (vis.contains(rs)) {
+                continue;
+            }
+            flg = true;
+            vis.add(rs);
+            max = Math.max(max, maxHelper(tm, curr, vis));
+            vis.remove(rs);
+        }
+        return flg ? max + curr : maxHelper(tm, curr, vis);
+    }
+
+    public int maxScore(List<List<Integer>> grid) {
+        TreeMap<Integer, Set<Integer>> tm = createTreeMap(grid);
+        return maxHelper(tm, tm.lastKey() + 1, new HashSet<>());
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1
+  expected output: 1
+Example 2:
+  input: 1,2,3,4
+  expected output: 4
+Example 3:
+  input: 1,2,3;4,3,2;1,1,1
+  expected output: 8
+Example 4:
+  input: 8,7,6;8,3,2
+  expected output: 15
+Example 5:
+  input: 5,5;5,5
+  expected output: 5
+

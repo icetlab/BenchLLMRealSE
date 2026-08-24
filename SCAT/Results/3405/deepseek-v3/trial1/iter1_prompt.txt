@@ -1,0 +1,57 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Parsed JSON is not a non-empty array.
+>>>> Your previous output was:
+{
+  "filepath": "Solution.java",
+  "search": "class Solution {\n    public int numberOfSpecialChars(String word) {\n        int count = 0;\n        Set<Character> set = new HashSet<>();\n        Set<Character> alreadyCounted = new HashSet<>();\n\n        for (char c : word.toCharArray()) {\n            if (set.contains(Character.toUpperCase(c))) {\n                if(alreadyCounted.contains(c)){\n                    count--;\n                    alreadyCounted.remove(Character.toUpperCase(c));\n                    alreadyCounted.remove(Character.toLowerCase(c));\n                }else\n                continue;\n            }\n            if (Character.toUpperCase(c) == c && set.contains(Character.toLowerCase(c))) {\n                alreadyCounted.add(c);\n                alreadyCounted.add(Character.toLowerCase(c));\n                count++;\n            }\n\n            set.add(c);\n        }\n\n        return count;\n    }\n}",
+  "replace": "class Solution {\n    public int numberOfSpecialChars(String word) {\n        int count = 0;\n        boolean[] seen = new boolean[128];\n        boolean[] counted = new boolean[128];\n\n        for (char c : word.toCharArray()) {\n            char upper = Character.toUpperCase(c);\n            char lower = Character.toLowerCase(c);\n            if (seen[upper]) {\n                if (counted[c]) {\n                    count--;\n                    counted[upper] = false;\n                    counted[lower] = false;\n                } else {\n                    continue;\n                }\n            }\n            if (upper == c && seen[lower]) {\n                counted[c] = true;\n                counted[lower] = true;\n                count++;\n            }\n            seen[c] = true;\n        }\n\n        return count;\n    }\n}"
+}
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int numberOfSpecialChars(String word) {
+        int count = 0;
+        Set<Character> set = new HashSet<>();
+        Set<Character> alreadyCounted = new HashSet<>();
+
+        for (char c : word.toCharArray()) {
+            if (set.contains(Character.toUpperCase(c))) {
+                if(alreadyCounted.contains(c)){
+                    count--;
+                    alreadyCounted.remove(Character.toUpperCase(c));
+                    alreadyCounted.remove(Character.toLowerCase(c));
+                }else
+                continue;
+            }
+            if (Character.toUpperCase(c) == c && set.contains(Character.toLowerCase(c))) {
+                alreadyCounted.add(c);
+                alreadyCounted.add(Character.toLowerCase(c));
+                count++;
+            }
+
+            set.add(c);
+        }
+
+        return count;
+    }
+}
+
+---------
+>> Example test cases are:
+Example 1:
+  input: aaAbcBC
+  expected output: 3
+Example 2:
+  input: abc
+  expected output: 0
+Example 3:
+  input: AbBCab
+  expected output: 0
+Example 4:
+  input: a
+  expected output: 0
+Example 5:
+  input: A
+  expected output: 0
+

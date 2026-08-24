@@ -1,0 +1,11 @@
+We replace the costly modulo operation with a faster bitwise check for parity, reducing per-iteration overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "            if ((v + f) % 2 == 0) {\\n                f++;\\n            }",
+    "replace": "            if (((v ^ f) & 1) == 0) {\\n                f++;\\n            }"
+  }
+]
+```

@@ -1,0 +1,11 @@
+I’ve replaced the nested‐map construction and two scanning loops with a single pass that tracks per‐player pick counts, immediately flagging winners once their pick threshold is reached. This removes the heavy nested maps and extra loops for a linear‐time solution.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        HashMap<Integer,HashMap<Integer,Integer>> map=new HashMap<>();\n        for(int arr[]:pick)\n        {\n            int i=arr[0];\n            int j=arr[1];\n            if(map.containsKey(i))\n            {\n               HashMap<Integer,Integer> h=map.get(i);\n               if(h.containsKey(j))\n               h.put(j,h.get(j)+1);\n               else\n               h.put(j,1);\n               map.put(i,h);\n            }\n            else\n            {\n                HashMap<Integer,Integer> h=new HashMap<>();\n                h.put(j,1);\n                map.put(i,h);\n            }\n        }\n\n        for(int i=0;i<n;i++)\n        {\n            if(!map.containsKey(i))\n            continue;\n\n            HashMap<Integer,Integer> h=map.get(i);\n            for(int k:h.values())\n            {\n                if(k>=i+1)\n                {\n                count++;\n                break;\n                }\n            }\n        }",
+    "replace": "        boolean[] counted = new boolean[n];\n        HashMap<Integer,Integer>[] countMap = new HashMap[n];\n        for(int[] arr : pick) {\n            int i = arr[0], j = arr[1];\n            if (counted[i]) continue;\n            if (countMap[i] == null) countMap[i] = new HashMap<>();\n            HashMap<Integer,Integer> h = countMap[i];\n            int freq = h.getOrDefault(j, 0) + 1;\n            h.put(j, freq);\n            if (freq >= i + 1) {\n                counted[i] = true;\n                count++;\n            }\n        }"
+  }
+]
+```

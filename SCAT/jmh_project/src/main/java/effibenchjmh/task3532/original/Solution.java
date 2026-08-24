@@ -1,0 +1,92 @@
+package effibenchjmh.task3532.original;
+
+import java.util.*;
+import java.util.stream.*;
+
+import  java.util.Arrays ;  
+import java.util.Vector ;  
+
+class Solution {
+    public static Vector<Integer>[] links ;  
+    public static boolean[] visited ;  
+    public static int[][] signs ;  
+
+    public static void determine (int index,int previous){
+        visited[index] = true ; 
+         Vector<Integer> vected= links[index] ; 
+        Iterator<Integer> iterator  = vected.iterator() ; 
+        int[] greater  =  {0,0} ; 
+        int[] grace  =  {0,0} ; 
+        while (iterator.hasNext()){
+            Integer temps = iterator.next() ;  
+            if(visited[temps]==true){continue ; }  
+            int other = (temps%2+(1-temps%2)*2)+signs[temps][0] ; 
+            if(other==greater[0]){grace[0] = grace[0]+1 ; }   
+            for(int fe=0;fe<2;fe++){ 
+            if(other>greater[fe]){    
+               for (int fc=1;fc>=fe+1;fc--){  //if(fe<1){
+                greater[fc] =  greater[fc-1] ;  }   
+                greater[fe] = other ;  
+                if(fe==0){
+                grace[0] =  1 ;  
+                grace[1] = temps ;  }  
+                break ;     } }   }   
+        signs[index][1] =   Math.max (previous,greater[0])  ;  
+     //   System.out.println(Arrays.toString(greater))    ;  
+       // System.out.println(Arrays.toString(grace)) ; 
+        iterator =  vected.iterator() ; 
+        while(iterator.hasNext()){
+            Integer temps=  iterator.next() ; 
+            if (visited[temps]==true){continue ;  }    
+            int reach = 0 ;       
+            if (index%2==0){reach = reach+2 ; } 
+            if(index%2==1){reach = reach+1 ;  } 
+            if(temps!=grace[1]){
+                reach = Math.max(greater[0],previous)+reach ; 
+            }else{
+                reach = Math.max(greater[1],previous)+reach ;  
+            }  
+            determine(temps,reach) ; 
+        } 
+    } 
+    public static int traverse(int index){
+        visited[index] = true ; 
+        int  higher = 0  ;
+        Iterator<Integer> iterator = links[index].iterator() ; 
+        while(iterator.hasNext()){
+            Integer phase = iterator.next() ; 
+            if(visited[phase]==true){continue ; }  
+            int temps = traverse(phase) ; 
+            if(phase%2==1){higher = Math.max(temps+1,higher) ; }  
+            if(phase%2==0){higher = Math.max(temps+2,higher ) ; }
+        }  
+        signs[ index][0] = higher ; 
+        visited[index] = false ; 
+        return higher ;  
+    }
+    public int[] timeTaken(int[][] edges) {
+        int spans = edges.length+1 ; 
+        links = new Vector[spans] ; 
+        visited = new boolean[spans] ; 
+        signs = new int[spans][2] ;  
+        for (int fe=spans-1;fe>=0;fe--){
+            links[fe] = new Vector<Integer>( ) ;  
+            visited[fe] = false ; 
+            signs[fe] = new int[]{0,0} ;
+        }
+        for(int fc=0;fc<edges.length;fc++){
+            int[] phase = edges[fc] ;
+            links[phase[1]].addElement(phase[0]) ;
+            links[phase[0]].addElement(phase[1]) ; 
+        }   
+         int check = traverse(0) ;   
+         determine (0,0) ; 
+       // System.out.println(Arrays.deepToString(signs)) ; 
+
+        int[] buffer = new int[ spans] ;   
+        for (int fh=spans-1;fh>=0;fh--){
+            buffer[fh] = signs[fh][1] ; 
+        }
+        return buffer ;  
+    }
+}

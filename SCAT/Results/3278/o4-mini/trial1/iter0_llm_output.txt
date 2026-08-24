@@ -1,0 +1,51 @@
+I’ve simplified the pairing logic to a single symmetric `isValidPair` check (removing the need for orientation-based double calls), removed the unnecessary sort, and replaced costly `Arrays.equals` calls with simple reference checks. This preserves the original behavior while cutting roughly half the pair checks and reducing overhead in the inner loop.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "Arrays.sort(points, (point1, point2) -> point2[1] - point1[1]);",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for (int i = 0; i < n; i++) {\n        for (int j = i + 1; j < n; j++) {\n            if (isValidPair(points, points[i], points[j])) {\n                count++;\n            }\n            \n            if (isValidPair(points, points[j], points[i])) {\n                count++;\n            }\n        }\n    }",
+    "replace": "for (int i = 0; i < n; i++) {\n        for (int j = i + 1; j < n; j++) {\n            if (isValidPair(points, points[i], points[j])) {\n                count++;\n            }\n        }\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "private boolean isValidPair(int[][] points, int[] point1, int[] point2) {\\s*\\n" +
+              "        int upperLeftX = point1\\[0\\];\\s*\\n" +
+              "        int upperLeftY = point1\\[1\\];\\s*\\n" +
+              "        int lowerRightX = point2\\[0\\];\\s*\\n" +
+              "        int lowerRightY = point2\\[1\\];\\s*\\n" +
+              "        \\s*\\n" +
+              "        if \\(upperLeftX > lowerRightX \\|\\| upperLeftY < lowerRightY\\) return false;\\s*\\n" +
+              "        for \\(int\\[\\] point : points\\) {\\s*\\n" +
+              "            int x = point\\[0\\];\\s*\\n" +
+              "            int y = point\\[1\\];\\s*\\n" +
+              "\\s*\\n" +
+              "            if \\(x >= upperLeftX && x <= lowerRightX && y <= upperLeftY && y >= lowerRightY && !Arrays.equals\\(point, point1\\) && !Arrays.equals\\(point, point2\\)\\) {\\s*\\n" +
+              "                return false;\\s*\\n" +
+              "            }\\s*\\n" +
+              "        }\\s*\\n" +
+              "\\s*\\n" +
+              "        return true;\\s*\\n" +
+              "    }",
+    "replace": "private boolean isValidPair(int[][] points, int[] p1, int[] p2) {\n" +
+               "        int ulx = Math.min(p1[0], p2[0]);\n" +
+               "        int uly = Math.max(p1[1], p2[1]);\n" +
+               "        int lrx = Math.max(p1[0], p2[0]);\n" +
+               "        int lry = Math.min(p1[1], p2[1]);\n" +
+               "        for (int[] point : points) {\n" +
+               "            if (point == p1 || point == p2) continue;\n" +
+               "            int x = point[0], y = point[1];\n" +
+               "            if (x >= ulx && x <= lrx && y <= uly && y >= lry) {\n" +
+               "                return false;\n" +
+               "            }\n" +
+               "        }\n" +
+               "        return true;\n" +
+               "    }"
+  }
+]
+```

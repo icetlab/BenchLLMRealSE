@@ -1,0 +1,11 @@
+I replaced the recursive DP with an iterative, bottom-up DP that eliminates recursion overhead, removes repeated List allocations, and uses only constant extra space per layer for significant speed and stack-safety improvements.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public long minCost(int n, int[][] cost) {\n\n        //as 0,1,2 hi colors hai and first , aur uska pair last isko to kisi bhi color se kr skte hai, to inke liye prev color 3 dia hai\n\n        dp = new Long[n+1][4][4];\n        return func(0,3,3,cost);\n        \n    }",
+    "replace": "public long minCost(int n, int[][] cost) {\n    int half = n/2;\n    long INF = Long.MAX_VALUE/4;\n    // dpNext represents dp[i+1][prevColor][fwdColor]\n    long[][] dpNext = new long[4][4];\n    // base case: at i == half, cost is zero for all states\n    for (int pc = 0; pc < 4; pc++) {\n        for (int fc = 0; fc < 4; fc++) {\n            dpNext[pc][fc] = 0;\n        }\n    }\n    // build from i = half-1 down to 0\n    for (int i = half - 1; i >= 0; i--) {\n        long[][] dpCur = new long[4][4];\n        for (int pc = 0; pc < 4; pc++) {\n            for (int fc = 0; fc < 4; fc++) {\n                long best = INF;\n                // try all valid colors p,f for positions i and n-i-1\n                for (int p = 0; p < 3; p++) {\n                    if (p == pc) continue;\n                    for (int f = 0; f < 3; f++) {\n                        if (f == fc || f == p) continue;\n                        long val = cost[i][p] + cost[n - i - 1][f] + dpNext[p][f];\n                        if (val < best) best = val;\n                    }\n                }\n                dpCur[pc][fc] = best;\n            }\n        }\n        dpNext = dpCur;\n    }\n    return dpNext[3][3];\n}"
+  }
+]
+```

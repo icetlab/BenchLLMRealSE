@@ -1,0 +1,14 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int maximumEnergy(int[] energy, int k) {\n        int n=energy.length;\n        int pre[]=new int[n];",
+    "replace": "class Solution {\n    public int maximumEnergy(int[] energy, int k) {\n        int n=energy.length;\n        int maxEnergy = Integer.MIN_VALUE;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for(int i=n-1;i>=0;i--){\n            pre[i]=energy[i];\n            if(i+k<n){\n                pre[i]+=pre[i+k];\n            }\n        }\n\n        Arrays.sort(pre);\n\n        return pre[n-1];",
+    "replace": "        for(int i=n-1;i>=0;i--){\n            int sum = energy[i];\n            if(i+k<n){\n                sum += energy[i+k];\n                energy[i] = sum;\n            }\n            if(sum > maxEnergy) {\n                maxEnergy = sum;\n            }\n        }\n\n        return maxEnergy;"
+  }
+]
+```

@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "The original code uses a nested loop over all character frequencies, which is O(k^2) where k is the number of distinct characters. We can improve this to O(k) by tracking the maximum odd frequency and the minimum even frequency, then computing the difference directly. This preserves the exact same result while reducing unnecessary comparisons.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "        int max = Integer.MIN_VALUE;\n\n        // Compare odd and even frequencies\n        for (Map.Entry<Character, Integer> entry1 : map.entrySet()) {\n            int freq1 = entry1.getValue();\n            for (Map.Entry<Character, Integer> entry2 : map.entrySet()) {\n                int freq2 = entry2.getValue();\n\n                // freq1 is odd, freq2 is even → calculate (odd - even)\n                if (freq1 % 2 != 0 && freq2 % 2 == 0) {\n                    max = Math.max(max, freq1 - freq2);\n                }\n            }\n        }\n\n        return max == Integer.MIN_VALUE ? 0 : max;",
+      "replace": "        int maxOdd = Integer.MIN_VALUE;\n        int minEven = Integer.MAX_VALUE;\n\n        // Find maximum odd frequency and minimum even frequency\n        for (int freq : map.values()) {\n            if (freq % 2 == 0) {\n                minEven = Math.min(minEven, freq);\n            } else {\n                maxOdd = Math.max(maxOdd, freq);\n            }\n        }\n\n        // If both an odd and an even frequency exist, return their difference\n        if (maxOdd != Integer.MIN_VALUE && minEven != Integer.MAX_VALUE) {\n            return maxOdd - minEven;\n        }\n        return 0;"
+    }
+  ]
+}

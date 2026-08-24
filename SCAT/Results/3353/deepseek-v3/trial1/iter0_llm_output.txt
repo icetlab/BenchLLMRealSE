@@ -1,0 +1,16 @@
+## Improvement Intent
+
+The original code has several performance issues: it uses string concatenation in a loop (O(n²) due to immutability), creates unnecessary substrings, and has redundant loops. I'll optimize by:
+1. Using `StringBuilder` for efficient string reversal
+2. Combining the substring collection and checking in a single pass
+3. Reducing memory allocations by checking substrings directly without creating a reversed string
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public boolean isSubstringPresent(String s) {\n    String k = \"\";\n    HashSet<String> common = new HashSet<>();\n    for (int i = s.length()-1; i >= 0; i--) {\n        k += s.charAt(i);\n    }\n\n    for (int h = 0; h < (s.length()-1); h += 1) {\n        common.add(s.substring(h,h+2));\n    }\n\n    for (int i = 0; i < s.length() - 1; i++) {\n        if (common.contains(k.substring(i,i+2))) {\n            return true;\n        }\n    }\n    return false;\n}\n}",
+    "replace": "class Solution {\n    public boolean isSubstringPresent(String s) {\n        if (s.length() < 2) return false;\n        \n        HashSet<String> common = new HashSet<>();\n        for (int h = 0; h < s.length() - 1; h++) {\n            common.add(s.substring(h, h + 2));\n        }\n        \n        for (int i = s.length() - 1; i > 0; i--) {\n            if (common.contains(s.substring(i - 1, i + 1))) {\n                return true;\n            }\n        }\n        return false;\n    }\n}"
+  }
+]
+```

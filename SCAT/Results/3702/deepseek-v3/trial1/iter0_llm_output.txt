@@ -1,0 +1,11 @@
+The main performance bottleneck is the O(n³) time complexity from generating subarrays and recomputing product, GCD, and LCM from scratch for each subarray. I will optimize by using sliding window expansion: for each starting index, extend the end index while maintaining running product, GCD, and LCM incrementally. This reduces complexity to O(n²) and avoids array allocation.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int maxLength(int[] nums) {\n        int maxLength = 0;\n        for (int i = 0; i < nums.length; i++) {\n            for (int j = i; j < nums.length; j++) {\n                int[] subarray = new int[j - i + 1];\n                for (int k = i; k <= j; k++) {\n                    subarray[k - i] = nums[k];\n                }\n                if (isProductEquivalent(subarray)) {\n                    maxLength = Math.max(maxLength, subarray.length);\n                }\n            }\n        }\n        return maxLength;\n    }\n\n    private boolean isProductEquivalent(int[] arr) {\n        if (arr.length == 0) {\n            return false;\n        }\n        long product = 1;\n        for (int num : arr) {\n            product *= num;\n        }\n        long gcd = arr[0];\n        for (int i = 1; i < arr.length; i++) {\n            gcd = gcd(gcd, arr[i]);\n        }\n        long lcm = arr[0];\n        for (int i = 1; i < arr.length; i++) {\n            lcm = lcm(lcm, arr[i]);\n        }\n        return product == lcm * gcd;\n    }",
+    "replace": "    public int maxLength(int[] nums) {\n        int maxLength = 0;\n        int n = nums.length;\n        for (int i = 0; i < n; i++) {\n            long product = 1;\n            long gcdVal = 0;\n            long lcmVal = 1;\n            for (int j = i; j < n; j++) {\n                long num = nums[j];\n                product *= num;\n                gcdVal = (gcdVal == 0) ? num : gcd(gcdVal, num);\n                lcmVal = lcm(lcmVal, num);\n                if (product == lcmVal * gcdVal) {\n                    maxLength = Math.max(maxLength, j - i + 1);\n                }\n            }\n        }\n        return maxLength;\n    }"
+  }
+]
+```

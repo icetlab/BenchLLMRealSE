@@ -1,0 +1,19 @@
+The primary performance bottleneck in the original code is the use of `String` concatenation to create keys for the memoization map. String creation, hashing, and comparison are significantly slower than using a primitive type like `long`.
+
+My improvement strategy is to replace the `String`-based memoization key with a `long`. Since the constraints on the array length `n` (up to 2000) and element values (up to 1000) are moderate, the state `(i, j, score)` can be encoded into a single `long` value using bitwise operations. This avoids the overhead of `String` objects, leading to a substantial performance gain.
+
+Additionally, I've made minor improvements for correctness and readability:
+1.  Added a guard clause to handle arrays with fewer than two elements.
+2.  Refactored the logic inside the methods to be slightly clearer while preserving the original algorithm.
+
+These changes are applied as a single atomic unit because the modifications to the `hash` function, the recursive helper, and the main `maxOperations` method are all interdependent.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int maxOperations(int[] nums) {\n    final int n = nums.length;\n    Map<String, Integer> mem = new HashMap<>();\n    return Math.max(Math.max(maxOperations(nums, 0, n - 1, nums[0] + nums[1], mem),\n                             maxOperations(nums, 0, n - 1, nums[n - 1] + nums[n - 2], mem)),\n                    maxOperations(nums, 0, n - 1, nums[0] + nums[n - 1], mem));\n  }\n\n  // Returns the maximum number of operations that can be performed for\n  // nums[i..j], s.t. all operations have the same `score`.\n  private int maxOperations(int[] nums, int i, int j, int score, Map<String, Integer> mem) {\n    if (i >= j)\n      return 0;\n    final String key = hash(i, j, score);\n    if (mem.containsKey(key))\n      return mem.get(key);\n    final int deleteFirstTwo =\n        nums[i] + nums[i + 1] == score ? 1 + maxOperations(nums, i + 2, j, score, mem) : 0;\n    final int deleteLastTwo =\n        nums[j] + nums[j - 1] == score ? 1 + maxOperations(nums, i, j - 2, score, mem) : 0;\n    final int deleteFirstAndLast =\n        nums[i] + nums[j] == score ? 1 + maxOperations(nums, i + 1, j - 1, score, mem) : 0;\n    mem.put(key, Math.max(Math.max(deleteFirstTwo, deleteLastTwo), deleteFirstAndLast));\n    return mem.get(key);\n  }\n\n  private String hash(int i, int j, int score) {\n    return i + \",\" + j + \",\" + score;\n  }",
+    "replace": "public int maxOperations(int[] nums) {\n    final int n = nums.length;\n    if (n < 2) {\n      return 0;\n    }\n    Map<Long, Integer> mem = new HashMap<>();\n    int res1 = maxOperations(nums, 0, n - 1, nums[0] + nums[1], mem);\n    int res2 = maxOperations(nums, 0, n - 1, nums[n - 1] + nums[n - 2], mem);\n    int res3 = maxOperations(nums, 0, n - 1, nums[0] + nums[n - 1], mem);\n    return Math.max(res1, Math.max(res2, res3));\n  }\n\n  // Returns the maximum number of operations that can be performed for\n  // nums[i..j], s.t. all operations have the same `score`.\n  private int maxOperations(int[] nums, int i, int j, int score, Map<Long, Integer> mem) {\n    if (i >= j) {\n      return 0;\n    }\n    final long key = hash(i, j, score);\n    if (mem.containsKey(key)) {\n      return mem.get(key);\n    }\n    int res = 0;\n    if (nums[i] + nums[i + 1] == score) {\n      res = Math.max(res, 1 + maxOperations(nums, i + 2, j, score, mem));\n    }\n    if (nums[j] + nums[j - 1] == score) {\n      res = Math.max(res, 1 + maxOperations(nums, i, j - 2, score, mem));\n    }\n    if (nums[i] + nums[j] == score) {\n      res = Math.max(res, 1 + maxOperations(nums, i + 1, j - 1, score, mem));\n    }\n    mem.put(key, res);\n    return res;\n  }\n\n  private long hash(int i, int j, int score) {\n    return ((long) i << 22) | ((long) j << 11) | score;\n  }"
+  }
+]
+```

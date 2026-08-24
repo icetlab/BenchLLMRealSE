@@ -1,0 +1,11 @@
+Instead of creating padded strings and a `StringBuilder`, the optimized version extracts digits arithmetically using modulo and division, building the resulting key directly with integer arithmetic. This avoids multiple string allocations and character conversions.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "      String s1 = String.format(\"%04d\",num1);\n      String s2 = String.format(\"%04d\",num2);\n      String s3= String.format(\"%04d\",num3);\n\n      StringBuilder sb = new StringBuilder();\n      for(int i=0;i<4;i++){\n        char min=(char)Math.min(s1.charAt(i),Math.min(s2.charAt(i),s3.charAt(i)));\n        sb.append(min);\n      }\n\n      return Integer.parseInt(sb.toString());",
+    "replace": "      int key = 0;\n      int place = 1;\n      for (int i = 0; i < 4; i++) {\n        int d1 = num1 % 10;\n        int d2 = num2 % 10;\n        int d3 = num3 % 10;\n        int min = Math.min(d1, Math.min(d2, d3));\n        key += min * place;\n        place *= 10;\n        num1 /= 10;\n        num2 /= 10;\n        num3 /= 10;\n      }\n      return key;"
+  }
+]
+```

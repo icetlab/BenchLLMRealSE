@@ -1,0 +1,8 @@
+{
+  "outcome": "implausible",
+  "stage": "format",
+  "message": "Block 1: search text not found in source.\nsearch='for(i=0;i<nums.length;i++) {\\n            int j = (i + 1) % nums.length;\\n            int r= Math.abs(nums[i]-nums[j]) ;\\n            l.add(r);\\n            \\n         }'",
+  "iteration": 2,
+  "format_attempts": 2,
+  "verify_attempts": 0
+}

@@ -1,0 +1,44 @@
+>> The source file (Solution.java) is:
+class Solution {
+   public int maxAdjacentDistance(int[] nums) {
+		 int i=0;
+		 
+		 List<Integer> l=new ArrayList<>();
+		 for(i=0;i<nums.length;i++) {
+			 int j = (i + 1) % nums.length;
+			int r= Math.abs(nums[i]-nums[j]) ;
+			l.add(r);
+				
+		 }
+		 int cir=nums[0]-nums[nums.length-1];
+		 l.add(cir);
+		 int[] array = new int[l.size()];
+	        for (int k = 0; k < l.size(); k++) {
+	            array[k] = l.get(k);
+	        }
+	        Arrays.sort(array);
+	        
+		 
+		 
+		 
+		return array[array.length-1];
+	        
+	    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,2,4
+  expected output: 3
+Example 2:
+  input: -5,-10,-5
+  expected output: 5
+Example 3:
+  input: 5,5
+  expected output: 0
+Example 4:
+  input: 1,2,3,4,5
+  expected output: 4
+Example 5:
+  input: 5,4,3,2,1
+  expected output: 4

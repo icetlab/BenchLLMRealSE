@@ -1,0 +1,16 @@
+Improvement intent: add the missing `Arrays` import, allocate the DP array only up to the largest input value, and track the maximum answer during updates instead of scanning the full 1e6-sized DP array at the end.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.Arrays;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int n = nums.length;\n        int[] dp = new int[1000002 + 2];  // dp of size 1e6 + 2 (maximum nums[i] is 1e6)\n\n        for (int j = n - 1; j >= 0; j--) {\n            dp[nums[j]] = Math.max(dp[nums[j]], 1 + dp[nums[j] + 1]);\n            dp[nums[j] + 1] = Math.max(dp[nums[j] + 1], 1 + dp[nums[j] + 2]);\n        }\n\n        int ans = 0;\n        for (int val : dp) {\n            ans = Math.max(ans, val);\n        }\n        return ans;",
+    "replace": "        int n = nums.length;\n        if (n == 0) {\n            return 0;\n        }\n\n        // Only allocate up to the largest value + 2 for the transitions.\n        int maxVal = nums[n - 1];\n        int[] dp = new int[maxVal + 3];\n\n        int ans = 0;\n        for (int j = n - 1; j >= 0; j--) {\n            int val = nums[j];\n\n            dp[val] = Math.max(dp[val], 1 + dp[val + 1]);\n            if (dp[val] > ans) ans = dp[val];\n\n            dp[val + 1] = Math.max(dp[val + 1], 1 + dp[val + 2]);\n            if (dp[val + 1] > ans) ans = dp[val + 1];\n        }\n\n        return ans;"
+  }
+]
+```

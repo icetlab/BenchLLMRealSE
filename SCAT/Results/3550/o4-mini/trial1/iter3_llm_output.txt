@@ -1,0 +1,11 @@
+I’ve aligned the local column count in `solve` to the DP array’s mask dimension, ensuring we never shift beyond the allocated size.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int m = arr[0].length;",
+    "replace": "int m = Integer.numberOfTrailingZeros(dp[0][0].length);"
+  }
+]
+```

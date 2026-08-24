@@ -1,0 +1,21 @@
+The changes unify the two per-bit HashMaps into a single reused map storing min/max pairs, reducing object creation and lookups, and add the necessary imports.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int res = 0;",
+    "replace": "int res = 0;\n        Map<Integer, int[]> map = new HashMap<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for (int i = 20; i >= 0; i--) {\n            res <<= 1;\n            HashMap<Integer, Integer> pref = new HashMap<>(), pref2 = new HashMap<>();\n            for (int a : A) {\n                int p = a >> i;\n                if (!pref.containsKey(p)) {\n                    pref.put(p, a);\n                    pref2.put(p, a);\n                }\n                pref.put(p, Math.min(pref.get(p), a));\n                pref2.put(p, Math.max(pref2.get(p), a));\n            }\n            for (int x : pref.keySet()) {\n                int y = res ^ 1 ^ x;\n                if (x >= y && pref.containsKey(y) && pref.get(x) <= pref2.get(y) * 2) {\n                    res |= 1;\n                    break;\n                }\n            }\n        }",
+    "replace": "        for (int i = 20; i >= 0; i--) {\n            res <<= 1;\n            map.clear();\n            for (int a : A) {\n                int p = a >> i;\n                int[] mm = map.get(p);\n                if (mm == null) {\n                    map.put(p, new int[] { a, a });\n                } else {\n                    if (a < mm[0]) mm[0] = a;\n                    if (a > mm[1]) mm[1] = a;\n                }\n            }\n            for (Map.Entry<Integer, int[]> e : map.entrySet()) {\n                int x = e.getKey();\n                int y = res ^ 1 ^ x;\n                if (x >= y) {\n                    int[] mm1 = e.getValue();\n                    int[] mm2 = map.get(y);\n                    if (mm2 != null && mm1[0] <= mm2[1] * 2) {\n                        res |= 1;\n                        break;\n                    }\n                }\n            }\n        }"
+  }
+]
+```

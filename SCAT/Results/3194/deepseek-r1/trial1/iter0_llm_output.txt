@@ -1,0 +1,16 @@
+Improved performance by replacing the per-word `List<Character>` scan with `String.indexOf` and avoiding the full copy of `words` into an `ArrayList`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public static boolean ans(String s,char w){\n        boolean re=true;\n        List<Character> l=new ArrayList<>();\n        for(char i:s.toCharArray()) l.add(i);\n        if(!l.contains(w)) re=false;\n        return re;\n    }",
+    "replace": "    public static boolean ans(String s,char w){\n        return s.indexOf(w) >= 0;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for(String i:words){\n            l.add(i);\n        }",
+    "replace": "        l = java.util.Arrays.asList(words);"
+  }
+]
+```

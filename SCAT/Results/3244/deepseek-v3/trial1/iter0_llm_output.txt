@@ -1,0 +1,18 @@
+## Improvement Intent
+
+The current code has a few performance issues:
+1. It iterates through the array twice unnecessarily
+2. The modulo operation `nums[i] % min != 0` can be optimized by checking if any number is not divisible by min
+3. The HashMap can be replaced with a simpler frequency counting approach since we only need the minimum element's frequency
+
+The main optimization is to combine the two loops into one and use a more efficient check for non-divisible numbers.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "HashMap<Integer,Integer> map=new HashMap<>();\n        int min=Integer.MAX_VALUE;\n\n        for(int i=0;i<nums.length;i++){\n            map.put(nums[i],map.getOrDefault(nums[i],0)+1);\n            min=Math.min(min,nums[i]);\n        }   \n\n        if(map.get(min)==1){\n            return 1;\n        }\n        else if(map.get(min)>1){\n            for(int i=0;i<nums.length;i++){\n                if(nums[i]%min!=0){\n                    return 1;\n                }\n            }\n        }\n        \n        return (int)Math.ceil((double)map.get(min)/2);",
+    "replace": "int min = Integer.MAX_VALUE;\n        int minCount = 0;\n        boolean hasNonDivisible = false;\n\n        for (int num : nums) {\n            if (num < min) {\n                min = num;\n                minCount = 1;\n                hasNonDivisible = false;\n            } else if (num == min) {\n                minCount++;\n            } else if (num % min != 0) {\n                hasNonDivisible = true;\n            }\n        }\n\n        if (minCount == 1 || hasNonDivisible) {\n            return 1;\n        }\n        \n        return (minCount + 1) / 2;"
+  }
+]
+```

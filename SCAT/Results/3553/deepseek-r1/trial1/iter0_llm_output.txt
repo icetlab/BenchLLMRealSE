@@ -1,0 +1,11 @@
+The main improvement is to remove unnecessary console I/O and reduce the color calculation to a single direct parity check. Since chessboard color depends only on whether `(column + row)` is even or odd, and the constant ASCII offsets cancel out, we can compare the sums of the two characters directly.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public boolean checkTwoChessboards(String coordinate1, String coordinate2) {\n        int col1 = coordinate1.charAt(0)-'a';\n        int row1 = coordinate1.charAt(1)- '1';\n        int color1 = (col1+row1)%2;\n\n        int col2 = coordinate2.charAt(0)-'a';\n        int row2 = coordinate2.charAt(1)- '1';\n        int color2 = (col2+row2)%2;\n\n        if (color1==color2){\n            System.out.print(\"both have same color \");\n            return true;\n\n        }else{\n            System.out.println(\"they have different colour\");\n            return false;\n        }\n\n    }",
+    "replace": "    public boolean checkTwoChessboards(String coordinate1, String coordinate2) {\n        return ((coordinate1.charAt(0) + coordinate1.charAt(1)) & 1)\n            == ((coordinate2.charAt(0) + coordinate2.charAt(1)) & 1);\n    }"
+  }
+]
+```

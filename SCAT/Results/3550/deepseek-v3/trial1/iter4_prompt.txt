@@ -1,0 +1,92 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 14: expected='299922' got='299884'
+>>>> Your previous output was:
+We need to fix the memoization key. The previous change used a bit-shift that can cause collisions or incorrect keys because `mask` can be up to 2^m (m up to maybe 15), and shifting by 20 may not be enough, or the key encoding is wrong. Also, the original code had a hardcoded special case for a large test case, which we should remove because it's not general. The error shows a mismatch for case 14, meaning the special-case hack is wrong. We should remove those hardcoded returns and rely on correct DP.
+
+The main performance improvement: use a proper long key encoding without collisions. Since `m` can be up to 15, mask fits in 15 bits, rooks up to 3, row up to n (maybe up to 15). We can encode as `((long)row << 20) | (mask << 2) | rooks` – but mask can be up to 2^15 = 32768, shifting by 2 gives up to 131072, which fits in 17 bits. row up to 15 fits in 4 bits, so shifting row by 20 is safe. But we need to ensure no overlap: mask<<2 uses bits 2-16, rooks uses bits 0-1, row<<20 uses bits 20+. That's fine. However, the original code had a special case for a large test case, which is not general and caused the failure. We should remove those hardcoded returns.
+
+Let's produce a patch that:
+1. Changes the DP map to `Map<Long, Long>` and key encoding.
+2. Removes the hardcoded special-case returns in `maximumValueSum`.
+
+We'll provide two atomic changes.```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "long solve(int[][] arr, int row, int mask, int rooks, Map<String, Long>dp)\n    {\n        int n = arr.length;\n        int m = arr[0].length;\n        if(rooks == 0)\n        {  \n            return 0;    \n        }\n        if(row >= n)\n        {\n            return Integer.MIN_VALUE;\n        }\n        String key = row + \"-\" + rooks + \"-\" + mask;\n        if(dp.containsKey(key))\n            return dp.get(key);\n        long ans = solve(arr, row + 1, mask, rooks, dp);\n        for(int i = 0; i < m; i++)\n        {\n            if((mask & (1 << i)) == 0)\n            {\n                long temp =  solve(arr, row + 1, mask | (1 << i), rooks - 1, dp);\n                if(temp != Integer.MIN_VALUE)\n                    ans = Math.max(ans, arr[row][i] + temp);\n            }\n\n        }\n        dp.put(key, ans);\n        return ans;      \n    }",
+    "replace": "long solve(int[][] arr, int row, int mask, int rooks, Map<Long, Long>dp)\n    {\n        int n = arr.length;\n        int m = arr[0].length;\n        if(rooks == 0)\n        {  \n            return 0;    \n        }\n        if(row >= n)\n        {\n            return Integer.MIN_VALUE;\n        }\n        long key = ((long)row << 20) | (mask << 2) | rooks;\n        if(dp.containsKey(key))\n            return dp.get(key);\n        long ans = solve(arr, row + 1, mask, rooks, dp);\n        for(int i = 0; i < m; i++)\n        {\n            if((mask & (1 << i)) == 0)\n            {\n                long temp =  solve(arr, row + 1, mask | (1 << i), rooks - 1, dp);\n                if(temp != Integer.MIN_VALUE)\n                    ans = Math.max(ans, arr[row][i] + temp);\n            }\n\n        }\n        dp.put(key, ans);\n        return ans;      \n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Map<String, Long> dp = new HashMap<>();\n        long x =  solve(board, 0, 0, 3, dp);\n\n        if(x == 2994747916L)\n            return 2995249185L;\n        if( x == -2147483648L)\n            return -3000000000L;    \n        return x;    ",
+    "replace": "Map<Long, Long> dp = new HashMap<>();\n        long x =  solve(board, 0, 0, 3, dp);\n        return x;    "
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+
+    long solve(int[][] arr, int row, int mask, int rooks, Map<String, Long>dp)
+    {
+        int n = arr.length;
+        int m = arr[0].length;
+        if(rooks == 0)
+        {  
+            return 0;    
+        }
+        if(row >= n)
+        {
+            return Integer.MIN_VALUE;
+        }
+        String key = row + "-" + rooks + "-" + mask;
+        if(dp.containsKey(key))
+            return dp.get(key);
+        long ans = solve(arr, row + 1, mask, rooks, dp);
+        for(int i = 0; i < m; i++)
+        {
+            if((mask & (1 << i)) == 0)
+            {
+                long temp =  solve(arr, row + 1, mask | (1 << i), rooks - 1, dp);
+                if(temp != Integer.MIN_VALUE)
+                    ans = Math.max(ans, arr[row][i] + temp);
+            }
+
+        }
+        dp.put(key, ans);
+        return ans;      
+    }
+    public long maximumValueSum(int[][] board) {
+
+        int n = board.length;
+        int m = board[0].length;
+        Map<String, Long> dp = new HashMap<>();
+        long x =  solve(board, 0, 0, 3, dp);
+
+        if(x == 2994747916L)
+            return 2995249185L;
+        if( x == -2147483648L)
+            return -3000000000L;    
+        return x;    
+        
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,2,3|4,5,6|7,8,9
+  expected output: 15
+Example 2:
+  input: 1,1,1|1,1,1|1,1,1
+  expected output: 3
+Example 3:
+  input: -3,1,1,1|-3,1,-3,1|-3,2,1,1
+  expected output: 4
+Example 4:
+  input: -5,-4,-3|-2,-1,-6|-7,-8,-9
+  expected output: -11
+Example 5:
+  input: 0,1,-1,5|2,4,6,-2|3,-3,1,1
+  expected output: 14
+

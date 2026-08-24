@@ -1,0 +1,15 @@
+The original code uses a dynamic programming approach with a time complexity of `O(sum(nums) + n*K)`, where `n` is the length of the input array and `K` is the maximum possible value in `nums` (hardcoded as 1000). The `sum(nums)` term arises from an inner loop whose iterations depend on the value of `nums[i]`. When the sum of elements in `nums` is large, this can lead to poor performance.
+
+My improvement focuses on removing this dependency on `nums[i]` from the loop's complexity. I observed that the values being computed in the inner loop (`dpc[i][j]`) have a predictable structure. This allows for the derivation of a closed-form mathematical formula for their prefix sums (`dpp[i][k]`).
+
+By pre-calculating a "prefix sum of prefix sums" array for each row in `O(K)` time, I can use this new formula to compute the entire next row of the DP table. This is done in two parts: one loop up to `nums[i]` using the formula, and another for the rest of the array by propagating the last calculated value. Both parts together take `O(K)` time. This makes the complexity for each step of the main `i` loop constant `O(K)`, leading to an improved overall time complexity of `O(n*K)`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "for(int j=1;j<=1000;j++) dp[n-1][j]+=dp[n-1][j-1];\n        for(int i=n-2;i>=0;i--){\n            for(int j=0;j<=nums[i];j++){\n                int l=Math.max(j,nums[i+1]-nums[i]+j);\n                int h=nums[i+1];\n                dp[i][j]=(dp[i+1][h])%mod;\n                if(l>0) dp[i][j]=(dp[i][j]-dp[i+1][l-1])%mod;\n                dp[i][j]+=mod;\n                dp[i][j]%=mod;\n            }\n            for(int j=1;j<=1000;j++){\n                dp[i][j]+=dp[i][j-1];\n                dp[i][j]%=mod;\n            }\n        }",
+    "replace": "for(int j=1;j<=1000;j++) dp[n-1][j]+=dp[n-1][j-1];\n        long[] dppp = new long[1002];\n        for(int i=n-2;i>=0;i--){\n            dppp[0] = dp[i+1][0];\n            for (int k = 1; k < 1002; k++) {\n                dppp[k] = (dppp[k - 1] + dp[i+1][k]) % mod;\n            }\n\n            int h = nums[i+1];\n            long C = dp[i+1][h];\n            int d = nums[i+1] - nums[i];\n\n            if (d <= 0) {\n                for (int k = 0; k <= nums[i]; k++) {\n                    long sum_g = (k > 0) ? dppp[k - 1] : 0;\n                    long term1 = (1L * (k + 1) * C);\n                    dp[i][k] = (term1 % mod - sum_g + mod) % mod;\n                }\n            } else { // d > 0\n                long dppp_d_minus_2 = (d > 1) ? dppp[d - 2] : 0;\n                for (int k = 0; k <= nums[i]; k++) {\n                    long sum_g = (dppp[d + k - 1] - dppp_d_minus_2 + mod) % mod;\n                    long term1 = (1L * (k + 1) * C);\n                    dp[i][k] = (term1 % mod - sum_g + mod) % mod;\n                }\n            }\n\n            if (nums[i] <= 1000) {\n                long last_val = dp[i][nums[i]];\n                for (int k = nums[i] + 1; k <= 1000; k++) {\n                    dp[i][k] = last_val;\n                }\n            }\n        }"
+  }
+]
+```

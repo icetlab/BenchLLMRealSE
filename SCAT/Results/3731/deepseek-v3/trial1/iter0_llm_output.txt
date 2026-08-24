@@ -1,0 +1,25 @@
+Looking at this code, I need to understand the algorithm first. The code calculates the sum of subarrays where each subarray starts at `max(0, i - nums[i])` and ends at `i`. The prefix sum array is used to efficiently calculate these subarray sums.
+
+The main performance issue is the unnecessary `System.out.println()` statement which causes I/O overhead. The algorithm itself is already O(n) which is optimal for this problem.
+
+The improvement will focus on:
+1. Removing the unnecessary print statement
+2. Simplifying the code structure for better readability and performance
+3. Removing unused variable initialization
+
+Here's my solution:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int n = nums.length;\n        int sum = 0;\n        int[] prefix = new int[n];\n        int start = 0;\n\n        prefix[0] = nums[0];\n        for (int i = 1; i < n; i++) {\n            prefix[i] = prefix[i - 1] + nums[i];\n        }\n        System.out.println();",
+    "replace": "        int n = nums.length;\n        int sum = 0;\n        int[] prefix = new int[n];\n\n        prefix[0] = nums[0];\n        for (int i = 1; i < n; i++) {\n            prefix[i] = prefix[i - 1] + nums[i];\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for (int i = 0; i < n; i++) {\n            start = Math.max(0, i - nums[i]);\n\n            if (start == 0) {\n                sum += prefix[i];\n            } else {\n                sum += prefix[i] - prefix[start - 1];\n            }\n\n        }",
+    "replace": "        for (int i = 0; i < n; i++) {\n            int start = Math.max(0, i - nums[i]);\n            sum += prefix[i] - (start > 0 ? prefix[start - 1] : 0);\n        }"
+  }
+]
+```

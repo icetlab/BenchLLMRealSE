@@ -1,0 +1,11 @@
+I’ve added a direct check after the recursive up‐move to count any immediate “up after down” landing exactly on k, which was previously omitted.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "res += helper(move.up(), k, cache);",
+    "replace": "res += helper(move.up(), k, cache);\n        // count direct up after down landing on k\n        if (move.lastDirection == Direction.DOWN) {\n            Move upMove = move.up();\n            if (upMove.currentStair == k) res++;\n        }"
+  }
+]
+```

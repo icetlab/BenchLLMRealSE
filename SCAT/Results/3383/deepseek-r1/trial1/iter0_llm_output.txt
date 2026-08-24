@@ -1,0 +1,11 @@
+The original code sorts a full prefix/suffix array to find the maximum, which is unnecessary. I replaced it with a single backward pass that keeps one suffix sum per residue modulo `k`, reducing time from O(n log n) to O(n) and memory from O(n) to O(min(k, n)).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int maximumEnergy(int[] energy, int k) {\n        int n=energy.length;\n        int pre[]=new int[n];\n\n        for(int i=n-1;i>=0;i--){\n            pre[i]=energy[i];\n            if(i+k<n){\n                pre[i]+=pre[i+k];\n            }\n        }\n\n        Arrays.sort(pre);\n\n        return pre[n-1];\n    }",
+    "replace": "public int maximumEnergy(int[] energy, int k) {\n        int n = energy.length;\n        int[] tail = new int[Math.min(k, n)];\n        int max = Integer.MIN_VALUE;\n\n        for (int i = n - 1; i >= 0; i--) {\n            int r = i % k;\n            tail[r] += energy[i];\n            if (tail[r] > max) {\n                max = tail[r];\n            }\n        }\n\n        return max;\n    }"
+  }
+]
+```

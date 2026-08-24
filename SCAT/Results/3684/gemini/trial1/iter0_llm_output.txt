@@ -1,0 +1,13 @@
+The original code has several performance and correctness issues. First, it creates a new intermediate substring (`str2`) from the original string, which is inefficient due to memory allocation and data copying, especially for large strings. Second, it contains redundant string searches and debugging print statements that add unnecessary I/O overhead. Finally, the original code is not robust and can throw a `StringIndexOutOfBoundsException` if the prefix is not found and is longer than the main string.
+
+My improvement addresses these problems by replacing the entire method body with a more direct and efficient approach. The new implementation avoids creating any intermediate substrings by using the `String.indexOf(String str, int fromIndex)` method to search for the suffix from the correct starting position. It also removes the redundant checks and I/O calls, and includes a proper check for the prefix's existence, which simultaneously fixes the potential crash and improves clarity. This results in a faster, more memory-efficient, and more robust solution.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "         int startIndex = subStr.indexOf(\"*\");\n         String prefix = subStr.substring(0,startIndex);\n         String suffix = subStr.substring(startIndex+1);\n         String str2 = str.substring(str.indexOf(prefix)+prefix.length());\n         System.out.println(prefix);\n         System.out.println(suffix);\n         System.out.println(str2);\n         if(str.contains(prefix) && str2.contains(suffix))\n            return true;\n\n         return false;",
+    "replace": "        int starIndex = subStr.indexOf('*');\n        String prefix = subStr.substring(0, starIndex);\n        String suffix = subStr.substring(starIndex + 1);\n\n        // Find the first occurrence of the prefix.\n        int prefixPos = str.indexOf(prefix);\n        if (prefixPos == -1) {\n            return false;\n        }\n\n        // Define where to start searching for the suffix: right after the prefix.\n        int searchStartForSuffix = prefixPos + prefix.length();\n\n        // Search for the suffix in the remainder of the string without creating a new substring.\n        return str.indexOf(suffix, searchStartForSuffix) != -1;"
+  }
+]
+```

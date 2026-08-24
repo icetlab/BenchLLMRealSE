@@ -1,0 +1,11 @@
+The provided code is already efficient with an `O(n)` time complexity. My improvements focus on robustness and micro-optimizations. I've merged the two main loops into a single pass to improve data locality and reduce loop overhead. To prevent potential integer overflow with large inputs, I've changed the data type for the sum and prefix sums from `int` to `long`. Additionally, I've added a guard clause for empty input arrays to prevent runtime errors and removed unnecessary code like a `System.out.println()` call and debugging comments.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int subarraySum(int[] nums) {\n\n        int n = nums.length;\n        int sum = 0;\n        int[] prefix = new int[n];\n        int start = 0;\n\n        prefix[0] = nums[0];\n        for (int i = 1; i < n; i++) {\n            prefix[i] = prefix[i - 1] + nums[i];\n        }\n        System.out.println();\n\n        // [2, 5, 1, 5]\n        // [2, 7, 8, 13]\n\n        // 2 + 7 = 9 + 6 = 15 + 11 = 26\n\n        for (int i = 0; i < n; i++) {\n            start = Math.max(0, i - nums[i]);\n\n            if (start == 0) {\n                sum += prefix[i];\n            } else {\n                sum += prefix[i] - prefix[start - 1];\n            }\n\n        }\n\n        return sum;\n        \n    }",
+    "replace": "public int subarraySum(int[] nums) {\n        int n = nums.length;\n        if (n == 0) {\n            return 0;\n        }\n\n        long[] prefix = new long[n];\n        prefix[0] = nums[0];\n\n        // The sum for i=0 is always prefix[0] because start will be 0.\n        long sum = prefix[0];\n\n        // Calculate prefix sums and the total sum in a single pass.\n        for (int i = 1; i < n; i++) {\n            prefix[i] = prefix[i - 1] + nums[i];\n            int start = Math.max(0, i - nums[i]);\n            if (start == 0) {\n                sum += prefix[i];\n            } else {\n                sum += prefix[i] - prefix[start - 1];\n            }\n        }\n\n        return (int) sum;\n    }"
+  }
+]
+```

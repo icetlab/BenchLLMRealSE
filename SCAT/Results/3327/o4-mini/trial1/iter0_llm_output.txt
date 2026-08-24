@@ -1,0 +1,21 @@
+We can reduce per‐iteration overhead by inlining the frequent Math.min/Math.max calls into primitive ternary expressions, avoiding extra static method dispatches in the hot loops. These changes are semantics‐preserving but will slightly speed up each inner iteration.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int c = Math.min(need, maxChanges);",
+    "replace": "int c = need <= maxChanges ? need : maxChanges;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int l = 2, r = Math.max(i - 1, n - i);",
+    "replace": "int l = 2, r = (i - 1) > (n - i) ? (i - 1) : (n - i);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int l1 = Math.max(1, i - mid), r1 = Math.max(0, i - 2);\n                int l2 = Math.min(n + 1, i + 2), r2 = Math.min(n, i + mid);",
+    "replace": "int l1 = (i - mid) > 1 ? (i - mid) : 1, r1 = (i - 2) > 0 ? (i - 2) : 0;\n                int l2 = (i + 2) <= (n + 1) ? (i + 2) : (n + 1), r2 = (i + mid) <= n ? (i + mid) : n;"
+  }
+]
+```

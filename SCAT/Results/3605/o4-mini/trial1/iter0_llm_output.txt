@@ -1,0 +1,11 @@
+I’ve replaced the nested brute‐force loops with an O(1) per‐element bit‐manipulation that counts the trailing ones in each input and computes the corresponding j directly, falling back to –1 when there are no trailing ones.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int[] arr = new int[nums.size()];\n        for (int i=0; i<nums.size(); i++){\n            for (int j=0; j<nums.get(i); j++){\n                if ((j | (j+1)) == nums.get(i)){\n                    arr[i]=j;\n                    break;\n                }\n                if (arr[i]==0){\n                    arr[i]=-1;\n                } \n            }\n        }\n        return arr;",
+    "replace": "int[] arr = new int[nums.size()];\n        for (int i = 0; i < nums.size(); i++) {\n            int x = nums.get(i);\n            // count trailing ones in x\n            int m = 0;\n            int tmp = x;\n            while ((tmp & 1) == 1) {\n                m++;\n                tmp >>>= 1;\n            }\n            if (m == 0) {\n                arr[i] = -1;\n            } else {\n                int high = x >>> m;\n                // rebuild j: high bits of x plus (m-1) ones at LSB\n                arr[i] = (high << m) | ((1 << (m - 1)) - 1);\n            }\n        }\n        return arr;"
+  }
+]
+```

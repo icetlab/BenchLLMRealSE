@@ -1,0 +1,18 @@
+The original solution iterates through the string once, using multiple `HashSet`s to track seen characters and valid special character pairs. This approach has complex stateful logic to handle the invalidation of pairs when a lowercase character appears after its uppercase counterpart, which can be difficult to read and maintain.
+
+The improved solution simplifies the logic by recognizing that a character is "special" if and only if the last occurrence of its lowercase version appears before the first occurrence of its uppercase version. It makes a single pass over the string to record these indices in two arrays: one for the last seen lowercase index and one for the first seen uppercase index. A second, quick pass over the 26 letters of the alphabet then determines the count of special characters.
+
+This new approach is more performant due to:
+1.  Using arrays instead of `HashSet`s, which provides faster, direct-indexed access.
+2.  Avoiding the overhead of `word.toCharArray()` by iterating with `word.charAt(i)`.
+3.  Simpler and more direct logic, leading to better readability and potentially fewer operations overall.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int count = 0;\n        Set<Character> set = new HashSet<>();\n        Set<Character> alreadyCounted = new HashSet<>();\n\n        for (char c : word.toCharArray()) {\n            if (set.contains(Character.toUpperCase(c))) {\n                if(alreadyCounted.contains(c)){\n                    count--;\n                    alreadyCounted.remove(Character.toUpperCase(c));\n                    alreadyCounted.remove(Character.toLowerCase(c));\n                }else\n                continue;\n            }\n            if (Character.toUpperCase(c) == c && set.contains(Character.toLowerCase(c))) {\n                alreadyCounted.add(c);\n                alreadyCounted.add(Character.toLowerCase(c));\n                count++;\n            }\n\n            set.add(c);\n        }\n\n        return count;",
+    "replace": "int[] lastLower = new int[26];\n        int[] firstUpper = new int[26];\n        java.util.Arrays.fill(lastLower, -1);\n        java.util.Arrays.fill(firstUpper, -1);\n\n        for (int i = 0; i < word.length(); i++) {\n            char c = word.charAt(i);\n            if (c >= 'a' && c <= 'z') {\n                lastLower[c - 'a'] = i;\n            } else if (c >= 'A' && c <= 'Z') {\n                if (firstUpper[c - 'A'] == -1) {\n                    firstUpper[c - 'A'] = i;\n                }\n            }\n        }\n\n        int count = 0;\n        for (int i = 0; i < 26; i++) {\n            if (lastLower[i] != -1 && firstUpper[i] != -1 && lastLower[i] < firstUpper[i]) {\n                count++;\n            }\n        }\n\n        return count;"
+  }
+]
+```

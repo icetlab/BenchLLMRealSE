@@ -1,0 +1,44 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int maxIncreasingSubarrays(List<Integer> nums) {
+        int n = nums.size();
+        List<Integer> lengths = new ArrayList<>();
+        
+
+        int i = 0;
+        while(i < nums.size()) {
+            int start = i;
+            i++;
+
+            while(i < n && nums.get(i) > nums.get(i-1)) {
+                i++;
+            }
+            System.out.println(i-start);
+
+            lengths.add(i-start);
+        }
+        int max = lengths.get(0)/2;
+        for(int j = 1; j < lengths.size(); j++) {
+            max = Math.max(max,lengths.get(j)/2);
+            max = Math.max(max, (Math.min(lengths.get(j-1), lengths.get(j))));
+        }
+        return max;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,2
+  expected output: 1
+Example 2:
+  input: 2,1
+  expected output: 1
+Example 3:
+  input: 2,5,7,8,9,2,3,4,3,1
+  expected output: 3
+Example 4:
+  input: 1,2,3,4,4,4,4,5,6,7
+  expected output: 2
+Example 5:
+  input: 5,4,3,2,1
+  expected output: 1

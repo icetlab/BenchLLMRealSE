@@ -1,0 +1,11 @@
+The primary performance improvement is replacing the `HashMap<Integer, Integer>` with a simple `int[]` array of size 24. Since the keys (remainders modulo 24) are small, non-negative integers, an array serves as a much more efficient lookup table. This change eliminates the overhead of hashing, avoids the object boxing/unboxing of integers, and improves memory locality for better cache performance. The logic for finding the complement and updating counts is also simplified for better readability and to remove redundant checks and branching.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        HashMap<Integer, Integer> remainder_count = new HashMap<>();\n        int count = 0;\n        for(int h: hours){\n            int remainder = h%24;\n            if(remainder == 0){\n                if(remainder_count.containsKey(0)){count += remainder_count.get(0);}\n            }else{\n                int cur = 24-remainder;\n                if(remainder_count.containsKey(cur)){\n                    count += remainder_count.get(cur);\n                }\n            }\n            remainder_count.putIfAbsent(remainder, 0);\n            remainder_count.put(remainder, remainder_count.get(remainder)+1);\n        }\n        return count;",
+    "replace": "        int[] remainderCounts = new int[24];\n        int count = 0;\n        for (int h : hours) {\n            int remainder = h % 24;\n            int complement = (remainder == 0) ? 0 : 24 - remainder;\n            count += remainderCounts[complement];\n            remainderCounts[remainder]++;\n        }\n        return count;"
+  }
+]
+```

@@ -1,0 +1,40 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int countSubarrays(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        int k = 3;
+        int sum = 0;
+
+        for (int i = 0; i <= nums.length - k; i++) {
+            List<Integer> subarray = new ArrayList<>();
+            for (int j = i; j < i + k; j++) {
+                subarray.add(nums[j]);
+            }
+            result.add(subarray);
+        }
+        for(List s: result) {
+            int n = (int) s.get(0) + (int)s.get(2);
+            if(n * 2 ==(int)s.get(1)) {
+                sum += 1;
+            }
+        }
+        return sum;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,1,1
+  expected output: 0
+Example 2:
+  input: 1,4,1
+  expected output: 1
+Example 3:
+  input: 1,2,1,4,1
+  expected output: 1
+Example 4:
+  input: -1,-2,0
+  expected output: 1
+Example 5:
+  input: 0,0,0
+  expected output: 1

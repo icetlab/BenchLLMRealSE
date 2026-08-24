@@ -1,0 +1,11 @@
+I replaced the recursive memoized solution with a direct frequency-based approach that runs in O(n + R^2) time (where R is the value range) and uses O(R) extra space. This eliminates heavy recursion, string keys, and dramatically improves performance for moderate ranges, while correctly handling negative values.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int maxOperations(int[] nums) {\n    final int n = nums.length;\n    Map<String, Integer> mem = new HashMap<>();\n    return Math.max(Math.max(maxOperations(nums, 0, n - 1, nums[0] + nums[1], mem),\n                             maxOperations(nums, 0, n - 1, nums[n - 1] + nums[n - 2], mem)),\n                    maxOperations(nums, 0, n - 1, nums[0] + nums[n - 1], mem));\n  }",
+    "replace": "public int maxOperations(int[] nums) {\n    int n = nums.length;\n    if (n < 2) return 0;\n    // find value range to build frequency array (handles negatives)\n    int maxVal = nums[0], minVal = nums[0];\n    for (int num : nums) {\n        if (num > maxVal) maxVal = num;\n        if (num < minVal) minVal = num;\n    }\n    int range = maxVal - minVal;\n    int[] freq = new int[range + 1];\n    for (int num : nums) {\n        freq[num - minVal]++;\n    }\n    int ans = 0;\n    // try every possible sum from 2*minVal to 2*maxVal\n    for (int s = minVal * 2; s <= maxVal * 2; s++) {\n        int count = 0;\n        int start = Math.max(minVal, s - maxVal);\n        int end = s / 2;\n        for (int x = start; x <= end; x++) {\n            int y = s - x;\n            if (y < minVal || y > maxVal) continue;\n            int fx = freq[x - minVal];\n            int fy = freq[y - minVal];\n            if (x < y) {\n                count += Math.min(fx, fy);\n            } else { // x == y\n                count += fx / 2;\n            }\n        }\n        if (count > ans) ans = count;\n    }\n    return ans;\n  }"
+  }
+]
+```

@@ -1,0 +1,12 @@
+**Improvement intent:**  
+The original code uses `Math.sqrt(blue)` to estimate the number of blue rows, but this is inaccurate because the required number of balls for `k` rows is `k*(k+1)/2`, not `k^2`. Also, the logic for comparing row counts and returning the result is flawed, leading to incorrect outputs for many cases. The fix replaces the helper with a correct simulation: try both color orders (red first or blue first) and compute the maximum height achievable by alternately using the two colors, each time taking the required number of balls for the next row.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public static int helper(int red,int blue){\n        int blueN = (int)(Math.sqrt(blue));\n        \n        int n = 1;\n\n        while((n*(n+1))<=red){\n            n++;\n\n        }\n        n--;\n        if(red <2){\n            n=0;\n        }\n        System.out.println(n);\n        System.out.println(blueN);\n\n        if(blueN>n){\n            return (2*n)+1;\n        }\n        else if(blueN<n){\n            return (2*blueN);\n        }\n        else{\n            return (2*blueN);\n        }\n\n    }\n    public int maxHeightOfTriangle(int red, int blue) {\n        return Math.max(helper(red,blue),helper(blue,red));\n    }\n}",
+    "replace": "class Solution {\n    private int maxHeight(int first, int second) {\n        int height = 0;\n        int row = 1;\n        while (true) {\n            if (row % 2 == 1) {\n                if (first >= row) {\n                    first -= row;\n                    height++;\n                } else {\n                    break;\n                }\n            } else {\n                if (second >= row) {\n                    second -= row;\n                    height++;\n                } else {\n                    break;\n                }\n            }\n            row++;\n        }\n        return height;\n    }\n\n    public int maxHeightOfTriangle(int red, int blue) {\n        return Math.max(maxHeight(red, blue), maxHeight(blue, red));\n    }\n}"
+  }
+]
+```

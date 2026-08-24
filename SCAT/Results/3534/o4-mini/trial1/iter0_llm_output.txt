@@ -1,0 +1,16 @@
+I refactored the brute‐force O(n²·k²) approach into an O(n·k²) solution by grouping numbers by length, counting identical strings via a frequency map, then generating one‐swap variants per unique string to count cross‐pairs. I also added the necessary imports.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int countPairs(int[] nums) {\n        int cnt=0;\n        int n = nums.length;\n        for(int i=0;i<n;i++){\n            for(int j=i+1;j<n;j++){\n                if(f(nums[i],nums[j])){\n                    cnt++;\n                }\n            }\n        }\n        return cnt;\n    }",
+    "replace": "    public int countPairs(int[] nums) {\n        Map<Integer, List<String>> lengthGroups = new HashMap<>();\n        for (int num : nums) {\n            String s = Integer.toString(num);\n            lengthGroups.computeIfAbsent(s.length(), k -> new ArrayList<>()).add(s);\n        }\n        long ans = 0;\n        for (List<String> group : lengthGroups.values()) {\n            Map<String, Integer> freq = new HashMap<>();\n            for (String s : group) {\n                freq.put(s, freq.getOrDefault(s, 0) + 1);\n            }\n            // count identical pairs\n            for (int c : freq.values()) {\n                ans += (long) c * (c - 1) / 2;\n            }\n            // count one‐swap pairs\n            List<String> keys = new ArrayList<>(freq.keySet());\n            for (String s : keys) {\n                char[] arr = s.toCharArray();\n                int f1 = freq.get(s);\n                for (int i = 0; i < arr.length; i++) {\n                    for (int j = i + 1; j < arr.length; j++) {\n                        if (arr[i] == arr[j]) continue;\n                        swap(arr, i, j);\n                        String t = new String(arr);\n                        if (t.compareTo(s) > 0) {\n                            int f2 = freq.getOrDefault(t, 0);\n                            ans += (long) f1 * f2;\n                        }\n                        swap(arr, i, j);\n                    }\n                }\n            }\n        }\n        return (int) ans;\n    }"
+  }
+]
+```

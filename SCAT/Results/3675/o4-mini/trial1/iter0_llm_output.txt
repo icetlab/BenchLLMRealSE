@@ -1,0 +1,11 @@
+The change replaces the per‐child object allocations and pair‐sorting with a primitive `long[]` diff array plus a single `Arrays.sort`, cutting down on garbage and comparator overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<long[]> candidates = new ArrayList<>();\n        for (Edge edge : gr.get(node)) {\n            int ne = edge.neighbour, wt = edge.weight;\n            if (ne != parent) {\n                long dontRemove = solve(ne, 0, node) + wt;\n                long remove = solve(ne, 1, node);\n                candidates.add(new long[]{dontRemove, remove});\n            }\n        }\n\n        candidates.sort((p1, p2) -> Long.compare(p1[0] - p1[1], p2[0] - p2[1]));\n        for (int i = 0; i < candidates.size(); i++) {\n            long dontRemove = candidates.get(i)[0];\n            long remove = candidates.get(i)[1];\n            if (i < edgesToRemove) {\n                answer += remove;\n            } else {\n                answer += Math.max(dontRemove, remove);\n            }\n        }",
+    "replace": "        int childCount = gr.get(node).size() - (parent == -1 ? 0 : 1);\n        long sumRemove = 0;\n        long[] diffs = new long[childCount];\n        int idx = 0;\n        for (Edge edge : gr.get(node)) {\n            int ne = edge.neighbour, wt = edge.weight;\n            if (ne != parent) {\n                long dontRemove = solve(ne, 0, node) + wt;\n                long remove = solve(ne, 1, node);\n                sumRemove += remove;\n                diffs[idx++] = dontRemove - remove;\n            }\n        }\n        Arrays.sort(diffs);\n        long extra = 0;\n        for (int i = childCount - 1; i >= edgesToRemove; i--) {\n            if (diffs[i] > 0) extra += diffs[i];\n        }\n        answer += sumRemove + extra;"
+  }
+]
+```

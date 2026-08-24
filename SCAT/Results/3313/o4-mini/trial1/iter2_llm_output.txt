@@ -1,0 +1,51 @@
+I’m replacing the BigInteger‐based DP with a primitive long DP and using Arrays.fill/Math.max to eliminate costly BigInteger operations and speed up the inner loops.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.math.BigInteger;",
+    "replace": "import java.util.Arrays;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "BigInteger[][] dp = new BigInteger[k + 1][nums.length + 1];",
+    "replace": "long[][] dp = new long[k + 1][nums.length + 1];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for (int i = 0; i <= k; i++) {\n            for (int j = 0; j <= nums.length; j++) {\n                dp[i][j] = BigInteger.ZERO;\n            }\n        }",
+    "replace": "for (int i = 1; i <= k; i++) {\n            Arrays.fill(dp[i], Long.MIN_VALUE);\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "BigInteger maxsum = BigInteger.valueOf(Long.MIN_VALUE);",
+    "replace": "long maxsum = Long.MIN_VALUE;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "BigInteger curr = BigInteger.valueOf(Long.MIN_VALUE);",
+    "replace": "long curr = Long.MIN_VALUE;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "curr = curr.add(BigInteger.valueOf(nums[j]).multiply(BigInteger.valueOf(multiplier)));",
+    "replace": "curr = curr + (long) nums[j] * multiplier;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "curr = curr.max(dp[i - 1][j].add(BigInteger.valueOf(nums[j]).multiply(BigInteger.valueOf(multiplier))));",
+    "replace": "curr = Math.max(curr, dp[i - 1][j] + (long) nums[j] * multiplier);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "maxsum = maxsum.max(curr);",
+    "replace": "maxsum = Math.max(maxsum, curr);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "return dp[k][nums.length].longValue();",
+    "replace": "return dp[k][nums.length];"
+  }
+]
+```

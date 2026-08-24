@@ -1,0 +1,11 @@
+I’ve replaced the repeated substring/trimming loop with a single pass to find the longest common prefix among the three strings, then compute the removals directly. This reduces time complexity from O(n²) in the worst case to O(n).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int findMinimumOperations(String s1, String s2, String s3) {\n        int count=0;\n       while(!(s1.equals(s2)&&s2.equals(s3))){\n        if (s1.isEmpty() || s2.isEmpty() || s3.isEmpty()) {\n                return -1;\n            }\n            if(s1.length()>=s2.length() && s1.length()>=s3.length())\n            s1=s1.substring(0,s1.length()-1);\n            else if(s2.length()>=s1.length() && s2.length()>=s3.length())\n            s2=s2.substring(0,s2.length()-1);\n          else{\n       s3=s3.substring(0,s3.length()-1);\n        }\n            \n         count++;  \n\n        \n       }\n        return count;\n    }",
+    "replace": "    public int findMinimumOperations(String s1, String s2, String s3) {\n        int minLen = Math.min(s1.length(), Math.min(s2.length(), s3.length()));\n        int L = 0;\n        for (; L < minLen; L++) {\n            char c = s1.charAt(L);\n            if (s2.charAt(L) != c || s3.charAt(L) != c) break;\n        }\n        if (L == 0) return -1;\n        return (s1.length() - L) + (s2.length() - L) + (s3.length() - L);\n    }"
+  }
+]
+```

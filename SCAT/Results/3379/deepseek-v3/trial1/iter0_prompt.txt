@@ -1,0 +1,31 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int scoreOfString(String s) {
+        char[] newarray=s.toCharArray();
+        int[] holdval=new int[s.length()-1];
+        for(int i=0;i<newarray.length-1;i++){
+            //System.out.println(i+" "+(int)newarray[i]+" "+(int)newarray[i+1]);
+            var val=(int)newarray[i]-(int)newarray[i+1];
+            holdval[i]=Math.abs(val);
+        }
+        var sums=Arrays.stream(holdval).sum();
+        return sums;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: hello
+  expected output: 13
+Example 2:
+  input: zaz
+  expected output: 50
+Example 3:
+  input: ab
+  expected output: 1
+Example 4:
+  input: aa
+  expected output: 0
+Example 5:
+  input: az
+  expected output: 25

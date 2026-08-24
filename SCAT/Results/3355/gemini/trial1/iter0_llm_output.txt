@@ -1,0 +1,15 @@
+The original code calculates prefix sums for Alice's score and suffix sums for Bob's score using two separate arrays, which requires O(n) extra space and multiple passes over the data.
+
+My improvement optimizes this by observing that Bob's score can be derived from the total score and Alice's score. The condition for Alice to win is `aliceScore > bobScore`. If we let `totalScore` be the sum of scores from all levels, then `bobScore = totalScore - aliceScore`. The condition simplifies to `aliceScore > totalScore - aliceScore`, or `2 * aliceScore > totalScore`.
+
+The new implementation first computes the `totalScore` in a single pass. Then, it makes a second pass to calculate Alice's score incrementally. In this pass, it checks the simplified condition at each step. This approach eliminates the need for extra arrays, reducing the space complexity from O(n) to O(1), and is generally faster due to fewer passes and better data locality.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int n=possible.length;\n        int[] alice=new int[n];\n        int[] bob=new int[n];\n        alice[0]=possible[0]==1?1:-1;\n        bob[n-1]=possible[n-1]==1?1:-1;\n        for(int i=1;i<n;i++){\n            if(possible[i]==0){alice[i]=alice[i-1]-1;}\n            else{alice[i]=alice[i-1]+1;}\n        }\n        for(int i=n-2;i>=0;i--){\n            if(possible[i]==0){bob[i]=bob[i+1]-1;}\n            else{bob[i]=bob[i+1]+1;}\n        }\n        for(int i=0;i<n-1;i++){\n            if(alice[i]>bob[i+1]){return i+1;}\n        }\n        return -1;",
+    "replace": "        int totalScore = 0;\n        for (int p : possible) {\n            totalScore += (p == 1 ? 1 : -1);\n        }\n\n        int n = possible.length;\n        int aliceScore = 0;\n        for (int i = 0; i < n - 1; i++) {\n            aliceScore += (possible[i] == 1 ? 1 : -1);\n            if (2 * aliceScore > totalScore) {\n                return i + 1;\n            }\n        }\n\n        return -1;"
+  }
+]
+```

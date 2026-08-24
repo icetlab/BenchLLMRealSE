@@ -1,0 +1,11 @@
+The original code uses an inefficient nested loop to count equal pairs, sorts the array multiple times, and includes a print statement. The improved version sorts the array once, applies the triangle inequality check first, then determines the type based on equality of sides. This reduces time complexity from O(n²) to O(1) and fixes logical errors (e.g., returning `null` for some inputs).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public String triangleType(int[] nums) {\n            int count=0;\n        for(int i=0;i<nums.length-1;i++){\n            for(int j=i+1;j<nums.length;j++){\n                if(nums[i]==nums[j]){\n                    count++;\n                    System.out.println(count);\n                }\n            }\n        }\n        if(count==0) {\n//            return \"scalene\";\n            Arrays.sort(nums);\n            if(nums[0]+nums[1]<=nums[2])\n                return \"none\";\n            else return \"scalene\";\n        }\n        else if(count==1){\n            Arrays.sort(nums);\n        if(nums[0]+nums[1]<=nums[2])\n            return \"none\";\n        else return \"isosceles\";\n        }\n        else if(count==3)\n            return \"equilateral\";\n        return null;\n    }",
+    "replace": "public String triangleType(int[] nums) {\n        java.util.Arrays.sort(nums);\n        int a = nums[0], b = nums[1], c = nums[2];\n        if (a + b <= c) return \"none\";\n        if (a == b && b == c) return \"equilateral\";\n        if (a == b || b == c || a == c) return \"isosceles\";\n        return \"scalene\";\n    }"
+  }
+]
+```

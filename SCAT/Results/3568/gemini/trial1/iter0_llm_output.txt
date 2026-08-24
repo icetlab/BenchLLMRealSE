@@ -1,0 +1,13 @@
+The original implementation converts integers to zero-padded strings and then iterates through their characters. This approach is inefficient due to the overhead of string formatting, object allocations (for `String`, `StringBuilder`, and `Formatter`), and character-by-character processing.
+
+My improvement replaces this entire process with direct integer arithmetic. By using division and modulo operations, I extract the digits at each position (thousands, hundreds, tens, and ones) from the input numbers. After finding the minimum digit for each position, the final key is constructed arithmetically. This eliminates all string-related overhead and object creation, resulting in a significantly faster and more memory-efficient solution.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "      String s1 = String.format(\"%04d\",num1);\n      String s2 = String.format(\"%04d\",num2);\n      String s3= String.format(\"%04d\",num3);\n\n      StringBuilder sb = new StringBuilder();\n      for(int i=0;i<4;i++){\n        char min=(char)Math.min(s1.charAt(i),Math.min(s2.charAt(i),s3.charAt(i)));\n        sb.append(min);\n      }\n\n      return Integer.parseInt(sb.toString());\n      \n        \n        ",
+    "replace": "      // Thousands digit\n      int min_1000 = Math.min(num1 / 1000, Math.min(num2 / 1000, num3 / 1000));\n\n      // Hundreds digit\n      int min_100 = Math.min((num1 / 100) % 10, Math.min((num2 / 100) % 10, (num3 / 100) % 10));\n\n      // Tens digit\n      int min_10 = Math.min((num1 / 10) % 10, Math.min((num2 / 10) % 10, (num3 / 10) % 10));\n\n      // Ones digit\n      int min_1 = Math.min(num1 % 10, Math.min(num2 % 10, num3 % 10));\n\n      return min_1000 * 1000 + min_100 * 100 + min_10 * 10 + min_1;"
+  }
+]
+```

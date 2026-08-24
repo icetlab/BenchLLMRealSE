@@ -1,0 +1,22 @@
+## Improvement Intent
+
+The original code has several performance issues:
+1. **Infinite loops**: The `while` loops checking for leading zeros never modify the string, causing infinite loops if the first character is '0'
+2. **Inefficient string operations**: Using `substring()` without reassignment is a bug, and repeated string concatenation is wasteful
+3. **Unnecessary sorting**: Instead of sorting all 6 permutations, we can find the maximum by direct comparison
+4. **Redundant leading zero removal**: `Integer.toBinaryString()` never produces leading zeros, so the while loops are unnecessary
+
+The fix corrects the bugs and optimizes by:
+- Removing the unnecessary leading-zero removal loops
+- Finding the maximum concatenated binary string through direct comparison instead of sorting
+- Using a more efficient approach to compare binary strings
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int maxGoodNumber(int[] nums) {\n        String num1 = Integer.toBinaryString(nums[0]);\n        String num2 = Integer.toBinaryString(nums[1]);\n        String num3 = Integer.toBinaryString(nums[2]);\n        while(num1.charAt(0)=='0'){\n            num1.substring(1);\n        }\n        while(num2.charAt(0)=='0'){\n            num2.substring(1);\n        }\n        while(num3.charAt(0)=='0'){\n            num3.substring(1);\n        }\n        ArrayList<String> ans = new ArrayList<String>();\n        ans.add(num1+num2+num3);\n        ans.add(num1+num3+num2);\n        ans.add(num2+num1+num3);\n        ans.add(num2+num3+num1);\n        ans.add(num3+num1+num2);\n        ans.add(num3+num2+num1);\n        ans.sort((s1, s2) -> s2.compareTo(s1));\n        return Integer.parseInt(ans.get(0), 2);    \n    }\n}",
+    "replace": "class Solution {\n    public int maxGoodNumber(int[] nums) {\n        String s1 = Integer.toBinaryString(nums[0]);\n        String s2 = Integer.toBinaryString(nums[1]);\n        String s3 = Integer.toBinaryString(nums[2]);\n        \n        String[] candidates = {\n            s1 + s2 + s3,\n            s1 + s3 + s2,\n            s2 + s1 + s3,\n            s2 + s3 + s1,\n            s3 + s1 + s2,\n            s3 + s2 + s1\n        };\n        \n        String best = candidates[0];\n        for (int i = 1; i < candidates.length; i++) {\n            if (candidates[i].length() > best.length() || \n                (candidates[i].length() == best.length() && candidates[i].compareTo(best) > 0)) {\n                best = candidates[i];\n            }\n        }\n        \n        return Integer.parseInt(best, 2);\n    }\n}"
+  }
+]
+```

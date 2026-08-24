@@ -1,0 +1,11 @@
+Improved performance by eliminating boxing and List operations: directly sort the primitive array and swap adjacent elements in a single pass.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<Integer> list = new ArrayList<>();\n        for(int i : nums) list.add(i);\n        Collections.sort(list);\n        int[] ans = new int[nums.length];\n        int c=nums.length;\n        int i=0;\n        int ptr=0;\n        while(c!=0){\n            c-=2;\n            int firstSmall = list.get(ptr++);\n            int secondSmall = list.get(ptr++);\n            ans[i++] = secondSmall;\n            ans[i++] = firstSmall;\n        }\n    return ans;",
+    "replace": "        java.util.Arrays.sort(nums);\n        int n = nums.length;\n        int[] ans = new int[n];\n        for (int k = 0; k < n; k += 2) {\n            ans[k] = nums[k+1];\n            ans[k+1] = nums[k];\n        }\n    return ans;"
+  }
+]
+```

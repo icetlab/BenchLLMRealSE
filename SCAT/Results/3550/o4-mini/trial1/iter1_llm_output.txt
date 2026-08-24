@@ -1,0 +1,26 @@
+I’ve replaced the string‐key map DP with a fixed 3D array DP, removing all string operations and map lookups, and initialized the array with `Long.MIN_VALUE` for memoization. This preserves original behavior while greatly improving performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    long solve(int[][] arr, int row, int mask, int rooks, Map<String, Long>dp)",
+    "replace": "    long solve(int[][] arr, int row, int mask, int rooks, long[][][] dp)"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        String key = row + \"-\" + rooks + \"-\" + mask;\n        if(dp.containsKey(key))\n            return dp.get(key);",
+    "replace": "        if (dp[row][rooks][mask] != Long.MIN_VALUE)\n            return dp[row][rooks][mask];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "dp.put(key, ans);",
+    "replace": "dp[row][rooks][mask] = ans;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        Map<String, Long> dp = new HashMap<>();\n        long x =  solve(board, 0, 0, 3, dp);",
+    "replace": "        int n = board.length;\n        int m = board[0].length;\n        int maxMask = 1 << m;\n        long[][][] dp = new long[n][4][maxMask];\n        for (int i = 0; i < n; i++) {\n            for (int j = 0; j < 4; j++) {\n                java.util.Arrays.fill(dp[i][j], Long.MIN_VALUE);\n            }\n        }\n        long x = solve(board, 0, 0, 3, dp);"
+  }
+]
+```

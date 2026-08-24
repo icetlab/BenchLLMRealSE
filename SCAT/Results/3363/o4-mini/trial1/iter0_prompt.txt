@@ -1,0 +1,66 @@
+>> The source file (Solution.java) is:
+class Solution {
+    private final ConcurrentSkipListMap<Long, Set<Integer>> freq2IdsMap = new ConcurrentSkipListMap<>();
+    private final Map<Integer, Long> id2FreqMap = new HashMap<>();
+
+    public long[] mostFrequentIDs(int[] nums, int[] freq) {
+//        PriorityQueue<Pair<Long, Integer>> pq = new PriorityQueue<>((a, b) -> (int) (b.getKey() - a.getKey()));
+        long[] ans = new long[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            int id = nums[i];
+            Long oldFreq = id2FreqMap.getOrDefault(id, 0L);
+            Long newFreq = oldFreq + freq[i];
+            id2FreqMap.put(id, newFreq);
+            updateFreq2IdsMap(id, oldFreq, newFreq);
+            ans[i] = freq2IdsMap.size() == 0 || (freq2IdsMap.get(freq2IdsMap.lastKey()).size() == 0) ? 0L : freq2IdsMap.lastKey();
+        }
+        return ans;
+    }
+
+    private void updateFreq2IdsMap(int id, Long oldFreq, Long newFreq) {
+        if (freq2IdsMap.containsKey(oldFreq)) {
+            Set<Integer> idSet = freq2IdsMap.get(oldFreq);
+            idSet.remove(id);
+            if (idSet.size() == 0) {
+                freq2IdsMap.remove(oldFreq);
+            }
+            if (newFreq == 0) return;
+        }
+
+        freq2IdsMap.computeIfPresent(newFreq, (k, v) -> {
+            v.add(id);
+            return v;
+        });
+        freq2IdsMap.computeIfAbsent(newFreq, v -> {
+            Set<Integer> set = new HashSet<>();
+            set.add(id);
+            return set;
+        });
+
+//        if (!freq2IdsMap.containsKey(newFreq)) {
+//            Set<Integer> set = new HashSet<>();
+//            set.add(id);
+//            freq2IdsMap.put(newFreq, set);
+//        } else {
+//            freq2IdsMap.get(newFreq).add(id);
+//        }
+    }
+   
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1 5
+  expected output: 5
+Example 2:
+  input: 1,1 5,-3
+  expected output: 5,2
+Example 3:
+  input: 2,3,2,1 3,2,-3,1
+  expected output: 3,3,2,2
+Example 4:
+  input: 5,5,3 2,-2,1
+  expected output: 2,0,1
+Example 5:
+  input: 1,2,1,2,1,2 1,1,1,1,-2,1
+  expected output: 1,1,2,2,2,3

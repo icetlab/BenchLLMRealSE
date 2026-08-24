@@ -1,0 +1,34 @@
+The overall performance improvement strategy focuses on replacing a thread-safe data structure with its more efficient, non-thread-safe equivalent, as the context is single-threaded. Additionally, the code is refactored to improve readability and conciseness, which can also lead to minor performance gains by using more direct and efficient API calls.
+
+Specifically, the changes are:
+1.  **Data Structure Optimization**: The `ConcurrentSkipListMap` is replaced with a `TreeMap`. `TreeMap` provides the same sorted map functionality but without the overhead of concurrency controls, making it a better choice for this single-threaded algorithm.
+2.  **Code Simplification and Cleanup**: The logic within the `updateFreq2IdsMap` helper method is significantly simplified. The new implementation is more direct, easier to understand, and uses a single `computeIfAbsent` call, which is more efficient than the original's separate `computeIfPresent` and `computeIfAbsent` calls.
+3.  **Redundancy Removal**: The expression to calculate the most frequent ID is simplified by removing a redundant check. The logic to clean up empty sets in the frequency map ensures this check is unnecessary.
+4.  **Dead Code Removal**: A commented-out line related to a `PriorityQueue` is removed to clean up the code.
+
+These changes collectively make the code cleaner, more idiomatic, and more performant for the given problem constraints.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "private final ConcurrentSkipListMap<Long, Set<Integer>> freq2IdsMap = new ConcurrentSkipListMap<>();",
+    "replace": "private final java.util.TreeMap<Long, Set<Integer>> freq2IdsMap = new java.util.TreeMap<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public long[] mostFrequentIDs(int[] nums, int[] freq) {\n//        PriorityQueue<Pair<Long, Integer>> pq = new PriorityQueue<>((a, b) -> (int) (b.getKey() - a.getKey()));",
+    "replace": "public long[] mostFrequentIDs(int[] nums, int[] freq) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "ans[i] = freq2IdsMap.size() == 0 || (freq2IdsMap.get(freq2IdsMap.lastKey()).size() == 0) ? 0L : freq2IdsMap.lastKey();",
+    "replace": "ans[i] = freq2IdsMap.isEmpty() ? 0L : freq2IdsMap.lastKey();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "private void updateFreq2IdsMap(int id, Long oldFreq, Long newFreq) {\n        if (freq2IdsMap.containsKey(oldFreq)) {\n            Set<Integer> idSet = freq2IdsMap.get(oldFreq);\n            idSet.remove(id);\n            if (idSet.size() == 0) {\n                freq2IdsMap.remove(oldFreq);\n            }\n            if (newFreq == 0) return;\n        }\n\n        freq2IdsMap.computeIfPresent(newFreq, (k, v) -> {\n            v.add(id);\n            return v;\n        });\n        freq2IdsMap.computeIfAbsent(newFreq, v -> {\n            Set<Integer> set = new HashSet<>();\n            set.add(id);\n            return set;\n        });\n\n//        if (!freq2IdsMap.containsKey(newFreq)) {\n//            Set<Integer> set = new HashSet<>();\n//            set.add(id);\n//            freq2IdsMap.put(newFreq, set);\n//        } else {\n//            freq2IdsMap.get(newFreq).add(id);\n//        }\n    }",
+    "replace": "private void updateFreq2IdsMap(int id, Long oldFreq, Long newFreq) {\n        if (oldFreq != 0) {\n            Set<Integer> idSet = freq2IdsMap.get(oldFreq);\n            idSet.remove(id);\n            if (idSet.isEmpty()) {\n                freq2IdsMap.remove(oldFreq);\n            }\n        }\n\n        if (newFreq != 0) {\n            freq2IdsMap.computeIfAbsent(newFreq, k -> new HashSet<>()).add(id);\n        }\n    }"
+  }
+]
+```

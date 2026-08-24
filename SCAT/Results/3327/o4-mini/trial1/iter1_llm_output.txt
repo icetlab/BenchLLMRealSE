@@ -1,0 +1,11 @@
+We add a final check so that if no valid move total was ever found (ans remains Long.MAX_VALUE), we return 0 instead of the sentinel value. This fixes the case where the loop never updates ans.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        return ans;",
+    "replace": "        return ans == Long.MAX_VALUE ? 0 : ans;"
+  }
+]
+```

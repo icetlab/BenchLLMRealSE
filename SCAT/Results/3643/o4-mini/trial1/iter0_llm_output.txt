@@ -1,0 +1,31 @@
+We pre-allocate and reuse the difference array across all checks to avoid repeated allocations, and we eliminate the auxiliary `allowed` array by checking prefix sums on the fly.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int left = 0, right = queries.length;\n        int result = -1;",
+    "replace": "        int left = 0, right = queries.length;\n        int result = -1;\n        long[] diff = new long[nums.length + 1];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            if (canMakeZero(nums, queries, mid)) {",
+    "replace": "            if (canMakeZero(nums, queries, mid, diff)) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private boolean canMakeZero(int[] nums, int[][] queries, int k) {",
+    "replace": "    private boolean canMakeZero(int[] nums, int[][] queries, int k, long[] diff) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int n = nums.length;\n        long[] diff = new long[n + 1]; // Difference array",
+    "replace": "        int n = nums.length;\n        // reset difference array\n        for (int i = 0; i <= n; i++) diff[i] = 0;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        long[] allowed = new long[n];\n        long current = 0;\n        for (int i = 0; i < n; i++) {\n            current += diff[i];\n            allowed[i] = current;\n            if (nums[i] > allowed[i]) {\n                return false;\n            }\n        }\n\n        return true;",
+    "replace": "        long current = 0;\n        for (int i = 0; i < n; i++) {\n            current += diff[i];\n            if (nums[i] > current) {\n                return false;\n            }\n        }\n\n        return true;"
+  }
+]
+```

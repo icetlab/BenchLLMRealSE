@@ -1,0 +1,16 @@
+I’ve consolidated the two loops into one to halve the passes over the array, removed the debug print and comments, switched to `long` for the running sums to avoid overflow, and added an explicit cast on return.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int sum = 0;\n        int[] prefix = new int[n];\n        int start = 0;\n\n        prefix[0] = nums[0];\n        for (int i = 1; i < n; i++) {\n            prefix[i] = prefix[i - 1] + nums[i];\n        }\n        System.out.println();\n\n        // [2, 5, 1, 5]\n        // [2, 7, 8, 13]\n\n        // 2 + 7 = 9 + 6 = 15 + 11 = 26\n\n        for (int i = 0; i < n; i++) {\n            start = Math.max(0, i - nums[i]);\n\n            if (start == 0) {\n                sum += prefix[i];\n            } else {\n                sum += prefix[i] - prefix[start - 1];\n            }\n\n        }",
+    "replace": "        long sum = 0;\n        long[] prefix = new long[n];\n\n        for (int i = 0; i < n; i++) {\n            if (i == 0) {\n                prefix[0] = nums[0];\n            } else {\n                prefix[i] = prefix[i - 1] + nums[i];\n            }\n            int start = Math.max(0, i - nums[i]);\n            if (start == 0) {\n                sum += prefix[i];\n            } else {\n                sum += prefix[i] - prefix[start - 1];\n            }\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        return sum;",
+    "replace": "        return (int) sum;"
+  }
+]
+```

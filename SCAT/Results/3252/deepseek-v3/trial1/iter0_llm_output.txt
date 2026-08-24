@@ -1,0 +1,17 @@
+## Improvement Intent
+
+The current solution has O(n³) time complexity due to creating new ArrayLists for every subarray and checking strictly increasing property each time. We can optimize by:
+1. Precomputing the longest strictly increasing prefix and suffix arrays to avoid repeated checks
+2. Using two-pointer technique to count valid subarrays in O(n²) or better
+
+The key insight: A subarray [i,j] is "incremovable" if the remaining elements (prefix before i and suffix after j) form a strictly increasing sequence. We can precompute the longest increasing prefix ending at each index and longest increasing suffix starting at each index, then use this to quickly verify if removing [i,j] leaves a valid sequence.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n        public static  boolean check(List<Integer> al){\n                for(int p=0;p<al.size()-1;p++){\n                    if(al.get(p)>=al.get(p+1)){\n                        return false;\n                    }\n                }\n                return true;\n        }\n        public int incremovableSubarrayCount(int[] a) {\n        int n=a.length;\n        int count=0;\n        for(int i=0;i<n;i++){\n            for(int j=i;j<n;j++){\n                ArrayList <Integer> al=new ArrayList<>();\n                int k=0,l=j+1;\n                while(k<i){\n                    al.add(a[k]);\n                    k++;\n                }\n                while(l<n){\n                    al.add(a[l]);\n                    l++;\n                }\n                if(check(al)){\n                    count++;\n                }      \n            }\n        }\n        return count;\n    }\n}",
+    "replace": "class Solution {\n    public int incremovableSubarrayCount(int[] a) {\n        int n = a.length;\n        int count = 0;\n        \n        // Precompute longest strictly increasing prefix ending at each index\n        int[] prefix = new int[n];\n        prefix[0] = 1;\n        for (int i = 1; i < n; i++) {\n            prefix[i] = (a[i] > a[i-1]) ? prefix[i-1] + 1 : 1;\n        }\n        \n        // Precompute longest strictly increasing suffix starting at each index\n        int[] suffix = new int[n];\n        suffix[n-1] = 1;\n        for (int i = n-2; i >= 0; i--) {\n            suffix[i] = (a[i] < a[i+1]) ? suffix[i+1] + 1 : 1;\n        }\n        \n        // Count subarrays that can be removed\n        for (int i = 0; i < n; i++) {\n            for (int j = i; j < n; j++) {\n                // Check if prefix before i is strictly increasing\n                boolean leftValid = (i == 0) || (prefix[i-1] == i);\n                // Check if suffix after j is strictly increasing\n                boolean rightValid = (j == n-1) || (suffix[j+1] == n - j - 1);\n                // Check if the boundary between left and right parts is valid\n                boolean boundaryValid = (i == 0 || j == n-1) || (a[i-1] < a[j+1]);\n                \n                if (leftValid && rightValid && boundaryValid) {\n                    count++;\n                }\n            }\n        }\n        \n        return count;\n    }\n}"
+  }
+]
+```

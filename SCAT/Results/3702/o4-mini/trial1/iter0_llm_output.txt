@@ -1,0 +1,21 @@
+I’ve replaced the brute‐force O(n⁴) scan with a sliding‐window prime‐tracking approach that runs in roughly O(n · factorization_cost), and caches each number’s prime factors. This finds the longest valid subarray of length ≥2 in one pass.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int maxLength(int[] nums) {\n        int maxLength = 0;\n        for (int i = 0; i < nums.length; i++) {\n            for (int j = i; j < nums.length; j++) {\n                int[] subarray = new int[j - i + 1];\n                for (int k = i; k <= j; k++) {\n                    subarray[k - i] = nums[k];\n                }\n                if (isProductEquivalent(subarray)) {\n                    maxLength = Math.max(maxLength, subarray.length);\n                }\n            }\n        }\n        return maxLength;\n    }",
+    "replace": "    public int maxLength(int[] nums) {\n        int n = nums.length;\n        if (n < 2) return 0;\n        int res = 0;\n        Map<Integer, Integer> primeToIndex = new HashMap<>();\n        Map<Integer, List<Integer>> memo = new HashMap<>();\n        int l = 0;\n        for (int r = 0; r < n; r++) {\n            int x = nums[r];\n            List<Integer> primes = memo.computeIfAbsent(x, key -> factor(key));\n            for (int p : primes) {\n                if (primeToIndex.containsKey(p)) {\n                    l = Math.max(l, primeToIndex.get(p) + 1);\n                }\n                primeToIndex.put(p, r);\n            }\n            int len = r - l + 1;\n            if (len >= 2) res = Math.max(res, len);\n        }\n        return Math.max(res, 2);\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private boolean isProductEquivalent(int[] arr) {",
+    "replace": "    private List<Integer> factor(int num) {\n        List<Integer> primes = new ArrayList<>();\n        if (num % 2 == 0) {\n            primes.add(2);\n            while (num % 2 == 0) num /= 2;\n        }\n        for (int d = 3; d * d <= num; d += 2) {\n            if (num % d == 0) {\n                primes.add(d);\n                while (num % d == 0) num /= d;\n            }\n        }\n        if (num > 1) primes.add(num);\n        return primes;\n    }\n\n    private boolean isProductEquivalent(int[] arr) {"
+  }
+]
+```

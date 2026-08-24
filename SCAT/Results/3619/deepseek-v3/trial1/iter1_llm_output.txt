@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "System.out.println(i-start);\n\n            lengths.add(i-start);",
+    "replace": "lengths.add(i-start);"
+  }
+]
+```

@@ -1,0 +1,11 @@
+I’ve replaced the list/allocation/sort approach with a simple single‐pass max tracking loop, reducing both time and space overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "List<Integer> l=new ArrayList<>();\nfor(i=0;i<nums.length;i++) {\n    int j = (i + 1) % nums.length;\n    int r= Math.abs(nums[i]-nums[j]) ;\n    l.add(r);\n}\nint cir=nums[0]-nums[nums.length-1];\nl.add(cir);\nint[] array = new int[l.size()];\nfor (int k = 0; k < l.size(); k++) {\n    array[k] = l.get(k);\n}\nArrays.sort(array);\nreturn array[array.length-1];",
+    "replace": "int n = nums.length;\nif (n < 2) return 0;\nint max = 0;\nfor (int i = 0; i < n - 1; i++) {\n    max = Math.max(max, Math.abs(nums[i] - nums[i + 1]));\n}\nmax = Math.max(max, Math.abs(nums[n - 1] - nums[0]));\nreturn max;"
+  }
+]
+```

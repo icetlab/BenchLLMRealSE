@@ -1,0 +1,46 @@
+Let’s analyze the failure. The previous patch changed the memoization table from `Integer[arr.length][10000]` to `int[arr.length][sum + 1]`. That change is correct in principle, but the problem is that `sum` can be very large (up to the sum of all elements), and allocating `arr.length * (sum + 1)` integers can cause `OutOfMemoryError` when the sum is large.
+
+A better approach is to use a 1D boolean DP array that tracks which sums are reachable, iterating in a way that respects the constraint `sum < arr[i]`. This reduces memory usage to `O(sum)` instead of `O(n * sum)`.
+
+Here’s the improved solution:
+
+```java
+import java.util.*;
+
+class Solution {
+    public int maxTotalReward(int[] arr) {
+        Arrays.sort(arr);
+        int maxSum = 0;
+        for (int v : arr) maxSum += v;
+        boolean[] dp = new boolean[maxSum + 1];
+        dp[0] = true;
+        int currentMax = 0;
+        for (int v : arr) {
+            // We can only add v if current sum < v.
+            // So we iterate from currentMax down to 0.
+            for (int s = currentMax; s >= 0; s--) {
+                if (dp[s] && s < v) {
+                    dp[s + v] = true;
+                }
+            }
+            currentMax += v;
+        }
+        for (int s = maxSum; s >= 0; s--) {
+            if (dp[s]) return s;
+        }
+        return 0;
+    }
+}
+```
+
+This uses only `O(sum)` memory and avoids the heap overflow.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    Integer dp[][];\n    public int maxTotalReward(int[] arr) {\n        Arrays.sort(arr);\n        int sum = 0;\n        for(int i : arr) sum += i;\n        dp = new Integer[arr.length][10000];\n        return util(arr, 0, 0);\n    }\n    private int util(int arr[], int i, int sum) {\n        if(i >= arr.length) return sum;\n        if(dp[i][sum] != null) return dp[i][sum];\n        if(sum < arr[i]) {\n            return dp[i][sum] = Math.max(util(arr, i+1, sum + arr[i]), util(arr, i+1, sum));\n        }\n        return dp[i][sum] = util(arr, i+1, sum);\n    }\n}",
+    "replace": "import java.util.*;\n\nclass Solution {\n    public int maxTotalReward(int[] arr) {\n        Arrays.sort(arr);\n        int maxSum = 0;\n        for (int v : arr) maxSum += v;\n        boolean[] dp = new boolean[maxSum + 1];\n        dp[0] = true;\n        int currentMax = 0;\n        for (int v : arr) {\n            for (int s = currentMax; s >= 0; s--) {\n                if (dp[s] && s < v) {\n                    dp[s + v] = true;\n                }\n            }\n            currentMax += v;\n        }\n        for (int s = maxSum; s >= 0; s--) {\n            if (dp[s]) return s;\n        }\n        return 0;\n    }\n}"
+  }
+]
+```

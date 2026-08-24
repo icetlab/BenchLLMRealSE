@@ -1,0 +1,26 @@
+We replace all BigInteger usage with primitive long arrays and arithmetic to eliminate heavy object overhead, hoist constant multipliers, and simplify the return.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.math.BigInteger;",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        BigInteger[][] dp = new BigInteger[k + 1][nums.length + 1];\n        for (int i = 0; i <= k; i++) {\n            for (int j = 0; j <= nums.length; j++) {\n                dp[i][j] = BigInteger.ZERO;\n            }\n        }",
+    "replace": "        long[][] dp = new long[k + 1][nums.length + 1];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for (int i = 1; i <= k; i++) {\n            BigInteger maxsum = BigInteger.valueOf(Long.MIN_VALUE);\n            BigInteger curr = BigInteger.valueOf(Long.MIN_VALUE);\n            int multiplier = (i % 2 == 1) ? k + 1 - i : i - 1 - k;\n            for (int j = i - 1; j < nums.length; j++) {\n                curr = curr.add(BigInteger.valueOf(nums[j]).multiply(BigInteger.valueOf(multiplier)));\n                curr = curr.max(dp[i - 1][j].add(BigInteger.valueOf(nums[j]).multiply(BigInteger.valueOf(multiplier))));\n                maxsum = maxsum.max(curr);\n                dp[i][j + 1] = maxsum;\n            }\n        }",
+    "replace": "        for (int i = 1; i <= k; i++) {\n            long maxsum = Long.MIN_VALUE;\n            long curr = Long.MIN_VALUE;\n            long valueMul = (i % 2 == 1) ? (long)(k + 1 - i) : (long)(i - 1 - k);\n            for (int j = i - 1; j < nums.length; j++) {\n                long value = nums[j] * valueMul;\n                curr = curr + value;\n                curr = Math.max(curr, dp[i - 1][j] + value);\n                maxsum = Math.max(maxsum, curr);\n                dp[i][j + 1] = maxsum;\n            }\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "return dp[k][nums.length].longValue();",
+    "replace": "return dp[k][nums.length];"
+  }
+]
+```

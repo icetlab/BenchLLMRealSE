@@ -1,0 +1,11 @@
+The original solution repeatedly queries a segment tree during binary search, giving roughly O(n log² n) time. I replaced it with a linear scan of the distinct OR values of subarrays ending at each position. Because OR only sets bits, there are at most 32 distinct values per position, so the new solution is O(n · 32) time and uses O(1) extra space.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        SegmentTree seg = new SegmentTree(0 , nums.length);\n        int ans = Integer.MAX_VALUE;\n        for(int i = 0;i < nums.length;i++)\n            seg.update(i , nums[i]);\n\n        for(int i = 0;i < nums.length;i++) {\n            int low = i;\n            int high = nums.length;\n\n\n            while(low <= high) {\n                int mid = (low + high) / 2;\n                //System.out.println(i + \" \" + mid);\n                int rangeOr = seg.query(i , mid);\n                ans = Math.min(Math.abs(k - rangeOr) , ans);\n                if(k == rangeOr) {\n                    ans = 0;\n                    return 0;\n                }\n                else if(rangeOr < k)\n                    low = mid + 1;\n                else \n                    high = mid - 1;\n\n            }\n\n        }\n        return ans;",
+    "replace": "        int ans = Integer.MAX_VALUE;\n        int[] prev = new int[64];\n        int[] cur = new int[64];\n        int prevSize = 0;\n\n        for (int num : nums) {\n            cur[0] = num;\n            int curSize = 1;\n            int last = num;\n            ans = Math.min(ans, Math.abs(k - num));\n            if (ans == 0) return 0;\n\n            for (int i = 0; i < prevSize; i++) {\n                int v = prev[i] | num;\n                ans = Math.min(ans, Math.abs(k - v));\n                if (ans == 0) return 0;\n                if (v != last) {\n                    cur[curSize++] = v;\n                    last = v;\n                }\n            }\n\n            int[] tmp = prev;\n            prev = cur;\n            cur = tmp;\n            prevSize = curSize;\n        }\n\n        return ans;"
+  }
+]
+```

@@ -1,0 +1,127 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 1: expected='2989' got='2985'
+>>>> Your previous output was:
+I need to fix the algorithm. The previous optimization incorrectly assumed that for each row pair, the best two cells from the second row would work, but this misses cases where the optimal solution requires considering cells from different rows more carefully. The original algorithm correctly finds the top 4 candidate cells across all rows (excluding the chosen row and column), then checks all pairs among them.
+
+The issue is that my optimization only considered pairs of rows, but the optimal solution might require cells from three different rows. I need to revert to a correct approach that considers all three rows simultaneously.
+
+Here's the corrected approach: For each of the top 3 cells in each row, find the best pair of cells from other rows with distinct columns. To do this correctly, I'll precompute the top 3 cells for each row, then for each chosen cell, find the top 4 candidates from other rows (excluding same column), and check all valid pairs among them.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public long maximumValueSum(int[][] board) {\n        int m = board.length, n = board[0].length;\n        ArrayList < ArrayList < int[] >> list = new ArrayList < ArrayList < int[] >> ();\n        for (int i = 0; i < m; ++i) {\n            list.add(new ArrayList < int[] > ());\n        }\n        for (int i = 0; i < m; ++i) {\n            for (int j = 0; j < n; ++j) {\n                list.get(i).add(new int[] {\n                    board[i][j], j\n                });\n            }\n        }\n        for (int i = 0; i < m; ++i) {\n            Collections.sort(list.get(i), new Comparator < int[] > () {\n                public int compare(int[] arr1, int[] arr2) {\n                    return arr2[0] - arr1[0];\n                }\n            });\n        }\n        long rs = Long.MIN_VALUE;\n        for (int i = 0; i < m; ++i) {\n            for (int j = 0; j < 3; ++j){\n                rs = Math.max(rs, calc(list, i, j));\n            }\n        }\n        if (rs == Long.MIN_VALUE){\n            return 0l + list.get(0).get(0)[0] + list.get(0).get(1)[0] + list.get(0).get(2)[0];\n        }\n        return rs;\n    }\n    public long calc(ArrayList < ArrayList < int[] >> list, int x, int y){\n        int [][] arr = new int[][]{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}};\n        for (int i = 0; i < list.size(); ++i){\n            for (int j = 0; j < 3; ++j){\n                if (i == x || list.get(x).get(y)[1] == list.get(i).get(j)[1]){\n                    continue;\n                }\n                if (arr[0][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[0][0]).get(arr[0][1])[0]){\n                    arr[3][0] = arr[2][0];\n                    arr[3][1] = arr[2][1];\n                    arr[2][0] = arr[1][0];\n                    arr[2][1] = arr[1][1];\n                    arr[1][0] = arr[0][0];\n                    arr[1][1] = arr[0][1];\n                    arr[0][0] = i;\n                    arr[0][1] = j;\n                }\n                else if (arr[1][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[1][0]).get(arr[1][1])[0]){\n                    arr[3][0] = arr[2][0];\n                    arr[3][1] = arr[2][1];\n                    arr[2][0] = arr[1][0];\n                    arr[2][1] = arr[1][1];\n                    arr[1][0] = i;\n                    arr[1][1] = j;\n                }\n                else if (arr[2][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[2][0]).get(arr[2][1])[0]){\n                    arr[3][0] = arr[2][0];\n                    arr[3][1] = arr[2][1];\n                    arr[2][0] = i;\n                    arr[2][1] = j;\n                }\n                else if (arr[3][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[3][0]).get(arr[3][1])[0]){\n                    arr[3][0] = i;\n                    arr[3][1] = j;\n                }\n            }\n        }\n        if (max(list, arr) == Long.MIN_VALUE){\n            return Long.MIN_VALUE;\n        }\n        return 0l + list.get(x).get(y)[0] + max(list, arr);\n    }\n    public long max(ArrayList < ArrayList < int[] >> list, int [][] arr){\n        long rs = Long.MIN_VALUE;\n        for (int i = 0; i < 4; ++i){\n            for (int j = i + 1; j < 4; ++j){\n                if (arr[i][0] == arr[j][0] || list.get(arr[i][0]).get(arr[i][1])[1] == list.get(arr[j][0]).get(arr[j][1])[1]){\n                    continue;\n                }\n                rs = Math.max(rs, 0l + list.get(arr[i][0]).get(arr[i][1])[0] + list.get(arr[j][0]).get(arr[j][1])[0]);\n            }\n        }\n        return rs;\n    }\n}",
+    "replace": "class Solution {\n    public long maximumValueSum(int[][] board) {\n        int m = board.length, n = board[0].length;\n        // Precompute top 3 cells for each row: [value, column]\n        int[][] top = new int[m][3];\n        int[][] topCol = new int[m][3];\n        for (int i = 0; i < m; ++i) {\n            // Initialize with first 3 cells\n            for (int k = 0; k < 3 && k < n; ++k) {\n                top[i][k] = board[i][k];\n                topCol[i][k] = k;\n            }\n            // Insertion sort for first 3, then process rest\n            for (int j = 3; j < n; ++j) {\n                int val = board[i][j];\n                for (int k = 0; k < 3; ++k) {\n                    if (val > top[i][k]) {\n                        // Shift\n                        for (int s = 2; s > k; --s) {\n                            top[i][s] = top[i][s-1];\n                            topCol[i][s] = topCol[i][s-1];\n                        }\n                        top[i][k] = val;\n                        topCol[i][k] = j;\n                        break;\n                    }\n                }\n            }\n        }\n        long rs = Long.MIN_VALUE;\n        // For each row, consider its top 3 cells as the first chosen cell\n        for (int i = 0; i < m; ++i) {\n            for (int j = 0; j < 3; ++j) {\n                int val1 = top[i][j];\n                int col1 = topCol[i][j];\n                // Find top 4 candidate cells from other rows with distinct columns\n                int[][] candidates = new int[4][2]; // [row, colIndex]\n                int count = 0;\n                for (int k = 0; k < m; ++k) {\n                    if (k == i) continue;\n                    for (int t = 0; t < 3; ++t) {\n                        if (topCol[k][t] == col1) continue;\n                        // Insert into candidates maintaining top 4\n                        if (count < 4) {\n                            candidates[count][0] = k;\n                            candidates[count][1] = t;\n                            count++;\n                            // Bubble up\n                            for (int p = count - 1; p > 0; --p) {\n                                if (top[candidates[p][0]][candidates[p][1]] > top[candidates[p-1][0]][candidates[p-1][1]]) {\n                                    int[] temp = candidates[p];\n                                    candidates[p] = candidates[p-1];\n                                    candidates[p-1] = temp;\n                                } else {\n                                    break;\n                                }\n                            }\n                        } else {\n                            // Check if this value is better than the smallest in candidates\n                            if (top[k][t] > top[candidates[3][0]][candidates[3][1]]) {\n                                candidates[3][0] = k;\n                                candidates[3][1] = t;\n                                // Bubble up\n                                for (int p = 3; p > 0; --p) {\n                                    if (top[candidates[p][0]][candidates[p][1]] > top[candidates[p-1][0]][candidates[p-1][1]]) {\n                                        int[] temp = candidates[p];\n                                        candidates[p] = candidates[p-1];\n                                        candidates[p-1] = temp;\n                                    } else {\n                                        break;\n                                    }\n                                }\n                            }\n                        }\n                    }\n                }\n                // Check all pairs among candidates\n                for (int a = 0; a < count; ++a) {\n                    for (int b = a + 1; b < count; ++b) {\n                        int rowA = candidates[a][0], colIdxA = candidates[a][1];\n                        int rowB = candidates[b][0], colIdxB = candidates[b][1];\n                        if (rowA == rowB || topCol[rowA][colIdxA] == topCol[rowB][colIdxB]) {\n                            continue;\n                        }\n                        long sum = (long)val1 + top[rowA][colIdxA] + top[rowB][colIdxB];\n                        rs = Math.max(rs, sum);\n                    }\n                }\n            }\n        }\n        if (rs == Long.MIN_VALUE) {\n            // Fallback: sum of top 3 from first row (shouldn't happen with valid input)\n            return (long)top[0][0] + top[0][1] + top[0][2];\n        }\n        return rs;\n    }\n}"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public long maximumValueSum(int[][] board) {
+        int m = board.length, n = board[0].length;
+        ArrayList < ArrayList < int[] >> list = new ArrayList < ArrayList < int[] >> ();
+        for (int i = 0; i < m; ++i) {
+            list.add(new ArrayList < int[] > ());
+        }
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                list.get(i).add(new int[] {
+                    board[i][j], j
+                });
+            }
+        }
+        for (int i = 0; i < m; ++i) {
+            Collections.sort(list.get(i), new Comparator < int[] > () {
+                public int compare(int[] arr1, int[] arr2) {
+                    return arr2[0] - arr1[0];
+                }
+            });
+        }
+        long rs = Long.MIN_VALUE;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < 3; ++j){
+                rs = Math.max(rs, calc(list, i, j));
+            }
+        }
+        if (rs == Long.MIN_VALUE){
+            return 0l + list.get(0).get(0)[0] + list.get(0).get(1)[0] + list.get(0).get(2)[0];
+        }
+        return rs;
+    }
+    public long calc(ArrayList < ArrayList < int[] >> list, int x, int y){
+        int [][] arr = new int[][]{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}};
+        for (int i = 0; i < list.size(); ++i){
+            for (int j = 0; j < 3; ++j){
+                if (i == x || list.get(x).get(y)[1] == list.get(i).get(j)[1]){
+                    continue;
+                }
+                if (arr[0][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[0][0]).get(arr[0][1])[0]){
+                    arr[3][0] = arr[2][0];
+                    arr[3][1] = arr[2][1];
+                    arr[2][0] = arr[1][0];
+                    arr[2][1] = arr[1][1];
+                    arr[1][0] = arr[0][0];
+                    arr[1][1] = arr[0][1];
+                    arr[0][0] = i;
+                    arr[0][1] = j;
+                }
+                else if (arr[1][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[1][0]).get(arr[1][1])[0]){
+                    arr[3][0] = arr[2][0];
+                    arr[3][1] = arr[2][1];
+                    arr[2][0] = arr[1][0];
+                    arr[2][1] = arr[1][1];
+                    arr[1][0] = i;
+                    arr[1][1] = j;
+                }
+                else if (arr[2][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[2][0]).get(arr[2][1])[0]){
+                    arr[3][0] = arr[2][0];
+                    arr[3][1] = arr[2][1];
+                    arr[2][0] = i;
+                    arr[2][1] = j;
+                }
+                else if (arr[3][0] == -1 || list.get(i).get(j)[0] >= list.get(arr[3][0]).get(arr[3][1])[0]){
+                    arr[3][0] = i;
+                    arr[3][1] = j;
+                }
+            }
+        }
+        if (max(list, arr) == Long.MIN_VALUE){
+            return Long.MIN_VALUE;
+        }
+        return 0l + list.get(x).get(y)[0] + max(list, arr);
+    }
+    public long max(ArrayList < ArrayList < int[] >> list, int [][] arr){
+        long rs = Long.MIN_VALUE;
+        for (int i = 0; i < 4; ++i){
+            for (int j = i + 1; j < 4; ++j){
+                if (arr[i][0] == arr[j][0] || list.get(arr[i][0]).get(arr[i][1])[1] == list.get(arr[j][0]).get(arr[j][1])[1]){
+                    continue;
+                }
+                rs = Math.max(rs, 0l + list.get(arr[i][0]).get(arr[i][1])[0] + list.get(arr[j][0]).get(arr[j][1])[0]);
+            }
+        }
+        return rs;
+    }
+}
+
+---------
+>> Example test cases are:
+Example 1:
+  input: 9;10;860,265,719,522,847,840,425,864,670,321;889,159,689,429,637,803,962,122,359,935;189,83,282,19,617,17,830,933,210,811;642,605,842,925,534,20,53,913,89,198;221,957,349,625,205,507,812,540,134,431;369,834,170,100,321,583,603,150,551,142;839,572,878,932,213,830,920,699,387,860;3,606,761,302,122,914,849,307,466,772;28,616,965,551,737,257,14,892,488,154
+  expected output: 2884
+Example 2:
+  input: 6;9;3510,-1830,-1836,974,5341,-7570,-1077,-2287,3220;4718,9733,-2195,-7609,-7441,-5269,9977,5678,-5516;-8085,-2026,3974,-2776,8053,-8903,-6340,3650,3548;6494,6178,-2271,2430,26,-2008,7375,3879,6945;-7907,2341,-6258,-9198,6210,7885,9769,1163,2696;-8916,-4298,6394,-1426,3625,2332,8896,9399,-4502
+  expected output: 28901
+Example 3:
+  input: 3;4;-505,-402,-167,-183;-651,-875,-81,-250;-213,-948,-867,-98
+  expected output: -477
+Example 4:
+  input: 3;6;622731406,-760298295,-591275351,790742382,-824567317,566978558;775984635,-668472390,-913119053,511226023,704485155,-411002096;-321487234,633991096,-581698959,12980874,-84828472,466289471
+  expected output: 2200718113
+Example 5:
+  input: 5;9;5500,-6727,-3174,-4679,-2819,1309,163,3649,7149;-4942,-3146,3368,-3626,-2660,4113,9970,4513,9568;-1636,7828,-2098,7313,-227,5303,-911,-8857,6287;-9030,9801,7800,-1550,4992,-3429,7685,-527,7256;-8819,-6101,-9659,7730,9217,-528,-1747,4517,-7566
+  expected output: 28988
+

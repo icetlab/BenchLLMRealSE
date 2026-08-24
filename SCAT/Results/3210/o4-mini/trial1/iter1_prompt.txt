@@ -1,0 +1,67 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 1: search text not found in source.
+search='public int beautifulSubstrings(String s, int k) {\\n        int n = s.length();\\n        int count = 0;\\n        String vowels = "aeiou";\\n\\n        for(int i = 0; i < n; i++){\\n            int vowelCount = 0;\\n            int consonantCount = 0;\\n            \\n            for(int j = i; j < n; j++){\\n                char c = s.charAt(j);\\n\\n                if(vowels.indexOf(c) != -1){\\n                    vowelCount++;\\n                } else{\\n                    consonantCount++;\\n                }\\n                if(vowelCount == consonantCount && ( vowelCount * consonantCount) % k == 0){\\n                        count++;\\n                    }\\n                }\\n            }\\n            return count;\\n        }'
+>>>> Your previous output was:
+The following changes replace the naive O(n²) scan with an O(n) prefix‐difference histogram approach using counting modulo the required substring lengths, and add the necessary import for HashMap.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public int beautifulSubstrings(String s, int k) {\\n        int n = s.length();\\n        int count = 0;\\n        String vowels = \"aeiou\";\\n\\n        for(int i = 0; i < n; i++){\\n            int vowelCount = 0;\\n            int consonantCount = 0;\\n            \\n            for(int j = i; j < n; j++){\\n                char c = s.charAt(j);\\n\\n                if(vowels.indexOf(c) != -1){\\n                    vowelCount++;\\n                } else{\\n                    consonantCount++;\\n                }\\n                if(vowelCount == consonantCount && ( vowelCount * consonantCount) % k == 0){\\n                        count++;\\n                    }\\n                }\\n            }\\n            return count;\\n        }",
+    "replace": "public int beautifulSubstrings(String s, int k) {\n    int n = s.length();\n    // Compute minimal m so that m^2 % k == 0: factor k and take ceil half exponents\n    int M = 1;\n    int temp = k;\n    for (int p = 2; p * p <= temp; p++) {\n        if (temp % p == 0) {\n            int cnt = 0;\n            while (temp % p == 0) { temp /= p; cnt++; }\n            int exp = (cnt + 1) / 2;\n            int mul = 1;\n            for (int i = 0; i < exp; i++) mul *= p;\n            M *= mul;\n        }\n    }\n    if (temp > 1) {\n        // leftover prime factor\n        M *= temp;\n    }\n    long T = 2L * M;\n    Map<Long,Integer> map = new HashMap<>();\n    long diff = 0, ans = 0;\n    // start with prefix at pos 0\n    map.put((diff << 32) | 0L, 1);\n    for (int i = 0; i < n; i++) {\n        char c = s.charAt(i);\n        diff += (\"aeiou\".indexOf(c) >= 0 ? 1 : -1);\n        long r = (i + 1) % T;\n        if (r < 0) r += T;\n        long key = (diff << 32) | r;\n        int cur = map.getOrDefault(key, 0);\n        ans += cur;\n        map.put(key, cur + 1);\n    }\n    return (int) ans;\n}"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int beautifulSubstrings(String s, int k) {
+        int n = s.length();
+        int count = 0;
+        String vowels = "aeiou";
+
+        for(int i = 0; i < n; i++){
+            int vowelCount = 0;
+            int consonantCount = 0;
+            
+            for(int j = i; j < n; j++){
+                char c = s.charAt(j);
+
+                if(vowels.indexOf(c) != -1){
+                    vowelCount++;
+                } else{
+                    consonantCount++;
+                }
+                if(vowelCount == consonantCount && ( vowelCount * consonantCount) % k == 0){
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }   
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: a 1
+  expected output: 0
+Example 2:
+  input: abba 1
+  expected output: 3
+Example 3:
+  input: baeyh 2
+  expected output: 2
+Example 4:
+  input: bcdf 1
+  expected output: 0
+Example 5:
+  input: aeioubcdf 3
+  expected output: 1
+

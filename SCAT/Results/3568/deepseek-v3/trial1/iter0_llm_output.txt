@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "String s1 = String.format(\"%04d\",num1);\n      String s2 = String.format(\"%04d\",num2);\n      String s3= String.format(\"%04d\",num3);\n\n      StringBuilder sb = new StringBuilder();\n      for(int i=0;i<4;i++){\n        char min=(char)Math.min(s1.charAt(i),Math.min(s2.charAt(i),s3.charAt(i)));\n        sb.append(min);\n      }\n\n      return Integer.parseInt(sb.toString());",
+    "replace": "int result = 0;\n      int divisor = 1000;\n      for (int i = 0; i < 4; i++) {\n        int digit1 = (num1 / divisor) % 10;\n        int digit2 = (num2 / divisor) % 10;\n        int digit3 = (num3 / divisor) % 10;\n        int minDigit = Math.min(digit1, Math.min(digit2, digit3));\n        result = result * 10 + minDigit;\n        divisor /= 10;\n      }\n      return result;"
+  }
+]
+```

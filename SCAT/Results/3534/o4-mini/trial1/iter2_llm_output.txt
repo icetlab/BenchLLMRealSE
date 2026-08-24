@@ -1,0 +1,11 @@
+I’ve corrected the cross‐length detection by computing the true digit length of the swap result (without leading zeros), ensuring pairs like 30↔3 are counted.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "if (bVal == a || !freq.containsKey(bVal) || seen.contains(bVal)) continue;\n                    int lenB = t.length();",
+    "replace": "if (bVal == a || !freq.containsKey(bVal) || seen.contains(bVal)) continue;\n                    int lenB = Integer.toString(bVal).length();"
+  }
+]
+```

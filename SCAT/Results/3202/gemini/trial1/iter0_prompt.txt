@@ -1,0 +1,41 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public List<String> findHighAccessEmployees(List<List<String>> access_times) {
+        Map<String, List<String>> emp_access = new HashMap<>();
+        for(List<String> emp : access_times) {
+            List<String> temp = emp_access.containsKey(emp.get(0)) ? emp_access.get(emp.get(0)) : new ArrayList<String>();
+            temp.add(emp.get(1));
+            emp_access.put(emp.get(0), temp);
+        }
+        List<String> ans = new ArrayList<>();
+        for(Map.Entry<String, List<String>> entry : emp_access.entrySet()) {
+            List<String> temp = entry.getValue();
+            Collections.sort(temp);
+            System.out.println(temp);
+            for(int i = 2; i < temp.size(); i++) {
+                if(Integer.parseInt(temp.get(i)) - Integer.parseInt(temp.get(i - 2)) < 100) {
+                    ans.add(entry.getKey());
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: a,0549
+  expected output: 
+Example 2:
+  input: b,0457;b,0540
+  expected output: 
+Example 3:
+  input: a,0549;b,0457;a,0532;a,0621;b,0540
+  expected output: a
+Example 4:
+  input: d,0002;c,0808;c,0829;e,0215;d,1508;d,1444;d,1410;c,0809
+  expected output: d,c
+Example 5:
+  input: cd,1025;ab,1025;cd,1046;cd,1055;ab,1124;ab,1120
+  expected output: cd,ab

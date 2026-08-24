@@ -1,0 +1,17 @@
+Overall improvement intent:
+Introduce a prefix‐sum array to compute each subarray sum in O(1) instead of an inner loop, reducing the algorithm from O(n³) to O(n²).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    int size = nums.size(), res = -1;",
+    "replace": "    int size = nums.size(), res = -1;\n    // build prefix sums for O(1) subarray sums\n    int[] prefix = new int[size + 1];\n    for (int k = 0; k < size; k++) {\n        prefix[k + 1] = prefix[k] + nums.get(k);\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for(int i=0; i<=size-s; i++) \n        {\n            int sum = 0;\n            for(int j=i; j<i+s; j++) \n            {\n                sum += nums.get(j);\n            }\n            if(sum > 0) \n            {\n                if(res == -1 || res > sum) res = sum;\n            }\n        }",
+    "replace": "for(int i=0; i<=size-s; i++) {\n            int sum = prefix[i + s] - prefix[i];\n            if (sum > 0 && (res == -1 || res > sum)) {\n                res = sum;\n            }\n        }"
+  }
+]
+```

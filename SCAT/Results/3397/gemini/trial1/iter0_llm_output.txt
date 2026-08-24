@@ -1,0 +1,15 @@
+The original code calculates the integer `x` by finding the minimum elements of `nums1` and `nums2` and computing their difference. It uses frequency arrays to find these minimums, which is inefficient. This approach has a time complexity of O(N + M) and a space complexity of O(M), where N is the array length and M is the value range (1001).
+
+My improvement is based on a more direct mathematical property. If `nums2` is formed by adding `x` to each element of `nums1`, then the sum of `nums2`'s elements must equal the sum of `nums1`'s elements plus `N * x`. This allows us to calculate `x` as `(sum(nums2) - sum(nums1)) / N`.
+
+This new implementation calculates the sums in a single pass through the arrays. This reduces the time complexity to O(N) and the space complexity to O(1), eliminating the overhead of the large frequency arrays and providing a more efficient solution.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int freq1[] = new int[1001];\n        int freq2[] = new int[1001];\n\n        for(int i = 0; i< nums1.length; i++){\n            freq1[nums1[i]]++;\n            freq2[nums2[i]]++;\n        }\n\n        int num1 = -1;\n        int num2 = -1;\n\n        for(int i = 0; i< 1001; i++){\n            if(num1 == -1 && freq1[i] != 0) num1 = i;\n            if(num2 == -1 && freq2[i] != 0) num2 = i;\n        }\n    return num2 - num1;",
+    "replace": "        long sum1 = 0;\n        long sum2 = 0;\n        for (int i = 0; i < nums1.length; i++) {\n            sum1 += nums1[i];\n            sum2 += nums2[i];\n        }\n        return (int) ((sum2 - sum1) / nums1.length);"
+  }
+]
+```

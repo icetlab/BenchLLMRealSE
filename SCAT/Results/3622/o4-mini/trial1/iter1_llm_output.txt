@@ -1,0 +1,21 @@
+I’ve replaced the TreeMap + prefix‐sum approach with a simpler hash‐map → sorted list → two‐pointer sliding window method. This reduces overhead and runs in O(n log n) time with O(n) space.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "TreeMap<Integer, Integer> freq = new TreeMap<>(); // nums[i] -> freq\n        HashMap<Integer, Integer> valToId = new HashMap<>();\n        HashMap<Integer, Integer> idToVal = new HashMap<>();\n\n        for(int i=0; i<nums.length; i++){\n            freq.put(nums[i], freq.getOrDefault(nums[i], 0) + 1);\n            freq.putIfAbsent(nums[i] + k, 0);\n            freq.putIfAbsent(nums[i] - k, 0);\n        }",
+    "replace": "Map<Integer,Integer> map = new HashMap<>();\n        for(int num: nums) map.put(num, map.getOrDefault(num, 0) + 1);\n        List<int[]> pairs = new ArrayList<>(map.size());\n        for(Map.Entry<Integer,Integer> e: map.entrySet())\n            pairs.add(new int[]{e.getKey(), e.getValue()});\n        Collections.sort(pairs, Comparator.comparingInt(a -> a[0]));"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int[] prefixSum = new int[freq.size()];\n        int idx = 0;\n        for(int key: freq.keySet()){\n            valToId.put(key, idx);\n            idToVal.put(idx, key);\n            prefixSum[idx] = freq.get(key) + (idx == 0 ? 0: prefixSum[idx-1]);\n            idx++;\n        }\n\n        for(int i=0; i<prefixSum.length; i++){\n            Integer floor = freq.floorKey(idToVal.get(i) + k);\n            Integer ceil = freq.ceilingKey(idToVal.get(i) - k);\n\n            int idx2 = valToId.get(floor);\n            int idx1 = valToId.get(ceil);\n\n            int sum = prefixSum[idx2] - (idx1 == 0 ? 0: prefixSum[idx1-1]);\n            int currOp = Math.min(numOperations, sum - freq.get(idToVal.get(i)));\n\n            res = Math.max(res, freq.get(idToVal.get(i)) + currOp);\n        }\n        return res;",
+    "replace": "        int left = 0, sumFreq = 0;\n        for(int right = 0; right < pairs.size(); right++){\n            int vR = pairs.get(right)[0], fR = pairs.get(right)[1];\n            sumFreq += fR;\n            while(vR - pairs.get(left)[0] > k){\n                sumFreq -= pairs.get(left)[1];\n                left++;\n            }\n            int windowSize = sumFreq;\n            int canConvert = Math.min(numOperations, windowSize - fR);\n            res = Math.max(res, fR + canConvert);\n        }\n        return res;"
+  }
+]
+```

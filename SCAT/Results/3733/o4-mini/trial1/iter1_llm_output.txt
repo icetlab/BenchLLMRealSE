@@ -1,0 +1,11 @@
+Here’s a one-line fix to correct the memo array indexing when storing the result, adding back the missing direction dimension:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "memo[i][j][turnedIdx][tIdx] = ans;",
+    "replace": "memo[i][j][d][turnedIdx][tIdx] = ans;"
+  }
+]
+```

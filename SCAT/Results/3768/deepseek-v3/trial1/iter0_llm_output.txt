@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public boolean hasSameDigits(String s) {\n        boolean flag=false;\n        int n=s.length();\n        String newString=\"\";\n\n        for(int i=0;i<n-1;i++){\n            int first=Integer.parseInt(String.valueOf(s.charAt(i)));\n            int second=Integer.parseInt(String.valueOf(s.charAt(i+1)));\n            int newNumber=(first+second)%10;\n            newString+=newNumber;\n            if(i>=(n-2)){\n                if(newString.length()==2){\n                   break;\n                }else{\n                    i=-1;\n                    s=newString;\n                    newString=\"\";\n                    n=s.length();\n                }\n            }\n        }\n        //System.out.print(\"NewString: \"+newString);\n        if(newString.charAt(0)==newString.charAt(1)){\n            return true;\n        }\n\n        return false;\n        \n    }\n}",
+    "replace": "class Solution {\n    public boolean hasSameDigits(String s) {\n        int n = s.length();\n        int[] digits = new int[n];\n        for (int i = 0; i < n; i++) {\n            digits[i] = s.charAt(i) - '0';\n        }\n        \n        while (digits.length > 2) {\n            int[] next = new int[digits.length - 1];\n            for (int i = 0; i < next.length; i++) {\n                next[i] = (digits[i] + digits[i+1]) % 10;\n            }\n            digits = next;\n        }\n        \n        return digits[0] == digits[1];\n    }\n}"
+  }
+]
+```

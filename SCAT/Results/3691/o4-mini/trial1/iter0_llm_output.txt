@@ -1,0 +1,11 @@
+I’ve replaced the O(m²n) triple‐loop and per‐increment operations with a single pass per column, tracking the needed previous value and accumulating the total increments in O(mn) time.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int count=0;\n\tfor (int j=0;j<grid[0].length ;j++ )\n\t{\n\t\tfor (int i=0;i<grid.length ;i++ )\n\t\t{\n\t\t\tfor (int k=i+1;k<grid.length ;k++ )\n\t\t\t{\n\t\t\t\twhile(grid[i][j]>=grid[k][j])\n\t\t\t\t{\n\t\t\t\t\tgrid[k][j]++;\n\t\t\t\t\tcount++;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n\treturn count;",
+    "replace": "int count = 0;\n\tint m = grid.length, n = grid[0].length;\n\tfor (int j = 0; j < n; j++) {\n\t\tint prev = grid[0][j];\n\t\tfor (int i = 1; i < m; i++) {\n\t\t\tif (grid[i][j] > prev) {\n\t\t\t\tprev = grid[i][j];\n\t\t\t} else {\n\t\t\t\tint need = prev + 1;\n\t\t\t\tcount += need - grid[i][j];\n\t\t\t\tprev = need;\n\t\t\t}\n\t\t}\n\t}\n\treturn count;"
+  }
+]
+```

@@ -1,0 +1,21 @@
+I’ve replaced the BigInteger‐based DP with a BitSet‐based approach for much faster subset‐sum propagation, removed the unused BigInteger import, and added the BitSet import.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.math.BigInteger;\n",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "import java.util.Arrays;\n",
+    "replace": "import java.util.Arrays;\nimport java.util.BitSet;\n"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int[] nums = Arrays.stream(rewardValues).distinct().sorted().toArray();\n        BigInteger f = BigInteger.ONE;\n        for (int v : nums) {\n            BigInteger mask = BigInteger.ONE.shiftLeft(v).subtract(BigInteger.ONE);\n            BigInteger shifted = f.and(mask).shiftLeft(v);\n            f = f.or(shifted);\n        }\n        return f.bitLength() - 1;",
+    "replace": "        int[] nums = Arrays.stream(rewardValues).distinct().sorted().toArray();\n        int sum = 0;\n        for (int v : nums) sum += v;\n        BitSet bs = new BitSet(sum + 1);\n        bs.set(0);\n        int ans = 0;\n        for (int v : nums) {\n            BitSet lower = bs.get(0, v);\n            for (int s = lower.nextSetBit(0); s >= 0; s = lower.nextSetBit(s + 1)) {\n                bs.set(s + v);\n            }\n            ans = Math.max(ans, bs.length() - 1);\n        }\n        return ans;"
+  }
+]
+```

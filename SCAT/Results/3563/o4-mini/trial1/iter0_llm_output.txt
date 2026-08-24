@@ -1,0 +1,11 @@
+I replaced the recursive, exponential-time search with a simple greedy scan over values in descending order, assigning each value to any available (unused) row. This reduces time complexity from exponential to O(V log V + E), where V is the number of distinct values and E is total grid entries.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int maxScore(List<List<Integer>> grid) {\n        TreeMap<Integer, Set<Integer>> tm = createTreeMap(grid);\n        return maxHelper(tm, tm.lastKey() + 1, new HashSet<>());\n    }",
+    "replace": "    public int maxScore(List<List<Integer>> grid) {\n        TreeMap<Integer, Set<Integer>> tm = createTreeMap(grid);\n        int rows = grid.size();\n        boolean[] used = new boolean[rows];\n        int remaining = rows;\n        long sum = 0;\n        for (Integer val : tm.descendingKeySet()) {\n            if (remaining == 0) break;\n            for (int r : tm.get(val)) {\n                if (!used[r]) {\n                    used[r] = true;\n                    sum += val;\n                    remaining--;\n                    break;\n                }\n            }\n        }\n        return (int) sum;\n    }"
+  }
+]
+```

@@ -1,0 +1,36 @@
+The changes replace the per-call HashMap caching with one-time precomputation of all adjacent and diagonal sums in flat arrays, yielding O(1) lookups and eliminating the expensive nested maps on each query.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    int [][] v;\n    int n;\n    HashMap<Integer,HashMap<Integer,int[]>> h;",
+    "replace": "    int [][] v;\n    int n;\n    int[] adj;\n    int[] diag;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public NeighborSum(int[][] grid)\n    {\n        g = grid;\n        n = g.length;\n        v = new int[n*n][2];\n        h = new HashMap<>();\n        int [] a;\n\n        for(int i=0; i<n; i++)\n            for(int j=0; j<n; j++)\n            {\n                a = v[g[i][j]];\n                a[0] = i;\n                a[1] = j;\n            }\n    }",
+    "replace": "    public NeighborSum(int[][] grid)\n    {\n        g = grid;\n        n = g.length;\n        v = new int[n*n][2];\n        adj = new int[n*n];\n        diag = new int[n*n];\n        int [] a;\n\n        for(int i=0; i<n; i++)\n            for(int j=0; j<n; j++)\n            {\n                a = v[g[i][j]];\n                a[0] = i;\n                a[1] = j;\n                int sAdj = (i>0 ? g[i-1][j] : 0)\n                         + (i<n-1 ? g[i+1][j] : 0)\n                         + (j>0 ? g[i][j-1] : 0)\n                         + (j<n-1 ? g[i][j+1] : 0);\n                int sDiag = (i>0 && j>0 ? g[i-1][j-1] : 0)\n                          + (i<n-1 && j<n-1 ? g[i+1][j+1] : 0)\n                          + (i>0 && j<n-1 ? g[i-1][j+1] : 0)\n                          + (i<n-1 && j>0 ? g[i+1][j-1] : 0);\n                adj[g[i][j]] = sAdj;\n                diag[g[i][j]] = sDiag;\n            }\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int adjacentSum(int value)\n    {\n        return get(v[value])[0];\n    }",
+    "replace": "    public int adjacentSum(int value)\n    {\n        return adj[value];\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int diagonalSum(int value)\n    {\n        return get(v[value])[1];\n    }",
+    "replace": "    public int diagonalSum(int value)\n    {\n        return diag[value];\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private int [] get(int [] a)\n    {\n        return h.computeIfAbsent(a[0],k->new HashMap<>()).computeIfAbsent(a[1],j->make(a[0],a[1]));\n    }\n\n",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private int [] make(int x, int y)\n    {\n        return new int[]\n        {   (x>0 ? g[x-1][y] : 0)\n            + (x<n-1 ? g[x+1][y] : 0)\n            + (y>0 ? g[x][y-1] : 0)\n            + (y<n-1 ? g[x][y+1] : 0),\n\n            (x>0 && y>0 ? g[x-1][y-1] : 0)\n            + (x<n-1 && y<n-1 ? g[x+1][y+1] : 0)\n            + (x>0 && y<n-1 ? g[x-1][y+1] : 0)\n            + (x<n-1 && y>0 ? g[x+1][y-1] : 0)\n        };\n    }",
+    "replace": ""
+  }
+]
+```

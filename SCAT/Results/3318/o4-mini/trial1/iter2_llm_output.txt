@@ -1,0 +1,21 @@
+I’ve replaced the recursive/memoized approach with a much faster two‐pointer technique over the three candidate scores, and added the necessary `Arrays` import.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.Arrays;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    final int n = nums.length;\n    Map<String, Integer> mem = new HashMap<>();",
+    "replace": "    Arrays.sort(nums);\n    int n = nums.length;\n    int ans = 0;\n    int[] scores = new int[] { nums[0] + nums[1], nums[n - 1] + nums[n - 2], nums[0] + nums[n - 1] };\n    for (int score : scores) {\n        int i = 0, j = n - 1, count = 0;\n        while (i < j) {\n            int sum = nums[i] + nums[j];\n            if (sum == score) {\n                count++;\n                i++;\n                j--;\n            } else if (sum < score) {\n                i++;\n            } else {\n                j--;\n            }\n        }\n        ans = Math.max(ans, count);\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    return Math.max(Math.max(maxOperations(nums, 0, n - 1, nums[0] + nums[1], mem),\n                             maxOperations(nums, 0, n - 1, nums[n - 1] + nums[n - 2], mem)),\n                    maxOperations(nums, 0, n - 1, nums[0] + nums[n - 1], mem));",
+    "replace": "    return ans;"
+  }
+]
+```

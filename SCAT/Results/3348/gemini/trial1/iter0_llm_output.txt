@@ -1,0 +1,27 @@
+The original code's performance bottleneck is an inefficient Depth First Search (DFS) implementation for finding connected components and calculating their associated costs. The `dfs` function recursively calls itself for all neighbors of a node, including those already visited. This leads to an exponential number of calls in the worst case (e.g., a complete graph), making it too slow for the given constraints.
+
+My improvement replaces this with a standard, efficient DFS algorithm. The new approach involves two main changes:
+1.  The main loop in `minimumCost` is updated to call a revised `dfs` function that no longer returns a value. Instead, it modifies a `forestCost` array that holds the calculated cost for each component. This array is initialized with `Integer.MAX_VALUE`, which is the identity element for the bitwise AND operation.
+2.  The `dfs` method is rewritten to perform a standard traversal. It marks nodes as visited and only recurses on unvisited neighbors. During the traversal of a component, it calculates the cost by performing a bitwise AND of all edge weights within that component.
+
+This change reduces the complexity of finding all component costs from potentially exponential to O(V + E) (where V is vertices, E is edges), which is linear and well within the time limits. I am also removing a redundant and unused class variable for code cleanup.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    int BASE = (int)Math.pow(2, 17) - 1;",
+    "replace": "class Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        // ArrayList<HashSet<Integer>> forest = new ArrayList<>();\n        // ArrayList<Integer> minCost = new ArrayList<>();\n        int[] vertexForestMap = new int[n];\n        int[] forestCost = new int[n];\n        int forestId=0;\n        // HashMap<Integer, Integer> vertexForestMap = new HashMap<>();\n        for (int i=0; i<n; i++) {\n            if (!visited[i]) {\n                // HashSet<Integer> vertices = new HashSet<>();\n                // int[] cost = {BASE};\n                int cost = dfs(adj, visited, vertexForestMap, i, forestId);\n                forestCost[forestId] = cost;\n                forestId++;\n                // forest.add(vertices);\n                // minCost.add(cost[0]);\n            }\n        }",
+    "replace": "        int[] vertexForestMap = new int[n];\n        int[] forestCost = new int[n];\n        java.util.Arrays.fill(forestCost, Integer.MAX_VALUE);\n        int forestId=0;\n        for (int i=0; i<n; i++) {\n            if (!visited[i]) {\n                dfs(adj, visited, vertexForestMap, i, forestId, forestCost);\n                forestId++;\n            }\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int dfs(ArrayList<ArrayList<int[]>> adj, boolean[] visited, int[] vertexForestMap, int src, int forestId) {\n        int cost = Integer.MAX_VALUE;\n        if (visited[src]) {\n            return cost;\n        }\n        vertexForestMap[src] = forestId;\n        visited[src] = true;\n        \n        for (int[] node: adj.get(src)) {\n            // if (!visited[node[0]]) {\n                cost = cost & node[1] & dfs(adj, visited, vertexForestMap, node[0], forestId);\n            // }\n        }\n        return cost;\n    }",
+    "replace": "    public void dfs(ArrayList<ArrayList<int[]>> adj, boolean[] visited, int[] vertexForestMap, int src, int forestId, int[] forestCost) {\n        visited[src] = true;\n        vertexForestMap[src] = forestId;\n        \n        for (int[] edge: adj.get(src)) {\n            forestCost[forestId] &= edge[1];\n            int neighbor = edge[0];\n            if (!visited[neighbor]) {\n                dfs(adj, visited, vertexForestMap, neighbor, forestId, forestCost);\n            }\n        }\n    }"
+  }
+]
+```

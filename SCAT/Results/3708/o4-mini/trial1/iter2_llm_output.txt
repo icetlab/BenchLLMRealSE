@@ -1,0 +1,31 @@
+I’ve replaced the fixed‐size int[] and stream‐based boxing with a pre‐sized ArrayList that we populate on the fly, eliminating the extra array allocation and stream overhead for better performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.List;\nimport java.util.ArrayList;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int[] output = new int[out_len];",
+    "replace": "List<Integer> result = new ArrayList<>(out_len);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "output[i] = grid[r][c];",
+    "replace": "result.add(grid[r][c]);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "List<Integer> list = Arrays.stream(output).boxed().toList();",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "return list;",
+    "replace": "return result;"
+  }
+]
+```

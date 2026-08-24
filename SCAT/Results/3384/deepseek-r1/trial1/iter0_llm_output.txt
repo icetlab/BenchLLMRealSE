@@ -1,0 +1,11 @@
+The main improvement is to count each `k`-length block with `Map.merge`, track the maximum frequency as we go, and return `totalBlocks - maxFrequency`. This avoids the extra variables, the final map scan, and repeated `HashMap` lookups.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        HashMap<String, Integer> mp = new HashMap<>();\n        String maxStr = new String();\n        Integer inmax = 0;\n        for(int i =k; i<=word.length(); i+=k){\n            String s = word.substring(i-k, i);\n            if(mp.get(s) != null){\n                mp.put(s,mp.get(s)+1);\n                if(mp.get(s) > inmax){\n                    maxStr = s;\n                    inmax = mp.get(s);\n                }\n            }else {\n                mp.put(s,1);\n            }\n        }\n        if(inmax <= 1){\n            return (word.length()/k) -1;\n        }\n        else{\n            Integer ans = 0;\n            for(Map.Entry<String, Integer> i: mp.entrySet()){\n                // System.out.println(i.getKey());\n                if(!i.getKey().equals(maxStr)){\n                    ans+= i.getValue();\n                }\n            } \n            return ans;\n        }",
+    "replace": "        java.util.Map<String, Integer> freq = new java.util.HashMap<>();\n        int maxFreq = 0;\n        for (int i = 0; i + k <= word.length(); i += k) {\n            String part = word.substring(i, i + k);\n            int count = freq.merge(part, 1, Integer::sum);\n            if (count > maxFreq) {\n                maxFreq = count;\n            }\n        }\n        return word.length() / k - Math.max(maxFreq, 1);"
+  }
+]
+```

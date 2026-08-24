@@ -1,0 +1,11 @@
+The original triple-nested loop is O(n³). I replaced it with an O(n log n) prefix-sum + sliding-window approach: for each subarray end, maintain all valid starting prefixes in a `TreeMap`, then use `lowerKey` to find the largest prefix smaller than the current prefix, giving the smallest positive sum ending at that index.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int minimumSumSubarray(List<Integer> nums, int l, int r) \n    {\n    int size = nums.size(), res = -1;\n\tfor(int s=l; s<=r; s++) \n    {\n\t\tfor(int i=0; i<=size-s; i++) \n        {\n\t\t\tint sum = 0;\n\t\t\tfor(int j=i; j<i+s; j++) \n            {\n\t\t\t\tsum += nums.get(j);\n\t\t\t}\n\t\t\tif(sum > 0) \n            {\n\t\t\t\tif(res == -1 || res > sum) res = sum;\n\t\t\t}\n\t\t}\n\t}\n\treturn res;",
+    "replace": "public int minimumSumSubarray(List<Integer> nums, int l, int r) {\n    int n = nums.size();\n    if (l < 1) l = 1;\n    if (l > r) return -1;\n\n    int[] prefix = new int[n + 1];\n    for (int i = 0; i < n; i++) {\n        prefix[i + 1] = prefix[i] + nums.get(i);\n    }\n\n    java.util.TreeMap<Integer, Integer> active = new java.util.TreeMap<Integer, Integer>();\n    int res = -1;\n\n    for (int end = 0; end < n; end++) {\n        int startToAdd = end - l + 1;\n        if (startToAdd >= 0) {\n            Integer cur = active.get(prefix[startToAdd]);\n            active.put(prefix[startToAdd], cur == null ? 1 : cur + 1);\n        }\n\n        int startToRemove = end - r;\n        if (startToRemove >= 0) {\n            int count = active.get(prefix[startToRemove]);\n            if (count == 1) {\n                active.remove(prefix[startToRemove]);\n            } else {\n                active.put(prefix[startToRemove], count - 1);\n            }\n        }\n\n        Integer lower = active.lowerKey(prefix[end + 1]);\n        if (lower != null) {\n            int sum = prefix[end + 1] - lower;\n            if (res == -1 || sum < res) {\n                res = sum;\n            }\n        }\n    }\n\n    return res;"
+  }
+]
+```

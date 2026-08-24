@@ -1,0 +1,33 @@
+The user wants to improve the performance of the `minBitwiseArray` method in the `Solution.java` file.
+
+### Method Analysis
+
+The original code implements a brute-force search. For each number `num` in the input list `nums`, it iterates through all integers `j` from `0` to `num - 1`. In each iteration, it checks if the condition `(j | (j+1)) == num` is met. If it is, `j` is stored as the result, and the inner loop terminates. This approach is inefficient, with a time complexity of approximately O(N) for each number, where N is the value of the number itself. The total complexity is O(sum of all numbers in `nums`), which can be very slow if the numbers are large.
+
+### Improvement Strategy
+
+A much more performant solution can be achieved by analyzing the bitwise properties of the expression `j | (j+1)` and deriving a direct mathematical formula to calculate `j` from `num`.
+
+1.  **Parity Analysis**: The expression `j | (j+1)` can only produce an odd number (for `j > 0`). If `j` is even, `j | (j+1)` equals `j+1`. If `j` is odd, `j | (j+1)` is also odd. Therefore, if the input `num` is an even number, no non-negative integer `j` can satisfy the equation. In this case, the answer is -1.
+
+2.  **Direct Formula**: For an odd `num`, it can be shown that the smallest non-negative `j` satisfying `j | (j+1) == num` is given by the formula:
+    `j = num - (Integer.lowestOneBit(num + 1) / 2)`
+
+    -   `Integer.lowestOneBit(x)` is a standard Java method that returns an `int` with a single bit set, at the position of the least significant ('rightmost') one-bit in `x`. This is equivalent to finding the largest power of 2 that divides `x`.
+    -   This formula is derived from the property `j | (j+1) = j + Integer.lowestOneBit(j+1)`.
+
+By applying this formula, we can compute the result for each `num` in constant time, O(1). This reduces the overall time complexity of the method from O(sum of `nums`) to O(size of `nums`), a significant performance improvement.
+
+### Implementation
+
+The improved implementation will first check if `num` is even. If so, the result is -1. If `num` is odd, it will apply the derived formula to calculate `j` directly, eliminating the need for any loops.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int[] arr = new int[nums.size()];\nfor (int i=0; i<nums.size(); i++){\n    for (int j=0; j<nums.get(i); j++){\n        if ((j | (j+1)) == nums.get(i)){\n            arr[i]=j;\n            break;\n        }\n        if (arr[i]==0){\n            arr[i]=-1;\n        } \n    }\n}\nreturn arr;",
+    "replace": "int[] arr = new int[nums.size()];\nfor (int i = 0; i < nums.size(); i++) {\n    int num = nums.get(i);\n    if ((num & 1) == 0) {\n        arr[i] = -1;\n    } else {\n        arr[i] = num - (Integer.lowestOneBit(num + 1) / 2);\n    }\n}\nreturn arr;"
+  }
+]
+```

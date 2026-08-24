@@ -1,0 +1,13 @@
+The original solution has a time complexity of O(C * R^2), where C is the number of columns and R is the number of rows. This is because for each of the C columns, it iterates through every pair of rows to enforce the strictly increasing property. This approach is inefficient.
+
+The performance can be significantly improved by processing each column independently in a single pass, which takes O(R) time. For each element in a column, we only need to ensure it is strictly greater than the element in the previous row. The minimum value for an element at row `i` is determined by the maximum of its original value and one more than the (new) value of the element at row `i-1`. By keeping track of the required value as we iterate down a column, we can calculate the total operations in O(C * R) time. This optimized approach avoids redundant comparisons and does not modify the input grid.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int count=0;\n\t\tfor (int j=0;j<grid[0].length ;j++ )\n\t\t{\n\t\t\tfor (int i=0;i<grid.length ;i++ )\n\t\t\t{\n\t\t\t\tfor (int k=i+1;k<grid.length ;k++ )\n\t\t\t\t{\n\t\t\t\t\twhile(grid[i][j]>=grid[k][j])\n\t\t\t\t\t{\n\t\t\t\t\t\tgrid[k][j]++;\n\t\t\t\t\t\tcount++;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\treturn count;",
+    "replace": "        int m = grid.length;\n        if (m == 0) {\n            return 0;\n        }\n        int n = grid[0].length;\n        long count = 0;\n\n        for (int j = 0; j < n; j++) {\n            int prev = -1; // Stores the required value for the previous row in the modified column.\n            for (int i = 0; i < m; i++) {\n                int required = prev + 1;\n                if (grid[i][j] < required) {\n                    count += required - grid[i][j];\n                    prev = required;\n                } else {\n                    prev = grid[i][j];\n                }\n            }\n        }\n        return (int) count;"
+  }
+]
+```

@@ -1,0 +1,106 @@
+>> The source file (Solution.java) is:
+/*
+
+Completely diff approach from brute force : but easily soch skte thee,
+ki paint hi dono pair ko sath mei kro, aur dono ke adjacent color ko dp state
+mei rkho, taaki pta rhe ki dono mei konse konse color bhr skte hai
+
+fir bhrte time bhi dhyan rkho ki dono mei same color nhi bhrna
+*/
+class Solution {
+
+    Long[][][] dp ;
+
+    long func(int i, int pc, int fc, int[][] cost){
+
+        int n = cost.length;
+        if(i>=n/2)
+            return 0;
+
+        if(dp[i][pc][fc]!=null)
+            return dp[i][pc][fc];
+
+
+        List<Integer> PrevColorChoice = new ArrayList<>();
+        List<Integer> FwdColorChoice = new ArrayList<>();
+
+        for(int j = 0;j<3;j++)
+        {
+            if(pc != j){
+                PrevColorChoice.add(j);
+            }
+
+            if(fc != j){
+                FwdColorChoice.add(j);
+            }
+
+        }
+
+        long ans = Long.MAX_VALUE;
+
+        for(int p : PrevColorChoice){
+            for(int f : FwdColorChoice){
+                if(p==f)
+                    continue;
+
+                long cp = cost[i][p];
+                long cf = cost[n-i-1][f];
+
+                ans = Math.min(ans, cp + cf + func(i+1, p, f, cost));
+            }
+        }
+
+        return dp[i][pc][fc] = ans; 
+
+    }
+
+    public long minCost(int n, int[][] cost) {
+
+        //as 0,1,2 hi colors hai and first , aur uska pair last isko to kisi bhi color se kr skte hai, to inke liye prev color 3 dia hai
+
+        dp = new Long[n+1][4][4];
+        return func(0,3,3,cost);
+        
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 2
+1,2,3
+4,5,6
+  expected output: 6
+Example 2:
+  input: 4
+3,5,7
+6,2,9
+4,8,1
+7,3,5
+  expected output: 9
+Example 3:
+  input: 6
+2,4,6
+5,3,8
+7,1,9
+4,6,2
+3,5,7
+8,2,4
+  expected output: 18
+Example 4:
+  input: 4
+10,10,10
+10,10,10
+10,10,10
+10,10,10
+  expected output: 40
+Example 5:
+  input: 8
+0,100,100
+100,0,100
+100,100,0
+0,50,100
+100,0,50
+50,100,0
+0,0,1
+1,0,0
+  expected output: 51

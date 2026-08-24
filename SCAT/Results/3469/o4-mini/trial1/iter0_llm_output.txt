@@ -1,0 +1,11 @@
+I’ve replaced the iterative computation and debug prints in `helper` with direct formulas for O(1) performance and removed unnecessary branches. 
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int blueN = (int)(Math.sqrt(blue));\n        \n        int n = 1;\n\n        while((n*(n+1))<=red){\n            n++;\n\n        }\n        n--;\n        if(red <2){\n            n=0;\n        }\n        System.out.println(n);\n        System.out.println(blueN);\n\n        if(blueN>n){\n            return (2*n)+1;\n        }\n        else if(blueN<n){\n            return (2*blueN);\n        }\n        else{\n            return (2*blueN);\n        }",
+    "replace": "int blueN = (int) Math.sqrt(blue);\n        int n = (int) ((Math.sqrt(1 + 4L * red) - 1) / 2);\n        if (blueN > n) {\n            return 2 * n + 1;\n        } else {\n            return 2 * blueN;\n        }"
+  }
+]
+```

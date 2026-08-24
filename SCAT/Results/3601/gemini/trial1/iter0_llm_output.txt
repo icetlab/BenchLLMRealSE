@@ -1,0 +1,19 @@
+The original `findit` method uses a recursive approach with several performance issues. It relies on the slow `Math.pow` function for calculations with powers of two, employs a `while` loop within each recursive call to determine the most significant bit, and incurs function call overhead from recursion.
+
+My improvement replaces this entire recursive method with a highly efficient iterative algorithm. The new implementation correctly identifies that the problem is equivalent to summing `operations[i]` for each bit `i` that is set in the binary representation of `k-1`. This is achieved by:
+
+1.  **Iterating through bits:** A single `while` loop iterates through the bits of `k-1`.
+2.  **Using bitwise operations:** Fast bitwise operators (`&` for checking bits, `>>` for shifting) are used instead of `Math.pow` and loops, which dramatically improves performance.
+3.  **Eliminating recursion:** The iterative approach avoids recursion overhead and the risk of `StackOverflowError` for large inputs.
+
+This change preserves the original logic while being significantly faster and more memory-efficient.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    private int findit(long k, int[] operations){\n        if(k == 1){\n            return 0;\n        }\n        int x = 1;\n        while((long)Math.pow(2,x) < k){\n            x++;\n        }\n        x--;\n        int a = 0;\n        if(operations[x] == 1){\n            k -= Math.pow(2,x);\n            return 1 + findit(k,operations);\n        }\n        else{\n            k -= Math.pow(2,x);\n            return findit(k,operations);\n        }\n       \n    }",
+    "replace": "    private int findit(long k, int[] operations){\n        long num = k - 1;\n        int sum = 0;\n        int i = 0;\n        while (num > 0) {\n            if ((num & 1) == 1) {\n                sum += operations[i];\n            }\n            num >>= 1;\n            i++;\n        }\n        return sum;\n    }"
+  }
+]
+```

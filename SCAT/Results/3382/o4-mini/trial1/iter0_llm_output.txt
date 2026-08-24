@@ -1,0 +1,25 @@
+I’ve optimized the key hot paths:
+
+1. Switched from the slow, synchronized Stack to ArrayDeque for next-greater computation and simplified that loop.
+2. Replaced the manual HashMap & ArrayList building with `computeIfAbsent` to avoid redundant lookups/puts.
+3. Rewrote the `count` method to use `Collections.binarySearch` instead of two manual binary searches (faster and fewer operations).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        // storing the index of next greater element\n        int nge[]=new int[n];\n        Stack<Integer> st=new Stack<>();\n\n          nge[n-1]=-1;\n          st.push(n-1);\n        for(int i=n-2;i>=0;i--){\n         while(!st.isEmpty() && arr[i]>=arr[st.peek()]){\n            st.pop();\n         }\n         if(st.isEmpty()==true){\n            nge[i]=-1;\n            st.push(i);\n         }\n         else{\n            nge[i]=st.peek();\n            st.push(i);\n         }\n        }",
+    "replace": "        // storing the index of next greater element\n        int[] nge = new int[n];\n        java.util.Deque<Integer> st = new java.util.ArrayDeque<>();\n        for (int i = n - 1; i >= 0; i--) {\n            while (!st.isEmpty() && arr[i] >= arr[st.peek()]) {\n                st.pop();\n            }\n            nge[i] = st.isEmpty() ? -1 : st.peek();\n            st.push(i);\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "      HashMap<Integer,ArrayList<Integer>> map=new HashMap<>();\n      // map having occurances of each element in sorted order \n      for(int i=0;i<n;i++){\n        int curr=arr[i];\n\n        if(map.containsKey(curr)==false){\n            ArrayList<Integer> list =new ArrayList<>(); \n            list.add(i);    \n            map.put(curr,list)    ;        \n        }\n        else{\n            ArrayList<Integer> rl=map.get(curr);\n            rl.add(i);\n            map.put(curr,rl);\n        }\n\n      }",
+    "replace": "      java.util.HashMap<Integer, ArrayList<Integer>> map = new java.util.HashMap<>();\n      for (int i = 0; i < n; i++) {\n          map.computeIfAbsent(arr[i], k -> new java.util.ArrayList<>()).add(i);\n      }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int count(int l ,int h,ArrayList<Integer> list){\n            return fun(h,list)-fun(l-1,list);\n    }",
+    "replace": "    public int count(int l, int h, ArrayList<Integer> list) {\n        int left = java.util.Collections.binarySearch(list, l);\n        if (left < 0) left = -left - 1;\n        int right = java.util.Collections.binarySearch(list, h);\n        if (right < 0) right = -right - 2;\n        return right >= left ? right - left + 1 : 0;\n    }"
+  }
+]
+```

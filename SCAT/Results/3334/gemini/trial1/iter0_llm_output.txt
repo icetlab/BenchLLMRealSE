@@ -1,0 +1,24 @@
+My improvements focus on enhancing robustness, optimizing the main computational bottleneck, and refining the loop logic for efficiency and correctness.
+First, I will use a `long` for the sum of apples to prevent potential integer overflow, which could lead to incorrect results for large inputs. I will also replace the stream-based summation with a standard for-loop, which can reduce overhead.
+Second, since sorting the box capacities is the most time-consuming step (O(M log M)), I'll switch to `Arrays.parallelSort()`. This leverages multi-core processors to significantly speed up sorting for large arrays.
+Finally, I'll refactor the main `while` loop to simplify its control flow. This change removes a conditional branch from the loop body and correctly handles the edge case where no apples need to be boxed, preventing an off-by-one error.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int s = Arrays.stream(a).sum();",
+    "replace": "long s = 0;\n        for (int val : a) {\n            s += val;\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Arrays.sort(c);",
+    "replace": "Arrays.parallelSort(c);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int i = c.length - 1;\n        while (i >= 0) {\n            s -= c[i];\n            ans++;\n            if (s <= 0)\n                break;\n            i--;\n        }",
+    "replace": "int i = c.length - 1;\n        while (s > 0 && i >= 0) {\n            s -= c[i--];\n            ans++;\n        }"
+  }
+]
+```

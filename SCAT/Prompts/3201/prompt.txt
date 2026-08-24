@@ -1,0 +1,39 @@
+>> The source file (Solution.java) is:
+// 1..limit -- n - limit, limit
+
+class Solution {
+
+    private long cnt(int n, int l) {
+        if (l > n) l = n;
+        if (n > l * 2) return 0;
+    //    System.out.println(n + " " + l);
+        int b = n - l;
+        return l - b + 1;
+    }
+
+    public long distributeCandies(int n, int limit) {
+        long res = 0;
+        for (int i = 0; i <= limit; i++) {
+            res += cnt(n - i, limit);
+          //  System.out.println(i + " " + res);
+        }
+        return res;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 5,2
+  expected output: 3
+Example 2:
+  input: 3,3
+  expected output: 10
+Example 3:
+  input: 1,1
+  expected output: 3
+Example 4:
+  input: 6,1
+  expected output: 0
+Example 5:
+  input: 6,2
+  expected output: 1

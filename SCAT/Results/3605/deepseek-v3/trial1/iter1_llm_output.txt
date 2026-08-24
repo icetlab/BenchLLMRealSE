@@ -1,0 +1,161 @@
+Looking at the test failure, my previous optimization was incorrect. The issue is that my bit manipulation approach doesn't work for all cases. Let me analyze the problem more carefully.
+
+For `j | (j+1) = n`, we need to find the minimal `j`. Let me think about this:
+- If `j` is even, then `j+1` is odd, and `j | (j+1)` will have the last bit set (since `j+1` is odd)
+- If `j` is odd, then `j+1` is even, and `j | (j+1)` will have the last bit clear (since `j` is odd)
+
+For the test case with input `2,3,5,7`:
+- For `n=2`: `j|(j+1)=2` has no solution (since `j|(j+1)` is always odd when `j` is even, and always even when `j` is odd, but `2` is even, so `j` must be odd, but then `j|(j+1)` would be even... wait, let me check: if `j` is odd, `j+1` is even, so `j|(j+1)` has last bit 0, so it's even. So for `n=2` (even), we need `j` odd. Let's check: `j=1`: `1|2=3` (not 2), `j=3`: `3|4=7` (not 2). So no solution, answer is -1. ✓
+- For `n=3`: `j=1`: `1|2=3` ✓, answer is 1 ✓
+- For `n=5`: `j=4`: `4|5=5` ✓, answer is 4 ✓
+- For `n=7`: `j=3`: `3|4=7` ✓, answer is 3 ✓
+
+My previous approach failed because I incorrectly assumed that for odd `n`, there's always a solution. The issue is that my bit manipulation formula `n ^ lowestZero` doesn't always give the minimal `j`. Let me reconsider.
+
+For `n=11`: `j=9`: `9|10=11` ✓ (9 is correct)
+For `n=13`: `j=12`: `12|13=13` ✓ (12 is correct)
+For `n=31`: `j=15`: `15|16=31` ✓ (15 is correct)
+
+Wait, but the test failed with `-1,7,7,15` for input `2,3,5,7`. That means my code gave `7` for `n=3` and `n=5`. Let me trace through my code for `n=3`:
+- `n=3` is odd, so we proceed
+- `lowestZero=1`, `(3&1)=1` so `lowestZero=2`, `(3&2)=2` so `lowestZero=4`, `(3&4)=0` so stop
+- `arr[i] = 3 ^ 4 = 7` which is wrong! The correct answer is 1.
+
+The issue is that my formula `n ^ lowestZero` gives `7` for `n=3`, but the correct answer is `1`. The problem is that for `n=3`, we need `j=1` which is `001` in binary, and `n=3` is `011`. The lowest zero bit in `n` is at position 2 (value 4), but clearing that bit gives `3^4=7` which is wrong.
+
+The correct approach: For `n` odd, we need to find `j` such that `j|(j+1)=n`. The key insight is that `j` and `j+1` differ only in the trailing 1s of `j`. If `j` has `k` trailing 1s, then `j+1` has `k` trailing 0s and the `k+1`-th bit flipped. So `j|(j+1)` will have the `k+1`-th bit set and all lower bits set to 1.
+
+So for `n` odd, we need to find the position of the lowest 0 bit in `n` (counting from the right, starting at bit 0). Let's say that position is `p`. Then `n` has bits `p` through `0` all set to 1. We need `j` such that `j` has bits `p-1` through `0` set to 1, bit `p` set to 0, and bits above `p` same as `n`. So `j = n - 2^p` (since we clear bit `p` and all lower bits are already 1 in `n`).
+
+Wait, let me check: for `n=3` (binary `011`), the lowest 0 bit is at position 2 (value 4). So `j = 3 - 4 = -1` which is wrong. That's not right either.
+
+Let me think again. For `n=3` (binary `011`), we need `j` such that `j|(j+1)=3`. The answer is `j=1` (binary `001`). Here `j` has 1 trailing 1, so `j+1=2` (binary `010`). `j|(j+1) = 001|010 = 011 = 3`. So `j` has bit 0 set, bit 1 clear, and higher bits same as `n`.
+
+So the pattern is: for `n` odd, find the lowest 0 bit in `n` (let's call its position `p`). Then `j` should have bits `0` through `p-1` set to 1, bit `p` set to 0, and bits above `p` same as `n`. So `j = (n with bit p cleared) | ((1<<p) - 1)`.
+
+For `n=3` (binary `011`): lowest 0 bit is at position 2 (value 4). `j = (3 & ~4) | (4-1) = (3 & ~4) | 3 = 3 | 3 = 3` which is wrong.
+
+Hmm, that's not working either. Let me reconsider.
+
+Actually, for `n=3`, the lowest 0 bit in `n` is at position 2 (since `n=011`, bits 0 and 1 are 1, bit 2 is 0). But the correct `j=1` has bit 0 set, bit 1 clear. So the pattern is different.
+
+Let me think about this differently. For `j|(j+1)=n`:
+- If `j` has `k` trailing 1s (i.e., `j = ...0111...1` with `k` ones at the end), then `j+1 = ...1000...0` with `k` zeros at the end and the `k`-th bit flipped.
+- So `j|(j+1)` will have bits `0` through `k` all set to 1, and bits above `k` same as `j` (which are same as `n`).
+
+So for `n` odd, we need to find `k` such that bits `0` through `k` of `n` are all 1, and bit `k+1` is 0 (or `k` is the highest bit). Then `j` should have bits `0` through `k-1` set to 1, bit `k` set to 0, and bits above `k` same as `n`.
+
+For `n=3` (binary `011`): bits 0 and 1 are 1, bit 2 is 0. So `k=1` (bits 0-1 are 1, bit 2 is 0). Then `j` should have bit 0 set to 1, bit 1 set to 0, and bits above 1 same as `n` (which is 0). So `j = 001 = 1`. ✓
+
+For `n=5` (binary `101`): bit 0 is 1, bit 1 is 0. So `k=0` (bit 0 is 1, bit 1 is 0). Then `j` should have no trailing 1s (bit 0 set to 0), and bits above 0 same as `n`. So `j = 100 = 4`. ✓
+
+For `n=7` (binary `111`): bits 0,1,2 are 1, bit 3 is 0. So `k=2`. Then `j` should have bits 0-1 set to 1, bit 2 set to 0, bits above 2 same as `n`. So `j = 011 = 3`. ✓
+
+For `n=11` (binary `1011`): bits 0,1 are 1, bit 2 is 0. So `k=1`. Then `j` should have bit 0 set to 1, bit 1 set to 0, bits above 1 same as `n`. So `j = 1001 = 9`. ✓
+
+For `n=13` (binary `1101`): bit 0 is 1, bit 1 is 0. So `k=0`. Then `j` should have bit 0 set to 0, bits above 0 same as `n`. So `j = 1100 = 12`. ✓
+
+For `n=31` (binary `11111`): bits 0-4 are 1, bit 5 is 0. So `k=4`. Then `j` should have bits 0-3 set to 1, bit 4 set to 0, bits above 4 same as `n`. So `j = 01111 = 15`. ✓
+
+So the algorithm is:
+1. If `n` is even, return -1 (since `j|(j+1)` is always odd when `j` is even, and always even when `j` is odd, but for even `n`, we need `j` odd, but then `j|(j+1)` would be even... wait, let me check: if `j` is odd, `j+1` is even, so `j|(j+1)` has last bit 0, so it's even. So for even `n`, we need `j` odd. But then `j|(j+1)` is even, which could work. Let me check `n=2`: `j=1`: `1|2=3` (not 2), `j=3`: `3|4=7` (not 2). So no solution. Actually, for `n` even, `n` has bit 0 = 0. For `j|(j+1)=n`, we need bit 0 of `j|(j+1)` to be 0. This happens when `j` is odd (since then `j+1` is even, so bit 0 of `j+1` is 0, and bit 0 of `j` is 1, so `j|(j+1)` has bit 0 = 1|0 = 1, which is 1, not 0). Wait, that's wrong. Let me recheck: if `j` is odd, `j` has bit 0 = 1, `j+1` has bit 0 = 0. So `j|(j+1)` has bit 0 = 1|0 = 1. So `j|(j+1)` is always odd. If `j` is even, `j` has bit 0 = 0, `j+1` has bit 0 = 1. So `j|(j+1)` has bit 0 = 0|1 = 1. So `j|(j+1)` is always odd. Therefore, `j|(j+1)` is always odd for any `j`. So if `n` is even, there's no solution. ✓
+
+2. For `n` odd, find the position `p` of the lowest 0 bit in `n` (i.e., the first bit from the right that is 0). Then `j = (n & ~((1 << (p+1)) - 1)) | ((1 << p) - 1)`. This means: clear all bits from 0 to `p` in `n`, then set bits 0 to `p-1` to 1.
+
+Wait, let me verify: for `n=3` (binary `011`), lowest 0 bit is at position 2 (value 4). So `p=2`. Then `j = (3 & ~((1<<3)-1)) | ((1<<2)-1) = (3 & ~7) | 3 = 0 | 3 = 3`. That's wrong.
+
+Hmm, that's not right. Let me reconsider. The lowest 0 bit in `n=3` (binary `011`) is at position 2 (since bits 0 and 1 are 1, bit 2 is 0). But the correct `j=1` has bit 0 set, bit 1 clear. So the pattern is: `j` should have bits 0 to `p-2` set to 1, bit `p-1` set to 0, and bits above `p-1` same as `n`. Wait, that doesn't match either.
+
+Let me re-examine. For `n=3` (binary `011`), the trailing 1s are at positions 0 and 1 (2 trailing 1s). So `k=2` (number of trailing 1s). Then `j` should have `k-1` trailing 1s (i.e., bits 0 to `k-2` set to 1), bit `k-1` set to 0, and bits above `k-1` same as `n`. So for `n=3`, `k=2`, `j` should have 1 trailing 1 (bit 0 set), bit 1 clear, bits above 1 same as `n` (which is 0). So `j = 001 = 1`. ✓
+
+For `n=5` (binary `101`), trailing 1s: just bit 0, so `k=1`. Then `j` should have 0 trailing 1s (bit 0 clear), bit 0 clear, bits above 0 same as `n`. So `j = 100 = 4`. ✓
+
+For `n=7` (binary `111`), trailing 1s: bits 0,1,2, so `k=3`. Then `j` should have 2 trailing 1s (bits 0,1 set), bit 2 clear, bits above 2 same as `n`. So `j = 011 = 3`. ✓
+
+For `n=11` (binary `1011`), trailing 1s: bits 0,1, so `k=2`. Then `j` should have 1 trailing 1 (bit 0 set), bit 1 clear, bits above 1 same as `n`. So `j = 1001 = 9`. ✓
+
+For `n=13` (binary `1101`), trailing 1s: just bit 0, so `k=1`. Then `j` should have 0 trailing 1s (bit 0 clear), bits above 0 same as `n`. So `j = 1100 = 12`. ✓
+
+For `n=31` (binary `11111`), trailing 1s: bits 0-4, so `k=5`. Then `j` should have 4 trailing 1s (bits 0-3 set), bit 4 clear, bits above 4 same as `n`. So `j = 01111 = 15`. ✓
+
+So the algorithm is:
+1. If `n` is even, return -1.
+2. Count the number of trailing 1s in `n` (call it `k`).
+3. If `k == 1` (i.e., `n` has only bit 0 set as trailing 1, and bit 1 is 0), then `j = n - 1` (clear bit 0).
+4. Otherwise, `j = (n with bit (k-1) cleared) | ((1 << (k-1)) - 1)`. But actually, since bits 0 to `k-1` of `n` are all 1, we just need to clear bit `k-1` and keep bits 0 to `k-2` as 1. So `j = n - (1 << (k-1))`.
+
+Wait, let me verify: for `n=3`, `k=2`, `j = 3 - (1<<1) = 3 - 2 = 1`. ✓
+For `n=5`, `k=1`, `j = 5 - (1<<0) = 5 - 1 = 4`. ✓
+For `n=7`, `k=3`, `j = 7 - (1<<2) = 7 - 4 = 3`. ✓
+For `n=11`, `k=2`, `j = 11 - (1<<1) = 11 - 2 = 9`. ✓
+For `n=13`, `k=1`, `j = 13 - (1<<0) = 13 - 1 = 12`. ✓
+For `n=31`, `k=5`, `j = 31 - (1<<4) = 31 - 16 = 15`. ✓
+
+This works! So the formula is: `j = n - (1 << (k-1))` where `k` is the number of trailing 1s in `n`.
+
+But wait, what if `n` is all 1s (like `n=1`)? For `n=1` (binary `1`), `k=1`, `j = 1 - (1<<0) = 1 - 1 = 0`. Let's check: `0|1 = 1`. ✓
+
+What about `n=3`? We already verified. What about `n=7`? Verified. What about `n=15`? `k=4`, `j = 15 - (1<<3) = 15 - 8 = 7`. Check: `7|8 = 15`. ✓
+
+So the corrected algorithm is:
+1. If `n` is even, return -1.
+2. Count trailing 1s in `n` (call it `k`).
+3. Return `n - (1 << (k-1))`.
+
+Let me implement this:
+
+```java
+class Solution {
+    public int[] minBitwiseArray(List<Integer> nums) {
+        int[] arr = new int[nums.size()];
+        for (int i = 0; i < nums.size(); i++) {
+            int n = nums.get(i);
+            if ((n & 1) == 0) {
+                arr[i] = -1;
+                continue;
+            }
+            // Count trailing 1s
+            int k = 0;
+            int temp = n;
+            while ((temp & 1) == 1) {
+                k++;
+                temp >>= 1;
+            }
+            arr[i] = n - (1 << (k - 1));
+        }
+        return arr;
+    }
+}
+```
+
+Let me verify with the test cases:
+- Input `2,3,5,7`: 
+  - `2` even → -1 ✓
+  - `3`: `k=2`, `j=3-2=1` ✓
+  - `5`: `k=1`, `j=5-1=4` ✓
+  - `7`: `k=3`, `j=7-4=3` ✓
+  Output: `-1,1,4,3` ✓
+
+- Input `11,13,31`:
+  - `11`: `k=2`, `j=11-2=9` ✓
+  - `13`: `k=1`, `j=13-1=12` ✓
+  - `31`: `k=5`, `j=31-16=15` ✓
+  Output: `9,12,15` ✓
+
+- Input `2`: even → -1 ✓
+- Input `3`: `k=2`, `j=1` ✓
+- Input `3,3,3,3`: all `1` ✓
+
+This is correct. Now let me write the patch.
+
+The improvement intent is to replace the O(n^2) brute-force approach with an O(n) bit-manipulation solution that directly computes the answer using the property of trailing 1s.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int[] minBitwiseArray(List<Integer> nums) {\n        int[] arr = new int[nums.size()];\n        for (int i=0; i<nums.size(); i++){\n            for (int j=0; j<nums.get(i); j++){\n                if ((j | (j+1)) == nums.get(i)){\n                    arr[i]=j;\n                    break;\n                }\n                if (arr[i]==0){\n                    arr[i]=-1;\n                } \n            }\n        }\n        return arr;\n    }\n}",
+    "replace": "class Solution {\n    public int[] minBitwiseArray(List<Integer> nums) {\n        int[] arr = new int[nums.size()];\n        for (int i = 0; i < nums.size(); i++) {\n            int n = nums.get(i);\n            // j|(j+1) is always odd, so even n has no solution\n            if ((n & 1) == 0) {\n                arr[i] = -1;\n                continue;\n            }\n            // Count trailing 1s in n\n            int k = 0;\n            int temp = n;\n            while ((temp & 1) == 1) {\n                k++;\n                temp >>= 1;\n            }\n            // j = n with the (k-1)-th bit cleared (since bits 0..k-1 are all 1 in n)\n            arr[i] = n - (1 << (k - 1));\n        }\n        return arr;\n    }\n}"
+  }
+]
+```

@@ -1,0 +1,16 @@
+I have added the necessary import for Arrays and replaced the stream-based sum with a simple for-loop to eliminate the overhead of the stream API. This keeps the algorithmic behavior the same while improving performance and ensuring the code compiles correctly.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.Arrays;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int s = Arrays.stream(a).sum();",
+    "replace": "int s = 0;\n        for (int val : a) {\n            s += val;\n        }"
+  }
+]
+```

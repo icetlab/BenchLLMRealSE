@@ -1,0 +1,12 @@
+Overall improvement intent:
+Introduce a prefix‐sum array and replace the innermost summation loop with O(1) range‐sum lookups. This reduces the algorithmic complexity from O(n³) to O(n²).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    for(int s=l; s<=r; s++) \n    {\n        for(int i=0; i<=size-s; i++) \n        {\n            int sum = 0;\n            for(int j=i; j<i+s; j++) \n            {\n                sum += nums.get(j);\n            }\n            if(sum > 0) \n            {\n                if(res == -1 || res > sum) res = sum;\n            }\n        }\n    }",
+    "replace": "    int[] prefix = new int[size+1];\n    for(int i=0; i<size; i++)\n    {\n        prefix[i+1] = prefix[i] + nums.get(i);\n    }\n    for(int s=l; s<=r; s++)\n    {\n        for(int i=0; i<=size-s; i++)\n        {\n            int sum = prefix[i+s] - prefix[i];\n            if(sum > 0)\n            {\n                if(res == -1 || res > sum) res = sum;\n            }\n        }\n    }"
+  }
+]
+```

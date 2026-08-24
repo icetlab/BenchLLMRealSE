@@ -1,0 +1,20 @@
+The original O(n^2) solution iterates through all possible substrings, which is inefficient for large inputs. My improved solution uses a prefix-sum-based approach combined with a hash map to count the beautiful substrings in a single pass, achieving a much faster O(n + sqrt(k)) time complexity.
+
+A substring `s[i..j]` is beautiful if:
+1. The number of vowels equals the number of consonants.
+2. `(vowels * consonants) % k == 0`, which simplifies to `vowels^2 % k == 0`.
+
+The first condition is equivalent to `diff[j+1] == diff[i]`, where `diff` is the running count of `vowels - consonants`.
+The second condition is more complex. It can be shown that `vowels = (length of substring) / 2 = (j+1 - i) / 2`. The condition `vowels^2 % k == 0` is equivalent to `(j+1 - i)` being a multiple of `2*m`, where `m` is a value derived from the prime factorization of `k`. This check can be performed using modular arithmetic: `(j+1) % (2*m) == i % (2*m)`.
+
+The optimized algorithm iterates through the string, calculating a running `diff`. For each prefix ending at index `p`, we find the number of starting indices `q < p` that satisfy both conditions by looking up the pair `(diff[p], p % (2*m))` in a hash map. This allows us to count all beautiful substrings in linear time relative to the string length.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int n = s.length();\n        int count = 0;\n        String vowels = \"aeiou\";\n\n        for(int i = 0; i < n; i++){\n            int vowelCount = 0;\n            int consonantCount = 0;\n            \n            for(int j = i; j < n; j++){\n                char c = s.charAt(j);\n\n                if(vowels.indexOf(c) != -1){\n                    vowelCount++;\n                } else{\n                    consonantCount++;\n                }\n                if(vowelCount == consonantCount && ( vowelCount * consonantCount) % k == 0){\n                        count++;\n                    }\n                }\n            }\n            return count;",
+    "replace": "int m = 1;\n        int temp_k = k;\n        for (int i = 2; i * i <= temp_k; i++) {\n            if (temp_k % i == 0) {\n                int count = 0;\n                while (temp_k % i == 0) {\n                    count++;\n                    temp_k /= i;\n                }\n                int power = (count + 1) / 2;\n                for (int j = 0; j < power; j++) {\n                    m *= i;\n                }\n            }\n        }\n        if (temp_k > 1) {\n            m *= temp_k;\n        }\n\n        int mod = 2 * m;\n        int n = s.length();\n        java.util.Map<Long, Integer> counts = new java.util.HashMap<>();\n\n        int diff = 0;\n        // Key is a combination of (diff, index % mod)\n        long key = (long) (0 + n) * mod + (0 % mod);\n        counts.put(key, 1); // For empty prefix at index 0\n\n        int result = 0;\n        boolean[] isVowel = new boolean[26];\n        isVowel['a' - 'a'] = true;\n        isVowel['e' - 'a'] = true;\n        isVowel['i' - 'a'] = true;\n        isVowel['o' - 'a'] = true;\n        isVowel['u' - 'a'] = true;\n\n        for (int i = 0; i < n; i++) {\n            char c = s.charAt(i);\n            if (isVowel[c - 'a']) {\n                diff++;\n            } else {\n                diff--;\n            }\n\n            int p = i + 1;\n            key = (long) (diff + n) * mod + (p % mod);\n\n            result += counts.getOrDefault(key, 0);\n            counts.put(key, counts.getOrDefault(key, 0) + 1);\n        }\n\n        return result;"
+  }
+]
+```

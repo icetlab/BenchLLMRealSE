@@ -1,0 +1,47 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public String triangleType(int[] nums) {
+            int count=0;
+        for(int i=0;i<nums.length-1;i++){
+            for(int j=i+1;j<nums.length;j++){
+                if(nums[i]==nums[j]){
+                    count++;
+                    System.out.println(count);
+                }
+            }
+        }
+        if(count==0) {
+//            return "scalene";
+            Arrays.sort(nums);
+            if(nums[0]+nums[1]<=nums[2])
+                return "none";
+            else return "scalene";
+        }
+        else if(count==1){
+            Arrays.sort(nums);
+        if(nums[0]+nums[1]<=nums[2])
+            return "none";
+        else return "isosceles";
+        }
+        else if(count==3)
+            return "equilateral";
+        return null;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 3,3,3
+  expected output: equilateral
+Example 2:
+  input: 3,4,5
+  expected output: scalene
+Example 3:
+  input: 2,2,3
+  expected output: isosceles
+Example 4:
+  input: 1,2,3
+  expected output: none
+Example 5:
+  input: 10,1,12
+  expected output: none

@@ -1,0 +1,13 @@
+## Improvement Intent
+
+The original code creates an `ArrayList` from the array, removes the first element, sorts the rest, and sums the first element with the two smallest remaining elements. This can be optimized by avoiding the overhead of creating a list and sorting. Instead, we can find the two smallest elements after the first element in a single pass through the array, which reduces time complexity from O(n log n) to O(n) and eliminates unnecessary object creation.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int minimumCost(int[] nums) {\n        ArrayList<Integer> arr= new ArrayList<>();\n        for(int i : nums){\n            arr.add(i);\n        }\n        int first =arr.remove(0);\n        Collections.sort(arr);\n        int result = first+arr.get(0)+arr.get(1);\n        return result;\n    }\n}",
+    "replace": "class Solution {\n    public int minimumCost(int[] nums) {\n        int first = nums[0];\n        int min1 = Integer.MAX_VALUE;\n        int min2 = Integer.MAX_VALUE;\n        for (int i = 1; i < nums.length; i++) {\n            int val = nums[i];\n            if (val < min1) {\n                min2 = min1;\n                min1 = val;\n            } else if (val < min2) {\n                min2 = val;\n            }\n        }\n        return first + min1 + min2;\n    }\n}"
+  }
+]
+```

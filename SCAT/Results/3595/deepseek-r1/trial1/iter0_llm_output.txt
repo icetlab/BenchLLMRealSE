@@ -1,0 +1,11 @@
+The original implementation sorts both chunk arrays before comparing. I replaced that sorted comparison with a `HashMap` frequency count, which checks the multiset of chunks exactly and reduces the average comparison cost from roughly O(n log k) to O(n).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        Arrays.sort(s1);\n        Arrays.sort(t1);\n\n        for(int i=0; i<s1.length; i++){\n            if(!s1[i].equals(t1[i])){\n                return false;\n            }\n        }\n        return true;",
+    "replace": "        java.util.Map<String, Integer> counts = new java.util.HashMap<String, Integer>();\n        for (String part : s1) {\n            counts.put(part, counts.getOrDefault(part, 0) + 1);\n        }\n        for (String part : t1) {\n            int count = counts.getOrDefault(part, 0);\n            if (count == 0) {\n                return false;\n            }\n            if (count == 1) {\n                counts.remove(part);\n            } else {\n                counts.put(part, count - 1);\n            }\n        }\n        return counts.isEmpty();"
+  }
+]
+```

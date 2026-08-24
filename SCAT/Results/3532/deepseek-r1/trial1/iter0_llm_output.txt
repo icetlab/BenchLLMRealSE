@@ -1,0 +1,24 @@
+```json
+[
+    {
+        "filepath": "Solution.java",
+        "search": "import  java.util.Arrays ;  \nimport java.util.Vector ;  \n\nclass Solution {\n    public static Vector<Integer>[] links ;  \n    public static boolean[] visited ;  \n    public static int[][] signs ;",
+        "replace": "import java.util.ArrayList;\nimport java.util.Arrays;\n\nclass Solution {\n    public static ArrayList<Integer>[] links;\n    public static boolean[] visited;\n    public static int[][] signs;"
+    },
+    {
+        "filepath": "Solution.java",
+        "search": "        for (int fe=spans-1;fe>=0;fe--){\n            links[fe] = new Vector<Integer>( ) ;  \n            visited[fe] = false ; \n            signs[fe] = new int[]{0,0} ;\n        }",
+        "replace": "        for (int fe=0;fe<spans;fe++){\n            links[fe] = new ArrayList<Integer>();\n            signs[fe] = new int[]{0,0};\n        }"
+    },
+    {
+        "filepath": "Solution.java",
+        "search": "    public static int traverse(int index){\n        visited[index] = true ; \n        int  higher = 0  ;\n        Iterator<Integer> iterator = links[index].iterator() ; \n        while(iterator.hasNext()){\n            Integer phase = iterator.next() ; \n            if(visited[phase]==true){continue ; }  \n            int temps = traverse(phase) ; \n            if(phase%2==1){higher = Math.max(temps+1,higher) ; }  \n            if(phase%2==0){higher = Math.max(temps+2,higher ) ; }\n        }  \n        signs[ index][0] = higher ; \n        visited[index] = false ; \n        return higher ;  \n    }",
+        "replace": "    public static int traverse(int index, int parent){\n        int higher = 0;\n        for (int phase : links[index]) {\n            if (phase == parent) continue;\n            int temps = traverse(phase, index);\n            if (phase % 2 == 1) higher = Math.max(temps + 1, higher);\n            else higher = Math.max(temps + 2, higher);\n        }\n        signs[index][0] = higher;\n        return higher;  \n    }"
+    },
+    {
+        "filepath": "Solution.java",
+        "search": "    public static void determine (int index,int previous){\n        visited[index] = true ; \n         Vector<Integer> vected= links[index] ; \n        Iterator<Integer> iterator  = vected.iterator() ; \n        int[] greater  =  {0,0} ; \n        int[] grace  =  {0,0} ; \n        while (iterator.hasNext()){\n            Integer temps = iterator.next() ;  \n            if(visited[temps]==true){continue ; }  \n            int other = (temps%2+(1-temps%2)*2)+signs[temps][0] ; \n            if(other==greater[0]){grace[0] = grace[0]+1 ; }   \n            for(int fe=0;fe<2;fe++){ \n            if(other>greater[fe]){    \n               for (int fc=1;fc>=fe+1;fc--){\n                greater[fc] =  greater[fc-1] ;  }   \n                greater[fe] = other ;  \n                if(fe==0){\n                grace[0] =  1 ;  \n                grace[1] = temps ;  }  \n                break ;     } }   }   \n        signs[index][1] =   Math.max (previous,greater[0])  ;  \n        iterator =  vected.iterator() ; \n        while(iterator.hasNext()){\n            Integer temps=  iterator.next() ; \n            if (visited[temps]==true){continue ;  }    \n            int reach = 0 ;       \n            if (index%2==0){reach = reach+2 ; } \n            if(index%2==1){reach = reach+1 ;  } \n            if(temps!=grace[1]){\n                reach = Math.max(greater[0],previous)+reach ; \n            }else{\n                reach = Math.max(greater[1],previous)+reach ;  \n            }  \n            determine(temps,reach) ; \n        } \n    } ",
+        "replace": "    public static void determine(int index, int previous, int parent){\n        int max1 = 0, max2 = 0;\n        int bestChild = -1;\n        for (int child : links[index]) {\n            if (child == parent) continue;\n            int val = signs[child][0] + (child % 2 == 1 ? 1 : 2);\n            if (val > max1) {\n                max2 = max1;\n                max1 = val;\n                bestChild = child;\n            } else if (val > max2) {\n                max2 = val;\n            }\n        }\n        signs[index][1] = Math.max(previous, max1);\n        for (int child : links[index]) {\n            if (child == parent) continue;\n            int reach = 0;\n            reach += (index % 2 == 0) ? 2 : 1;\n            int use = (child == bestChild) ? Math.max(max2, previous) : Math.max(max1, previous);\n            reach += use;\n            determine(child, reach, index);\n        }\n    }"
+    }
+]
+```

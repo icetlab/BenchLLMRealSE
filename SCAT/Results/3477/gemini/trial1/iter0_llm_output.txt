@@ -1,0 +1,11 @@
+The performance of the provided code can be improved by replacing an arithmetic expression within the loop with a more efficient bitwise operation. The original condition, `(v + f) % 2 == 0`, checks if `v` and `f` share the same parity. This check is logically equivalent to `v == (f & 1)`. Utilizing the bitwise AND operator (`&`) is typically faster than the modulo operator (`%`), leading to a more performant implementation without altering the O(n) time complexity.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "if ((v + f) % 2 == 0) {",
+    "replace": "if (v == (f & 1)) {"
+  }
+]
+```

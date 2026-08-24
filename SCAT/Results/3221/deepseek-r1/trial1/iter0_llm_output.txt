@@ -1,0 +1,11 @@
+The main performance change is to remove the unused `Scanner` allocation and pre-size the result list to avoid unnecessary reallocations while preserving the original single-pass behavior.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public List<Integer> findPeaks(int[] mountain) {\n      Scanner sc=new Scanner(System.in);\n      List<Integer>l=new ArrayList<>();",
+    "replace": "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public List<Integer> findPeaks(int[] mountain) {\n        List<Integer> l = new ArrayList<>(mountain.length / 2);"
+  }
+]
+```

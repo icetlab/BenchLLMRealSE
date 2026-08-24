@@ -1,0 +1,16 @@
+I’m replacing the brute‐force permutation approach with a DP over subsets, which finds the true minimum in O(n·2ⁿ) time and fixes the incorrect greedy behavior.  
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public int findMinimumTime(List<Integer> strength, int k) {\n        int n = strength.size();\n        boolean visited[]= new boolean[n];\n        List<Integer> list = new ArrayList<>();\n        premutations(list,strength,visited,k);\n\n      return min;\n        \n    }",
+    "replace": "public int findMinimumTime(List<Integer> strength, int k) {\n        int n = strength.size();\n        int N = 1 << n;\n        int[] dp = new int[N];\n        Arrays.fill(dp, Integer.MAX_VALUE);\n        dp[0] = 0;\n        // dp[mask] = minimum time to break locks in 'mask'\n        for (int mask = 1; mask < N; mask++) {\n            // number of locks already broken before this one = popcount(mask)-1\n            int cnt = Integer.bitCount(mask) - 1;\n            int x = 1 + k * cnt;\n            int temp = mask;\n            while (temp != 0) {\n                int lsb = temp & -temp;\n                int j = Integer.numberOfTrailingZeros(lsb);\n                int prev = mask ^ lsb;\n                int s = strength.get(j);\n                int t = (s + x - 1) / x;\n                if (dp[prev] != Integer.MAX_VALUE) {\n                    dp[mask] = Math.min(dp[mask], dp[prev] + t);\n                }\n                temp &= temp - 1;\n            }\n        }\n        return dp[N - 1];\n    }"
+  }
+]
+```

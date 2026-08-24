@@ -1,0 +1,13 @@
+The original code has two main issues. First, it contains redundant and buggy `while` loops. The `Integer.toBinaryString` method never produces leading zeros for positive integers, making the loops' condition always false. Furthermore, the `substring` method's result is not assigned back, which would cause an infinite loop if the condition were ever met (e.g., for an input of 0). Second, the code generates all six permutations of the binary strings, stores them in an `ArrayList`, and then sorts the list to find the lexicographically largest string. This approach incurs unnecessary overhead from creating the `ArrayList` and its internal objects, as well as the cost of a general-purpose sorting algorithm.
+
+The improved solution addresses both problems. It removes the faulty `while` loops. Instead of using an `ArrayList` and sorting, it directly computes the six possible string concatenations and finds the lexicographically largest one through a series of simple comparisons. This avoids the allocation of intermediate data structures and the overhead of a sort, resulting in a more direct, correct, and performant implementation.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        String num1 = Integer.toBinaryString(nums[0]);\n        String num2 = Integer.toBinaryString(nums[1]);\n        String num3 = Integer.toBinaryString(nums[2]);\n        while(num1.charAt(0)=='0'){\n            num1.substring(1);\n        }\n        while(num2.charAt(0)=='0'){\n            num2.substring(1);\n        }\n        while(num3.charAt(0)=='0'){\n            num3.substring(1);\n        }\n        ArrayList<String> ans = new ArrayList<String>();\n        ans.add(num1+num2+num3);\n        ans.add(num1+num3+num2);\n        ans.add(num2+num1+num3);\n        ans.add(num2+num3+num1);\n        ans.add(num3+num1+num2);\n        ans.add(num3+num2+num1);\n        ans.sort((s1, s2) -> s2.compareTo(s1));\n        return Integer.parseInt(ans.get(0), 2);",
+    "replace": "        String s1 = Integer.toBinaryString(nums[0]);\n        String s2 = Integer.toBinaryString(nums[1]);\n        String s3 = Integer.toBinaryString(nums[2]);\n\n        String maxStr = s1 + s2 + s3;\n\n        String current = s1 + s3 + s2;\n        if (current.compareTo(maxStr) > 0) maxStr = current;\n\n        current = s2 + s1 + s3;\n        if (current.compareTo(maxStr) > 0) maxStr = current;\n\n        current = s2 + s3 + s1;\n        if (current.compareTo(maxStr) > 0) maxStr = current;\n\n        current = s3 + s1 + s2;\n        if (current.compareTo(maxStr) > 0) maxStr = current;\n\n        current = s3 + s2 + s1;\n        if (current.compareTo(maxStr) > 0) maxStr = current;\n\n        return Integer.parseInt(maxStr, 2);"
+  }
+]
+```

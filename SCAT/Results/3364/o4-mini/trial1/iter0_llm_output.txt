@@ -1,0 +1,16 @@
+I refactored the DP memoization to use primitive `long` keys instead of concatenated `String`s, avoiding expensive string allocations and lookups. This should significantly speed up the recursive DP.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "HashMap<String, Integer> dp;",
+    "replace": "HashMap<Long, Integer> dp;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "String key = i+\" \"+j+\" \"+and;",
+    "replace": "long key = (((long)i) << 32) | (((long)j) << 19) | (and & ((1<<19) - 1));"
+  }
+]
+```

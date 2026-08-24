@@ -1,0 +1,11 @@
+We replace the recursive, large‐memory DP in `countSubstrings` with an iterative, constant-space DP per “last” digit. This removes the big 3D array and recursion, cutting memory from O(n) to O(1) (per iteration) and improving speed and stack safety.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public long countSubstrings(String s) {\n        this.s = s;\n        this.n = s.length();\n        digit = new int[n];\n        for (int i = 0; i < n; i++) digit[i] = s.charAt(i) - '0';\n        dp = new long[n + 1][10][11];\n        for (long[][] layer : dp)\n            for (long[] row : layer)\n                Arrays.fill(row, -1);\n        long total = 0;\n        for (int last = 1; last <= 9; last++) {\n            for (int start = 0; start < n; start++) {\n                total += solve(start, last, 10);\n            }\n        }\n        return total;\n    }",
+    "replace": "    public long countSubstrings(String s) {\n        int n = s.length();\n        int[] digit = new int[n];\n        for (int i = 0; i < n; i++) digit[i] = s.charAt(i) - '0';\n        long total = 0;\n        for (int last = 1; last <= 9; last++) {\n            long[] dpNext = new long[last];\n            for (int idx = n - 1; idx >= 0; idx--) {\n                int d = digit[idx];\n                long[] dpCur = new long[last];\n                for (int prod = 0; prod < last; prod++) {\n                    int newProd = (prod * 10 + d) % last;\n                    dpCur[prod] = dpNext[newProd];\n                    if (d == last && newProd == 0) dpCur[prod]++;\n                }\n                int initNewProd = d % last;\n                long cnt = dpNext[initNewProd] + ((d == last && initNewProd == 0) ? 1 : 0);\n                total += cnt;\n                dpNext = dpCur;\n            }\n        }\n        return total;\n    }"
+  }
+]
+```

@@ -1,0 +1,19 @@
+The original code's logic for counting substring frequencies and finding the most frequent one is inefficient and complex. It involves multiple hash map lookups per substring, flawed tracking of the maximum frequency, and a second loop to calculate the result.
+
+The improved implementation streamlines this process into a single, more efficient loop.
+1.  It uses `Map.getOrDefault()` for efficient frequency counting, reducing HashMap lookups from multiple to one per substring.
+2.  It correctly tracks the maximum frequency in the same pass.
+3.  The final result is calculated with a simple, direct formula (`total_substrings - max_frequency`), eliminating the redundant second loop and complex conditional logic.
+4.  It replaces `Integer` wrappers with `int` primitives for better performance.
+
+This change significantly improves performance, clarity, and correctness.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        \n        HashMap<String, Integer> mp = new HashMap<>();\n        String maxStr = new String();\n        Integer inmax = 0;\n        for(int i =k; i<=word.length(); i+=k){\n            String s = word.substring(i-k, i);\n            if(mp.get(s) != null){\n                mp.put(s,mp.get(s)+1);\n                if(mp.get(s) > inmax){\n                    maxStr = s;\n                    inmax = mp.get(s);\n                }\n            }else {\n                mp.put(s,1);\n            }\n        }\n        if(inmax <= 1){\n            return (word.length()/k) -1;\n        }\n        else{\n            Integer ans = 0;\n            for(Map.Entry<String, Integer> i: mp.entrySet()){\n                // System.out.println(i.getKey());\n                if(!i.getKey().equals(maxStr)){\n                    ans+= i.getValue();\n                }\n            } \n            return ans;\n        }",
+    "replace": "        HashMap<String, Integer> counts = new HashMap<>();\n        int maxFreq = 0;\n\n        for (int i = 0; i < word.length(); i += k) {\n            String sub = word.substring(i, i + k);\n            int newCount = counts.getOrDefault(sub, 0) + 1;\n            counts.put(sub, newCount);\n            if (newCount > maxFreq) {\n                maxFreq = newCount;\n            }\n        }\n\n        int totalParts = word.length() / k;\n        return totalParts - maxFreq;"
+  }
+]
+```

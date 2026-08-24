@@ -1,0 +1,13 @@
+The original code's primary performance issue is the string reversal, which uses repeated concatenation in a loop, resulting in an O(N^2) time complexity. Additionally, the logic involves multiple passes over the string and its substrings, creating unnecessary overhead.
+
+My proposed improvement replaces this with a highly efficient single-pass algorithm. This new approach iterates through the string just once, achieving an optimal time complexity of O(N). It leverages the constraint that the string consists of lowercase English letters to use a `boolean[26][26]` array as a hash set. This provides constant-time O(1) lookups and insertions for 2-character substrings, leading to a constant space complexity of O(1) and avoiding the overhead of `String` object creation and hashing within the loop.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    String k = \"\";\n    HashSet<String> common = new HashSet<>();\n    for (int i = s.length()-1; i >= 0; i--) {\n        k += s.charAt(i);\n    }\n\n    for (int h = 0; h < (s.length()-1); h += 1) {\n        common.add(s.substring(h,h+2));\n    }\n\n    for (int i = 0; i < s.length() - 1; i++) {\n        if (common.contains(k.substring(i,i+2))) {\n            return true;\n        }\n    }\n    return false;",
+    "replace": "    if (s.length() < 2) {\n        return false;\n    }\n    boolean[][] seen = new boolean[26][26];\n    for (int i = 0; i < s.length() - 1; i++) {\n        int c1 = s.charAt(i) - 'a';\n        int c2 = s.charAt(i + 1) - 'a';\n\n        // A substring and its reverse are present if we've already seen the reverse\n        // of the current substring, or if the current substring is a palindrome.\n        if (seen[c2][c1] || c1 == c2) {\n            return true;\n        }\n        \n        // Mark the current substring as seen.\n        seen[c1][c2] = true;\n    }\n    return false;"
+  }
+]
+```

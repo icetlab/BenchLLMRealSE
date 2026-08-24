@@ -1,0 +1,11 @@
+I replaced the string‐based concatenation and sorting with direct bitwise concatenation across the six permutations. This avoids all intermediate String objects and parsing, yielding an O(1) constant‐time, minimal‐allocation solution.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int maxGoodNumber(int[] nums) {\n        String num1 = Integer.toBinaryString(nums[0]);\n        String num2 = Integer.toBinaryString(nums[1]);\n        String num3 = Integer.toBinaryString(nums[2]);\n        while(num1.charAt(0)=='0'){\n            num1.substring(1);\n        }\n        while(num2.charAt(0)=='0'){\n            num2.substring(1);\n        }\n        while(num3.charAt(0)=='0'){\n            num3.substring(1);\n        }\n        ArrayList<String> ans = new ArrayList<String>();\n        ans.add(num1+num2+num3);\n        ans.add(num1+num3+num2);\n        ans.add(num2+num1+num3);\n        ans.add(num2+num3+num1);\n        ans.add(num3+num1+num2);\n        ans.add(num3+num2+num1);\n        ans.sort((s1, s2) -> s2.compareTo(s1));\n        return Integer.parseInt(ans.get(0), 2);    \n    }",
+    "replace": "    public int maxGoodNumber(int[] nums) {\n        // compute bit-lengths\n        int[] len = new int[3];\n        for (int i = 0; i < 3; i++) {\n            len[i] = nums[i] == 0 ? 1 : 32 - Integer.numberOfLeadingZeros(nums[i]);\n        }\n        // build six concatenations via bit shifts and pick max\n        int max = (nums[0] << (len[1] + len[2])) | (nums[1] << len[2]) | nums[2];\n        int v;\n        v = (nums[0] << (len[2] + len[1])) | (nums[2] << len[1]) | nums[1]; if (v > max) max = v;\n        v = (nums[1] << (len[0] + len[2])) | (nums[0] << len[2]) | nums[2]; if (v > max) max = v;\n        v = (nums[1] << (len[2] + len[0])) | (nums[2] << len[0]) | nums[0]; if (v > max) max = v;\n        v = (nums[2] << (len[0] + len[1])) | (nums[0] << len[1]) | nums[1]; if (v > max) max = v;\n        v = (nums[2] << (len[1] + len[0])) | (nums[1] << len[0]) | nums[0]; if (v > max) max = v;\n        return max;\n    }"
+  }
+]
+```

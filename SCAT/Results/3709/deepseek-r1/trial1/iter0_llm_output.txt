@@ -1,0 +1,11 @@
+The main improvement is to avoid repeated string concatenation. Instead of building each consecutive-character substring as a `String`, track the current run length with an `int` counter and check when it equals `k`. This preserves the original behavior while reducing memory and time overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public boolean hasSpecialSubstring(String s, int k) {\n        String str = \"\" + s.charAt(0);\n        // if(s.length()>0 && k==1) {\n        //     return true;\n        // }\n        for(int i=1; i<s.length(); i++) {\n            if(s.charAt(i-1) == s.charAt(i)) {\n                str+= s.charAt(i-1);\n            } else {\n                if(str.length() == k) {\n                    return true;\n                }\n                str =\"\"+ s.charAt(i);\n            }\n        }\n        if(str.length() == k) {\n            return true;\n        }\n        return false;\n    }",
+    "replace": "    public boolean hasSpecialSubstring(String s, int k) {\n        int count = 1;\n        for (int i = 1; i < s.length(); i++) {\n            if (s.charAt(i) == s.charAt(i - 1)) {\n                count++;\n            } else {\n                if (count == k) {\n                    return true;\n                }\n                count = 1;\n            }\n        }\n        return count == k;\n    }"
+  }
+]
+```

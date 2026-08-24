@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "Simplify the logic and reduce redundant work. The original code tracks the most frequent substring but has a bug: it never updates the max when the first substring appears once, so for inputs like \"a\" with k=1 it returns 0 incorrectly. The improved version directly counts occurrences of each k-length block and returns the minimum number of replacements as total blocks minus the maximum frequency. This is clearer and avoids unnecessary string/object allocations.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "class Solution {\n    public int minimumOperationsToMakeKPeriodic(String word, int k) {\n        \n        HashMap<String, Integer> mp = new HashMap<>();\n        String maxStr = new String();\n        Integer inmax = 0;\n        for(int i =k; i<=word.length(); i+=k){\n            String s = word.substring(i-k, i);\n            if(mp.get(s) != null){\n                mp.put(s,mp.get(s)+1);\n                if(mp.get(s) > inmax){\n                    maxStr = s;\n                    inmax = mp.get(s);\n                }\n            }else {\n                mp.put(s,1);\n            }\n        }\n        if(inmax <= 1){\n            return (word.length()/k) -1;\n        }\n        else{\n            Integer ans = 0;\n            for(Map.Entry<String, Integer> i: mp.entrySet()){\n                // System.out.println(i.getKey());\n                if(!i.getKey().equals(maxStr)){\n                    ans+= i.getValue();\n                }\n            } \n            return ans;\n        }\n    }\n\n\n}",
+      "replace": "class Solution {\n    public int minimumOperationsToMakeKPeriodic(String word, int k) {\n        int n = word.length();\n        int blocks = n / k;\n        Map<String, Integer> freq = new HashMap<>();\n        int maxFreq = 0;\n        for (int i = 0; i < n; i += k) {\n            String block = word.substring(i, i + k);\n            int count = freq.merge(block, 1, Integer::sum);\n            if (count > maxFreq) {\n                maxFreq = count;\n            }\n        }\n        return blocks - maxFreq;\n    }\n}"
+    }
+  ]
+}

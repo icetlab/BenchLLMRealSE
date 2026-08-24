@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int minOperations(int[] nums) {\n        var f = 0;\n\n        for (var v : nums) {\n            if ((v + f) % 2 == 0) {\n                f++;\n            }\n        }\n\n        return f;\n    }\n}",
+    "replace": "class Solution {\n    public int minOperations(int[] nums) {\n        int f = 0;\n\n        for (int v : nums) {\n            if (((v ^ f) & 1) == 0) {\n                f++;\n            }\n        }\n\n        return f;\n    }\n}"
+  }
+]
+```

@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "Replace the O(n^3) substring-counting approach with a sliding-window technique that counts valid substrings in O(n) time. The original code repeatedly creates substrings and scans them, which is inefficient. The new method maintains counts of zeros and ones in a window and expands the right pointer while shrinking the left pointer whenever the window violates the constraint, adding the number of valid substrings ending at each right index.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "class Solution {\n    public int countKConstraintSubstrings(String s, int k) {\n        int c = 0;\n        for (int i = 0; i<s.length(); i++){\n            for (int j = i+1; j<=s.length();j++){\n                if(cot(s.substring(i,j),k)){\n                    c++;\n                }\n            }\n        }\n        return c;\n    }\n    public boolean cot(String s,int k){\n        int z = 0;\n        int o = 0;\n        for(char c : s.toCharArray()){\n            if (c == '0'){\n                z++;\n            }\n            else{\n                o++;\n            }\n        }\n        if (o > k && z > k){\n            return false;\n        } \n        return true;\n    }\n}",
+      "replace": "class Solution {\n    public int countKConstraintSubstrings(String s, int k) {\n        int n = s.length();\n        int zeros = 0;\n        int ones = 0;\n        int left = 0;\n        int count = 0;\n        for (int right = 0; right < n; right++) {\n            if (s.charAt(right) == '0') {\n                zeros++;\n            } else {\n                ones++;\n            }\n            while (zeros > k && ones > k) {\n                if (s.charAt(left) == '0') {\n                    zeros--;\n                } else {\n                    ones--;\n                }\n                left++;\n            }\n            count += right - left + 1;\n        }\n        return count;\n    }\n}"
+    }
+  ]
+}

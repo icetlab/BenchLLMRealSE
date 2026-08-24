@@ -1,0 +1,21 @@
+I’ve removed the unnecessary intermediate List<String> and its population loop, and rewrote the main loop to iterate directly over the input array.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "List<String> l=new ArrayList<>();",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "List<Integer> l=new ArrayList<>();",
+    "replace": "List<Integer> l1 = new ArrayList<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for(int i=0;i<l.size();i++){\\n            boolean s=ans(l.get(i),x);\\n            if(s) l1.add(i);\\n        }",
+    "replace": "for (int i = 0; i < words.length; i++) {\n            if (ans(words[i], x)) {\n                l1.add(i);\n            }\n        }"
+  }
+]
+```

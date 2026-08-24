@@ -1,0 +1,11 @@
+We can improve performance by replacing the O(n³) triple nested loop with a prefix sum approach, reducing it to O(n²). This avoids repeatedly summing subarrays from scratch.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int minimumSumSubarray(List<Integer> nums, int l, int r) \n    {\n    int size = nums.size(), res = -1;\n\tfor(int s=l; s<=r; s++) \n    {\n\t\tfor(int i=0; i<=size-s; i++) \n        {\n\t\t\tint sum = 0;\n\t\t\tfor(int j=i; j<i+s; j++) \n            {\n\t\t\t\tsum += nums.get(j);\n\t\t\t}\n\t\t\tif(sum > 0) \n            {\n\t\t\t\tif(res == -1 || res > sum) res = sum;\n\t\t\t}\n\t\t}\n\t}\n\treturn res;\n    }\n}",
+    "replace": "class Solution {\n    public int minimumSumSubarray(List<Integer> nums, int l, int r) \n    {\n        int size = nums.size();\n        int[] prefix = new int[size + 1];\n        for (int i = 0; i < size; i++) {\n            prefix[i + 1] = prefix[i] + nums.get(i);\n        }\n        int res = -1;\n        for (int s = l; s <= r; s++) {\n            for (int i = 0; i <= size - s; i++) {\n                int sum = prefix[i + s] - prefix[i];\n                if (sum > 0) {\n                    if (res == -1 || res > sum) res = sum;\n                }\n            }\n        }\n        return res;\n    }\n}"
+  }
+]
+```

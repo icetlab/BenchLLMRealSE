@@ -1,0 +1,50 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 0: expected='-1,1,4,3' got='-1,7,7,15'
+>>>> Your previous output was:
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int[] minBitwiseArray(List<Integer> nums) {\n        int[] arr = new int[nums.size()];\n        for (int i=0; i<nums.size(); i++){\n            for (int j=0; j<nums.get(i); j++){\n                if ((j | (j+1)) == nums.get(i)){\n                    arr[i]=j;\n                    break;\n                }\n                if (arr[i]==0){\n                    arr[i]=-1;\n                } \n            }\n        }\n        return arr;\n    }\n}",
+    "replace": "class Solution {\n    public int[] minBitwiseArray(List<Integer> nums) {\n        int[] arr = new int[nums.size()];\n        for (int i=0; i<nums.size(); i++){\n            int n = nums.get(i);\n            // If n is even, no solution exists because j|(j+1) is always odd\n            if ((n & 1) == 0) {\n                arr[i] = -1;\n                continue;\n            }\n            // Find the lowest 0 bit in n (after the trailing 1s)\n            // For odd n, n = ...0111...1, we need j = n with that 0 bit set to 0\n            // This gives the minimal j satisfying j|(j+1)=n\n            int lowestZero = 1;\n            while ((n & lowestZero) != 0) {\n                lowestZero <<= 1;\n            }\n            arr[i] = n ^ lowestZero;\n        }\n        return arr;\n    }\n}"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int[] minBitwiseArray(List<Integer> nums) {
+        int[] arr = new int[nums.size()];
+        for (int i=0; i<nums.size(); i++){
+            for (int j=0; j<nums.get(i); j++){
+                if ((j | (j+1)) == nums.get(i)){
+                    arr[i]=j;
+                    break;
+                }
+                if (arr[i]==0){
+                    arr[i]=-1;
+                } 
+            }
+        }
+        return arr;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 2,3,5,7
+  expected output: -1,1,4,3
+Example 2:
+  input: 11,13,31
+  expected output: 9,12,15
+Example 3:
+  input: 2
+  expected output: -1
+Example 4:
+  input: 3
+  expected output: 1
+Example 5:
+  input: 3,3,3,3
+  expected output: 1,1,1,1
+

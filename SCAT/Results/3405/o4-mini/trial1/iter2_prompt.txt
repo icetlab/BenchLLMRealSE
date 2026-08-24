@@ -1,0 +1,64 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search="public int numberOfSpecialChars(String word) {\n    int count = 0;\n    int[] state = new int[26];  // 0=none, 1=seen lowercase, 2=seen lowercase→uppercase (counted)\n    for (char c : word.toCharArray()) {\n        if (c >= 'a' && c <= 'z') {\n            int idx = c - 'a';\n            if (state[idx] == 2) {\n                // lowercase after counted uppercase cancels\n                count--;\n                state[idx] = 0;\n            } else if (state[idx] == 0) {\n                state[idx] = 1;\n            }\n        } else if (c >= 'A' && c <= 'Z') {\n            int idx = c - 'A';\n            if (state[idx] == 1) {\n                // uppercase following lowercase counts\n                count++;\n                state[idx] = 2;\n            }\n        }\n    }\n    return count;\n}"
+>>>> Your previous output was:
+I’ve corrected the state machine to fully emulate the original bit-flag logic (tracking lowercase‐seen, uppercase‐seen, and counted flags) so that all count and cancel transitions—including “uppercase first” cases—match the original behavior precisely.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int numberOfSpecialChars(String word) {\n    int count = 0;\n    int[] state = new int[26];  // 0=none, 1=seen lowercase, 2=seen lowercase→uppercase (counted)\n    for (char c : word.toCharArray()) {\n        if (c >= 'a' && c <= 'z') {\n            int idx = c - 'a';\n            if (state[idx] == 2) {\n                // lowercase after counted uppercase cancels\n                count--;\n                state[idx] = 0;\n            } else if (state[idx] == 0) {\n                state[idx] = 1;\n            }\n        } else if (c >= 'A' && c <= 'Z') {\n            int idx = c - 'A';\n            if (state[idx] == 1) {\n                // uppercase following lowercase counts\n                count++;\n                state[idx] = 2;\n            }\n        }\n    }\n    return count;\n}",
+    "replace": "public int numberOfSpecialChars(String word) {\n    int count = 0;\n    int[] state = new int[26];\n    final int LOWER = 1, UPPER = 2, COUNTED = 4;\n    for (char c : word.toCharArray()) {\n        int idx;\n        if (c >= 'a' && c <= 'z') {\n            idx = c - 'a';\n        } else if (c >= 'A' && c <= 'Z') {\n            idx = c - 'A';\n        } else {\n            continue;\n        }\n        int bits = state[idx];\n        // if we've seen uppercase already\n        if ((bits & UPPER) != 0) {\n            if ((bits & COUNTED) != 0) {\n                // cancel a prior count\n                count--;\n                bits &= ~COUNTED;\n            } else {\n                // skip any further processing\n                continue;\n            }\n        }\n        // uppercase after lowercase → count\n        if (c >= 'A' && c <= 'Z' && (bits & LOWER) != 0) {\n            count++;\n            bits |= COUNTED;\n        }\n        // record presence of this case\n        if (c >= 'a' && c <= 'z') {\n            bits |= LOWER;\n        } else {\n            bits |= UPPER;\n        }\n        state[idx] = bits;\n    }\n    return count;\n}"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int numberOfSpecialChars(String word) {
+        int count = 0;
+        Set<Character> set = new HashSet<>();
+        Set<Character> alreadyCounted = new HashSet<>();
+
+        for (char c : word.toCharArray()) {
+            if (set.contains(Character.toUpperCase(c))) {
+                if(alreadyCounted.contains(c)){
+                    count--;
+                    alreadyCounted.remove(Character.toUpperCase(c));
+                    alreadyCounted.remove(Character.toLowerCase(c));
+                }else
+                continue;
+            }
+            if (Character.toUpperCase(c) == c && set.contains(Character.toLowerCase(c))) {
+                alreadyCounted.add(c);
+                alreadyCounted.add(Character.toLowerCase(c));
+                count++;
+            }
+
+            set.add(c);
+        }
+
+        return count;
+    }
+}
+
+---------
+>> Example test cases are:
+Example 1:
+  input: aaAbcBC
+  expected output: 3
+Example 2:
+  input: abc
+  expected output: 0
+Example 3:
+  input: AbBCab
+  expected output: 0
+Example 4:
+  input: a
+  expected output: 0
+Example 5:
+  input: A
+  expected output: 0
+

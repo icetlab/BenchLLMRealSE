@@ -1,0 +1,45 @@
+>> The source file (Solution.java) is:
+class Solution {
+  public int[] getFinalState(int[] nums, int k, int multiplier) {
+    int[] ans = new int[nums.length];
+    // (nums[i], i)
+    Queue<Pair<Integer, Integer>> minHeap = new PriorityQueue<>(
+        (a, b)
+            -> a.getKey().equals(b.getKey()) ? a.getValue().compareTo(b.getValue())
+                                             : a.getKey().compareTo(b.getKey()));
+
+    for (int i = 0; i < nums.length; ++i)
+      minHeap.offer(new Pair<>(nums[i], i));
+
+    while (k-- > 0) {
+      final int num = minHeap.peek().getKey();
+      final int i = minHeap.poll().getValue();
+      minHeap.offer(new Pair<>(num * multiplier, i));
+    }
+
+    while (!minHeap.isEmpty()) {
+      final int num = minHeap.peek().getKey();
+      final int i = minHeap.poll().getValue();
+      ans[i] = num;
+    }
+
+    return ans;
+  }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 2,1,3,5,6 5 2
+  expected output: 8,4,6,5,6
+Example 2:
+  input: 1,2 3 4
+  expected output: 16,8
+Example 3:
+  input: 82 2 1
+  expected output: 82
+Example 4:
+  input: 32,29,18,95,14,87,95,70,12 10 4
+  expected output: 128,116,288,95,224,348,95,280,192
+Example 5:
+  input: 4,12 4 2
+  expected output: 32,24

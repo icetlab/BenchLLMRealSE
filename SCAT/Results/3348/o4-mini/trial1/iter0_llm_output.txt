@@ -1,0 +1,16 @@
+I’ve refactored the DFS to avoid recursing into already visited nodes—while still accounting for every edge weight in the bitwise AND—and initialized the per‐component cost to `BASE` instead of `Integer.MAX_VALUE`. This eliminates redundant DFS calls and keeps the bit‐mask to the expected width.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int dfs(ArrayList<ArrayList<int[]>> adj, boolean[] visited, int[] vertexForestMap, int src, int forestId) {\n        int cost = Integer.MAX_VALUE;",
+    "replace": "public int dfs(ArrayList<ArrayList<int[]>> adj, boolean[] visited, int[] vertexForestMap, int src, int forestId) {\n        int cost = BASE;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for (int[] node: adj.get(src)) {\n            // if (!visited[node[0]]) {\n                cost = cost & node[1] & dfs(adj, visited, vertexForestMap, node[0], forestId);\n            // }\n        }",
+    "replace": "for (int[] node: adj.get(src)) {\n            int v = node[0], w = node[1];\n            // always include this edge's weight in the AND\n            cost &= w;\n            // only recurse into unvisited neighbors\n            if (!visited[v]) {\n                cost &= dfs(adj, visited, vertexForestMap, v, forestId);\n            }\n        }"
+  }
+]
+```

@@ -1,0 +1,13 @@
+The primary performance issue in the original code is the conversion of the primitive `int[]` array to a `List<Integer>`. This process involves creating a new list and boxing each `int` into an `Integer` object, which consumes extra memory and CPU cycles. Sorting a list of objects is also typically slower than sorting a primitive array.
+
+The improved solution avoids this overhead entirely. It first creates a direct copy of the input array to avoid modifying the original (preserving the original function's side-effect-free behavior). Then, it uses the highly optimized `java.util.Arrays.sort()` on this primitive array copy. Finally, it performs the pair-swapping logic in-place on the sorted copy and returns it. This approach is significantly more efficient in both time and memory usage.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<Integer> list = new ArrayList<>();\n        for(int i : nums) list.add(i);\n        Collections.sort(list);\n        int[] ans = new int[nums.length];\n        int c=nums.length;\n        int i=0;\n        int ptr=0;\n        while(c!=0){\n            c-=2;\n            int firstSmall = list.get(ptr++);\n            int secondSmall = list.get(ptr++);\n            ans[i++] = secondSmall;\n            ans[i++] = firstSmall;\n        }\n    return ans;",
+    "replace": "        int[] arr = nums.clone();\n        java.util.Arrays.sort(arr);\n        for (int i = 0; i < arr.length; i += 2) {\n            // Swap adjacent elements\n            int temp = arr[i];\n            arr[i] = arr[i + 1];\n            arr[i + 1] = temp;\n        }\n    return arr;"
+  }
+]
+```

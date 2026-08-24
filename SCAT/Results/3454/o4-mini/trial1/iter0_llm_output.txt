@@ -1,0 +1,21 @@
+I optimized away the boxing/unboxing by removing the List conversions and streams, and switched to a simple single-pass array traversal with a running previous-value state. This eliminates extra collections and simplifies the loop.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<Integer> a = Arrays.stream(nums).boxed().collect(Collectors.toList());\n        List<Integer> b = Arrays.stream(target).boxed().collect(Collectors.toList());\n        \n        int n = a.size() + 1;\n        a.add(0);\n        b.add(0);\n        \n        long add = 0, sub = 0;",
+    "replace": "        int n = nums.length;\n        long add = 0;\n        int prevNum = 0, prevTarget = 0;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for (int i = 0; i < n; i++) {",
+    "replace": "        for (int i = 0; i <= n; i++) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            int diff1 = a.get(i);\n            int diff2 = b.get(i);\n            if (i > 0) {\n                diff1 -= a.get(i - 1);\n                diff2 -= b.get(i - 1);\n            }\n            if (diff1 < diff2) {\n                add += (diff2 - diff1);\n            } else {\n                sub += (diff1 - diff2);\n            }",
+    "replace": "            int curNum = (i < n ? nums[i] : 0);\n            int curTarget = (i < n ? target[i] : 0);\n            int diff1 = curNum - prevNum;\n            int diff2 = curTarget - prevTarget;\n            if (diff1 < diff2) {\n                add += diff2 - diff1;\n            }\n            prevNum = curNum;\n            prevTarget = curTarget;"
+  }
+]
+```

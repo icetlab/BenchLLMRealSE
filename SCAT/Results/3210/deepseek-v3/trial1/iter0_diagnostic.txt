@@ -1,0 +1,65 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 36: expected='66' got='4'
+>>>> Your previous output was:
+## Improvement Intent
+
+The original solution uses O(n²) time by checking all substrings from each starting position. We can optimize by using a prefix sum approach with a hashmap to track the difference between vowel and consonant counts, similar to the "contiguous subarray with equal 0s and 1s" problem. This reduces the time complexity from O(n²) to O(n).
+
+The key insight: when `vowelCount - consonantCount` is the same at two positions i and j, the substring between them has equal vowels and consonants. We need to track these differences along with the product condition modulo k.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int beautifulSubstrings(String s, int k) {\n        int n = s.length();\n        int count = 0;\n        String vowels = \"aeiou\";\n\n        for(int i = 0; i < n; i++){\n            int vowelCount = 0;\n            int consonantCount = 0;\n            \n            for(int j = i; j < n; j++){\n                char c = s.charAt(j);\n\n                if(vowels.indexOf(c) != -1){\n                    vowelCount++;\n                } else{\n                    consonantCount++;\n                }\n                if(vowelCount == consonantCount && ( vowelCount * consonantCount) % k == 0){\n                        count++;\n                    }\n                }\n            }\n            return count;\n        }   \n}",
+    "replace": "class Solution {\n    public int beautifulSubstrings(String s, int k) {\n        int n = s.length();\n        int count = 0;\n        String vowels = \"aeiou\";\n        \n        // Map from (difference, vowelCount % k) to frequency\n        // difference = vowelCount - consonantCount\n        Map<String, Integer> map = new HashMap<>();\n        map.put(\"0_0\", 1);\n        \n        int vowelCount = 0;\n        int consonantCount = 0;\n        \n        for(int i = 0; i < n; i++){\n            char c = s.charAt(i);\n            \n            if(vowels.indexOf(c) != -1){\n                vowelCount++;\n            } else {\n                consonantCount++;\n            }\n            \n            int diff = vowelCount - consonantCount;\n            int vowelMod = vowelCount % k;\n            String key = diff + \"_\" + vowelMod;\n            \n            count += map.getOrDefault(key, 0);\n            map.put(key, map.getOrDefault(key, 0) + 1);\n        }\n        \n        return count;\n    }\n}"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int beautifulSubstrings(String s, int k) {
+        int n = s.length();
+        int count = 0;
+        String vowels = "aeiou";
+
+        for(int i = 0; i < n; i++){
+            int vowelCount = 0;
+            int consonantCount = 0;
+            
+            for(int j = i; j < n; j++){
+                char c = s.charAt(j);
+
+                if(vowels.indexOf(c) != -1){
+                    vowelCount++;
+                } else{
+                    consonantCount++;
+                }
+                if(vowelCount == consonantCount && ( vowelCount * consonantCount) % k == 0){
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }   
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: a 1
+  expected output: 0
+Example 2:
+  input: abba 1
+  expected output: 3
+Example 3:
+  input: baeyh 2
+  expected output: 2
+Example 4:
+  input: bcdf 1
+  expected output: 0
+Example 5:
+  input: aeioubcdf 3
+  expected output: 1
+

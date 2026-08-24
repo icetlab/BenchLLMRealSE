@@ -1,0 +1,84 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 0: expected='6,2' got='7,3'
+>>>> Your previous output was:
+{
+  "improvement_intent": "The original DFS uses a global mutable path list and repeatedly subtracts edge weights when trimming the start pointer. We can improve performance by replacing the list-based path with an integer array of edge weights and using an explicit stack-based iterative DFS. This avoids ArrayList overhead, recursion overhead, and repeated map operations while preserving the same sliding-window logic. The method signature remains unchanged.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "class Solution {\n    int maxLen = 0;\n    int minNodes = Integer.MAX_VALUE;\n\n    public int[] longestSpecialPath(int[][] edges, int[] nums) {\n        int n = nums.length;\n        ArrayList<ArrayList<int[]>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n\n        for (int[] edge : edges) {\n            adj.get(edge[0]).add(new int[]{edge[1], edge[2]});\n            adj.get(edge[1]).add(new int[]{edge[0], edge[2]});\n        }\n\n        Map<Integer, Integer> map = new HashMap<>();\n        List<Integer> path = new ArrayList<>();\n        DFS(0, -1, adj, nums, 0, 0, 0, map, path);\n        return new int[]{maxLen, minNodes};\n    }\n\n    public void DFS(int node, int parent, ArrayList<ArrayList<int[]>> adj, int[] nums,\n                    int pathSum, int start, int end, Map<Integer, Integer> map, List<Integer> path) {\n\n        int prevDepth = map.getOrDefault(nums[node], -1);\n        while (start <= prevDepth) {\n            pathSum -= path.get(start++);\n        }\n\n        if (pathSum > maxLen) {\n            maxLen = pathSum;\n            minNodes = end - start + 1;\n        } else if (pathSum == maxLen) {\n            minNodes = Math.min(minNodes, end - start + 1);\n        }\n\n        map.put(nums[node], end);\n\n        for (int[] edge : adj.get(node)) {\n            if (edge[0] != parent) {\n                path.add(edge[1]);\n                DFS(edge[0], node, adj, nums, pathSum + edge[1], start, end + 1, map, path);\n                path.remove(path.size() - 1);\n            }\n        }\n\n        if (prevDepth == -1) map.remove(nums[node]);\n        else map.put(nums[node], prevDepth);\n    }\n}",
+      "replace": "class Solution {\n    int maxLen = 0;\n    int minNodes = Integer.MAX_VALUE;\n\n    public int[] longestSpecialPath(int[][] edges, int[] nums) {\n        int n = nums.length;\n        ArrayList<ArrayList<int[]>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n\n        for (int[] edge : edges) {\n            adj.get(edge[0]).add(new int[]{edge[1], edge[2]});\n            adj.get(edge[1]).add(new int[]{edge[0], edge[2]});\n        }\n\n        int[] path = new int[n];\n        int[] last = new int[100001];\n        java.util.Arrays.fill(last, -1);\n        int[] stackNode = new int[n];\n        int[] stackParent = new int[n];\n        int[] stackStart = new int[n];\n        int[] stackEnd = new int[n];\n        int[] stackSum = new int[n];\n        int[] stackPrev = new int[n];\n        int[] stackEdgeIdx = new int[n];\n        int top = 0;\n        stackNode[0] = 0;\n        stackParent[0] = -1;\n        stackStart[0] = 0;\n        stackEnd[0] = 0;\n        stackSum[0] = 0;\n        stackPrev[0] = -1;\n        stackEdgeIdx[0] = 0;\n        top = 1;\n\n        while (top > 0) {\n            int node = stackNode[top - 1];\n            int parent = stackParent[top - 1];\n            int start = stackStart[top - 1];\n            int end = stackEnd[top - 1];\n            int pathSum = stackSum[top - 1];\n            int prevDepth = stackPrev[top - 1];\n            int idx = stackEdgeIdx[top - 1];\n\n            if (idx == 0) {\n                int curPrev = last[nums[node]];\n                stackPrev[top - 1] = curPrev;\n                while (start <= curPrev) {\n                    pathSum -= path[start];\n                    start++;\n                }\n                stackStart[top - 1] = start;\n                stackSum[top - 1] = pathSum;\n                if (pathSum > maxLen) {\n                    maxLen = pathSum;\n                    minNodes = end - start + 1;\n                } else if (pathSum == maxLen) {\n                    minNodes = Math.min(minNodes, end - start + 1);\n                }\n                last[nums[node]] = end;\n            }\n\n            boolean advanced = false;\n            ArrayList<int[]> list = adj.get(node);\n            while (idx < list.size()) {\n                int[] edge = list.get(idx);\n                idx++;\n                stackEdgeIdx[top - 1] = idx;\n                if (edge[0] != parent) {\n                    path[end] = edge[1];\n                    stackNode[top] = edge[0];\n                    stackParent[top] = node;\n                    stackStart[top] = start;\n                    stackEnd[top] = end + 1;\n                    stackSum[top] = pathSum + edge[1];\n                    stackPrev[top] = -1;\n                    stackEdgeIdx[top] = 0;\n                    top++;\n                    advanced = true;\n                    break;\n                }\n            }\n            if (advanced) continue;\n\n            top--;\n            if (prevDepth == -1) last[nums[node]] = -1;\n            else last[nums[node]] = prevDepth;\n        }\n\n        return new int[]{maxLen, minNodes};\n    }\n}"
+    }
+  ]
+}
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    int maxLen = 0;
+    int minNodes = Integer.MAX_VALUE;
+
+    public int[] longestSpecialPath(int[][] edges, int[] nums) {
+        int n = nums.length;
+        ArrayList<ArrayList<int[]>> adj = new ArrayList<>();
+        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
+
+        for (int[] edge : edges) {
+            adj.get(edge[0]).add(new int[]{edge[1], edge[2]});
+            adj.get(edge[1]).add(new int[]{edge[0], edge[2]});
+        }
+
+        Map<Integer, Integer> map = new HashMap<>();
+        List<Integer> path = new ArrayList<>();
+        DFS(0, -1, adj, nums, 0, 0, 0, map, path);
+        return new int[]{maxLen, minNodes};
+    }
+
+    public void DFS(int node, int parent, ArrayList<ArrayList<int[]>> adj, int[] nums,
+                    int pathSum, int start, int end, Map<Integer, Integer> map, List<Integer> path) {
+
+        int prevDepth = map.getOrDefault(nums[node], -1);
+        while (start <= prevDepth) {
+            pathSum -= path.get(start++);
+        }
+
+        if (pathSum > maxLen) {
+            maxLen = pathSum;
+            minNodes = end - start + 1;
+        } else if (pathSum == maxLen) {
+            minNodes = Math.min(minNodes, end - start + 1);
+        }
+
+        map.put(nums[node], end);
+
+        for (int[] edge : adj.get(node)) {
+            if (edge[0] != parent) {
+                path.add(edge[1]);
+                DFS(edge[0], node, adj, nums, pathSum + edge[1], start, end + 1, map, path);
+                path.remove(path.size() - 1);
+            }
+        }
+
+        if (prevDepth == -1) map.remove(nums[node]);
+        else map.put(nums[node], prevDepth);
+    }
+}
+
+---------
+>> Example test cases are:
+Example 1:
+  input: 0,1,2;1,2,3;1,3,5;1,4,4;2,5,6 2,1,2,1,3,1
+  expected output: 6,2
+Example 2:
+  input: 1,0,8 2,2
+  expected output: 0,1
+Example 3:
+  input: 0,1,10 1,2
+  expected output: 10,2
+Example 4:
+  input: 0,1,10 1,1
+  expected output: 0,1
+Example 5:
+  input: 0,1,1;1,2,2;2,3,3;3,4,4 1,2,3,4,5
+  expected output: 10,5
+

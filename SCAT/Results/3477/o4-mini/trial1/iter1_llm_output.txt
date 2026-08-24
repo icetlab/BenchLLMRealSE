@@ -1,0 +1,11 @@
+We simplify the parity check by replacing the modulus with a bitwise operation. This avoids the costly `%` per iteration.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "            if ((v + f) % 2 == 0) {",
+    "replace": "            if (((v ^ f) & 1) == 0) {"
+  }
+]
+```

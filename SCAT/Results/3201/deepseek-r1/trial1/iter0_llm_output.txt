@@ -1,0 +1,11 @@
+Replaced the `O(limit)` loop with an `O(1)` stars-and-bars / inclusion-exclusion count, so large `limit` values no longer cause slow execution.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "// 1..limit -- n - limit, limit\n\nclass Solution {\n\n    private long cnt(int n, int l) {\n        if (l > n) l = n;\n        if (n > l * 2) return 0;\n    //    System.out.println(n + \" \" + l);\n        int b = n - l;\n        return l - b + 1;\n    }\n\n    public long distributeCandies(int n, int limit) {\n        long res = 0;\n        for (int i = 0; i <= limit; i++) {\n            res += cnt(n - i, limit);\n          //  System.out.println(i + \" \" + res);\n        }\n        return res;\n    }\n}",
+    "replace": "// Counts ordered triples (a,b,c) with a+b+c=n and 0 <= a,b,c <= limit.\n// Uses inclusion-exclusion to compute the answer in O(1).\nclass Solution {\n\n    private long comb2(long x) {\n        return x * (x - 1) / 2;\n    }\n\n    public long distributeCandies(int n, int limit) {\n        if (n < 0 || limit < 0) {\n            return 0L;\n        }\n        if (n > 3L * limit) {\n            return 0L;\n        }\n\n        long t = limit + 1L;\n        long ans = comb2(n + 2L);\n\n        if (n >= t) {\n            ans -= 3L * comb2(n - t + 2L);\n        }\n        if (n >= 2L * t) {\n            ans += 3L * comb2(n - 2L * t + 2L);\n        }\n        if (n >= 3L * t) {\n            ans -= comb2(n - 3L * t + 2L);\n        }\n\n        return ans;\n    }\n}"
+  }
+]
+```

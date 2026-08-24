@@ -1,0 +1,21 @@
+I’ve removed the unnecessary HashSet and per‐element containment checks—since we always pick strictly increasing “val”s, duplicates cannot occur. Tracking the count directly is both simpler and faster.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "Set<Integer> selected = new HashSet<>();\n        int cnt = Integer.MIN_VALUE;",
+    "replace": "int count = 0;\n        int cnt = Integer.MIN_VALUE;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "if (val <= end && (selected.isEmpty() || !selected.contains(val))) {\n                selected.add(val);\n                cnt = val + 1; \n            }",
+    "replace": "if (val <= end) {\n                count++;\n                cnt = val + 1;\n            }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "return selected.size();",
+    "replace": "return count;"
+  }
+]
+```

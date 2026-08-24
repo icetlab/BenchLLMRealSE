@@ -1,0 +1,11 @@
+We improve performance by replacing the O(√red) while loop in `helper` with an O(1) integer square‑root‑based formula. This preserves the exact same integer result while avoiding unnecessary iterations.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int n = 1;\n\n        while((n*(n+1))<=red){\n            n++;\n\n        }\n        n--;\n        if(red <2){\n            n=0;\n        }",
+    "replace": "        int n = (int)((Math.sqrt(1 + 4 * red) - 1) / 2);\n        if (n*(n+1) > red) n--;\n        while ((n+1)*(n+2) <= red) n++;\n        if (red < 2) {\n            n = 0;\n        }"
+  }
+]
+```

@@ -1,0 +1,13 @@
+The original solution uses a recursive approach with memoization, resulting in a time and space complexity of O(N * K * N), where N is the number of elements in `nums` and K is the target sum. This is inefficient due to the three-dimensional DP state (index, remaining sum, elements picked).
+
+The performance can be significantly improved by reformulating the problem. The sum of powers, `sum(2^(N-|S|))` over all subsets `S` where `sum(S)=K`, can be algebraically rewritten as `2^N * sum((1/2)^|S|)`. This new sum can be calculated efficiently using a bottom-up dynamic programming approach. We can define `dp[j]` as the sum of `(1/2)^|S|` for all subsets of elements processed so far that sum to `j`. This reduces the DP state to a single dimension (the sum `j`), leading to a much better time complexity of O(N * K) and space complexity of O(K).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int f(int i,int[] nums,int k,int ele,int[] cnt,int[][][] dp) {\n        if(i == nums.length) {\n            if(k == 0) {\n                return cnt[nums.length - ele]; \n            }\n            return 0; \n        }\n        if(k < 0) return 0;\n        if (dp[i][k][ele] != -1) return dp[i][k][ele];\n        int pick = f(i+1,nums,k-nums[i],ele+1,cnt,dp);\n        int not = f(i+1,nums,k,ele,cnt,dp);\n        return dp[i][k][ele] = (pick + not) % mod;\n    }\n    public int sumOfPower(int[] nums, int k) {\n        int[] cnt = new int[102];\n        cnt[0] = 1;\n        for (int i = 1; i <= 100; i++) {\n            cnt[i] = (2 * cnt[i-1]) % mod;\n        }\n        int[][][] dp = new int[101][101][101];\n        for(int i=0;i<dp.length;i++) {\n            for(int j=0;j<dp[0].length;j++) {\n                Arrays.fill(dp[i][j],-1);\n            }\n        }\n        return f(0,nums,k,0,cnt,dp);\n    }",
+    "replace": "    private long power(long base, long exp) {\n        long res = 1;\n        base %= mod;\n        while (exp > 0) {\n            if (exp % 2 == 1) res = (res * base) % mod;\n            base = (base * base) % mod;\n            exp /= 2;\n        }\n        return res;\n    }\n\n    public int sumOfPower(int[] nums, int k) {\n        int n = nums.length;\n        long[] dp = new long[k + 1];\n        dp[0] = 1;\n\n        // Modular inverse of 2, since mod is prime, inv(2) = 2^(mod-2)\n        long inv2 = power(2, mod - 2);\n\n        for (int num : nums) {\n            for (int j = k; j >= num; j--) {\n                dp[j] = (dp[j] + dp[j - num] * inv2) % mod;\n            }\n        }\n\n        long powerOf2_n = power(2, n);\n        long result = (dp[k] * powerOf2_n) % mod;\n\n        return (int) result;\n    }"
+  }
+]
+```

@@ -1,0 +1,67 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search='int sum = 0;\nMap<Integer, Set<Integer>> num2indices = new HashMap<>();\nfor (int i = 0; i < nums.length; i ++) {\n    sum += nums[i];\n    Set<Integer> set = num2indices.getOrDefault(nums[i], new HashSet<Integer>());\n    set.add(i);\n    num2indices.put(nums[i], set);\n}\n\nint result = Integer.MIN_VALUE;\nfor (int i = 0; i < nums.length; i ++) {\n    if (nums[i] <= result) {\n        continue;\n    }\n    int s = sum - nums[i];\n    if (s % 2 == 0) {\n        int half = s / 2;\n        if (num2indices.containsKey(half)) {\n            Set<Integer> set = num2indices.get(half);\n            if (!set.contains(i) || (set.contains(i) && set.size() > 1)) {\n                result = Math.max(result, nums[i]);\n            }\n        }\n    }\n}'
+>>>> Your previous output was:
+The provided code is improved for performance, memory usage, and robustness. The change replaces the map of index sets with a more efficient frequency map. This reduces memory overhead and avoids redundant computations for duplicate numbers by iterating over unique values in the main logic. Additionally, the total sum is calculated using a `long` to prevent potential integer overflow.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int sum = 0;\nMap<Integer, Set<Integer>> num2indices = new HashMap<>();\nfor (int i = 0; i < nums.length; i ++) {\n    sum += nums[i];\n    Set<Integer> set = num2indices.getOrDefault(nums[i], new HashSet<Integer>());\n    set.add(i);\n    num2indices.put(nums[i], set);\n}\n\nint result = Integer.MIN_VALUE;\nfor (int i = 0; i < nums.length; i ++) {\n    if (nums[i] <= result) {\n        continue;\n    }\n    int s = sum - nums[i];\n    if (s % 2 == 0) {\n        int half = s / 2;\n        if (num2indices.containsKey(half)) {\n            Set<Integer> set = num2indices.get(half);\n            if (!set.contains(i) || (set.contains(i) && set.size() > 1)) {\n                result = Math.max(result, nums[i]);\n            }\n        }\n    }\n}",
+    "replace": "long sum = 0;\nMap<Integer, Integer> counts = new HashMap<>();\nfor (int num : nums) {\n    sum += num;\n    counts.put(num, counts.getOrDefault(num, 0) + 1);\n}\n\nint result = Integer.MIN_VALUE;\nfor (int num : counts.keySet()) {\n    if (num <= result) {\n        continue;\n    }\n    long s = sum - num;\n    if (s % 2 == 0) {\n        int half = (int) (s / 2);\n        if (counts.containsKey(half)) {\n            if (num != half || counts.get(half) > 1) {\n                result = Math.max(result, num);\n            }\n        }\n    }\n}"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int getLargestOutlier(int[] nums) {
+        int sum = 0;
+        Map<Integer, Set<Integer>> num2indices = new HashMap<>();
+        for (int i = 0; i < nums.length; i ++) {
+            sum += nums[i];
+            Set<Integer> set = num2indices.getOrDefault(nums[i], new HashSet<Integer>());
+            set.add(i);
+            num2indices.put(nums[i], set);
+        }
+
+        int result = Integer.MIN_VALUE;
+        for (int i = 0; i < nums.length; i ++) {
+            if (nums[i] <= result) {
+                continue;
+            }
+            int s = sum - nums[i];
+            if (s % 2 == 0) {
+                int half = s / 2;
+                if (num2indices.containsKey(half)) {
+                    Set<Integer> set = num2indices.get(half);
+                    if (!set.contains(i) || (set.contains(i) && set.size() > 1)) {
+                        result = Math.max(result, nums[i]);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,1,2
+  expected output: 2
+Example 2:
+  input: 2,3,5,10
+  expected output: 10
+Example 3:
+  input: -2,-1,-3,-6,4
+  expected output: 4
+Example 4:
+  input: 1,1,1,1,1,5,5
+  expected output: 5
+Example 5:
+  input: 2,3,4,9,9
+  expected output: 9
+

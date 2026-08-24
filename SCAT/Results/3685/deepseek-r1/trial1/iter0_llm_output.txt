@@ -1,0 +1,11 @@
+The main improvement is to avoid creating and storing every length-3 subarray in an intermediate list. Instead, we scan the array once with indices and apply the same arithmetic check directly, reducing memory from O(n) to O(1) while keeping the original behavior.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<List<Integer>> result = new ArrayList<>();\n        int k = 3;\n        int sum = 0;\n\n        for (int i = 0; i <= nums.length - k; i++) {\n            List<Integer> subarray = new ArrayList<>();\n            for (int j = i; j < i + k; j++) {\n                subarray.add(nums[j]);\n            }\n            result.add(subarray);\n        }\n        for(List s: result) {\n            int n = (int) s.get(0) + (int)s.get(2);\n            if(n * 2 ==(int)s.get(1)) {\n                sum += 1;\n            }\n        }\n        return sum;",
+    "replace": "        int sum = 0;\n        for (int i = 0; i + 2 < nums.length; i++) {\n            int n = nums[i] + nums[i + 2];\n            if (n * 2 == nums[i + 1]) {\n                sum += 1;\n            }\n        }\n        return sum;"
+  }
+]
+```

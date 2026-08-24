@@ -1,0 +1,31 @@
+I’ve removed the leftover debug print statements and the unused `println` helper method to clean up the code.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "            // System.out.print(\"os1: \");\n            // println(os1);\n            // System.out.print(\"os2: \");\n            // println(os2);",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private void println(TreeSet<int[]> os) {",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for (var e: os) System.out.printf(\"[%d, %d] \", e[0], e[1]);",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        System.out.println();",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    }",
+    "replace": ""
+  }
+]
+```

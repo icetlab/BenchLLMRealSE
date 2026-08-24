@@ -1,0 +1,52 @@
+package effibenchjmh.task3360.original;
+
+import java.util.*;
+import java.util.stream.*;
+
+class Solution {
+    public int minimumDeletions(String word, int k) {
+        Map<Character, Integer> map = new HashMap<>();
+        for (int i = 0; i < word.length(); i++) {
+            char c = word.charAt(i);
+            map.put(c, map.getOrDefault(c, 0) + 1);
+        }
+
+        List<Integer> l = new ArrayList<>(map.values());
+        Collections.sort(l);
+        int left = 0;
+        int min_evicted = Integer.MAX_VALUE;
+        for (int right = 0; right < l.size(); right ++){
+            if (l.get(right) - l.get(left) <= k && right + 1 < l.size() && l.get(right + 1) - l.get(left) <= k) continue;
+            while (left < right && l.get(right) - l.get(left) > k){
+                //I WILL LOOK BACK AND LOOK AHEAD:
+                //MAKE THEM EQUAL 
+                int sum1 = 0;
+                for (int i = 0; i < left; i ++){
+                    sum1 += l.get(i);
+                }
+                int sum2 = 0;
+                for (int i = right; i < l.size(); i ++){
+                    sum2 += l.get(i);
+                }
+                min_evicted = Math.min(min_evicted, sum1 + (sum2 - Math.max(l.size() - right, 0) * (k + l.get(left))));
+                left ++;
+            }
+            if (l.get(right) - l.get(left) <= k && right + 1 < l.size() && l.get(right + 1) - l.get(left) <= k) continue;
+            if (l.get(right) - l.get(left) <= k){
+                //DO NOTHING
+                int sum1 = 0;
+                for (int i = 0; i < left; i ++){
+                    sum1 += l.get(i);
+                }
+                int sum2 = 0;
+                for (int i = right + 1; i < l.size(); i ++){
+                    sum2 += l.get(i);
+                }
+                min_evicted = Math.min(min_evicted, sum1 + (sum2 - Math.max(l.size() - right - 1, 0) * (k + l.get(left))));
+            }
+        }
+
+        return min_evicted == Integer.MAX_VALUE ? 0 : min_evicted;
+
+    }
+}

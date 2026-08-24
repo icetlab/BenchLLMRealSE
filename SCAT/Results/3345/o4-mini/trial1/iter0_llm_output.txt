@@ -1,0 +1,26 @@
+The changes below add the missing Arrays import and make all array dimensions dynamic (based on the actual input sizes) rather than fixed at 100. This reduces memory use, avoids potential bounds errors, and maintains the same behavior.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.Arrays;\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int[] cnt = new int[102];",
+    "replace": "int n = nums.length;\n        int[] cnt = new int[n+1];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for (int i = 1; i <= 100; i++) {",
+    "replace": "for (int i = 1; i <= n; i++) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int[][][] dp = new int[101][101][101];",
+    "replace": "int[][][] dp = new int[n+1][k+1][n+1];"
+  }
+]
+```

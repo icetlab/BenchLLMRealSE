@@ -1,0 +1,15 @@
+The original code determines if string `s` can be rearranged into `t` by swapping blocks. It does this by splitting both strings into `k` blocks, sorting the arrays of blocks, and then comparing them element by element. The sorting step has a time complexity of O(N*log(k)), where N is the string length, which can be inefficient for large inputs.
+
+My improvement replaces this sort-and-compare approach with a more efficient frequency counting method using a HashMap. First, it iterates through string `s`, breaking it into blocks and storing the count of each unique block in a HashMap. Then, it iterates through string `t`, decrementing the count for each corresponding block. If a block from `t` is not found in the map or its count is already zero, it means the multisets of blocks are not identical, and we can return `false` immediately.
+
+This change avoids the costly sorting operation, reducing the time complexity from O(N*log(k)) to O(N) on average. It also simplifies the block extraction logic, making the code cleaner and more readable.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        String[] s1 = new String[k];\n        String[] t1 = new String[k];\n        int sidx = 0;   \n        int tidx =0 ;\n        for(int i=0; i<k; i++){\n            StringBuilder sb = new StringBuilder(\"\");\n            StringBuilder sb2 = new StringBuilder(\"\");\n\n            for(int j=0; j<s.length()/k; j++){\n                sb.append(s.charAt(sidx++));\n                sb2.append(t.charAt(tidx++));\n            }\n            s1[i]=  sb.toString();\n            t1[i]=  sb2.toString();\n        }\n\n        Arrays.sort(s1);\n        Arrays.sort(t1);\n\n        for(int i=0; i<s1.length; i++){\n            if(!s1[i].equals(t1[i])){\n                return false;\n            }\n        }\n        return true;",
+    "replace": "        java.util.Map<String, Integer> blockCounts = new java.util.HashMap<>();\n        int blockSize = s.length() / k;\n\n        for (int i = 0; i < s.length(); i += blockSize) {\n            String block = s.substring(i, i + blockSize);\n            blockCounts.put(block, blockCounts.getOrDefault(block, 0) + 1);\n        }\n\n        for (int i = 0; i < t.length(); i += blockSize) {\n            String block = t.substring(i, i + blockSize);\n            int count = blockCounts.getOrDefault(block, 0);\n            if (count == 0) {\n                return false;\n            }\n            blockCounts.put(block, count - 1);\n        }\n\n        return true;"
+  }
+]
+```

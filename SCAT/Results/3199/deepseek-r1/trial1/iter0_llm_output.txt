@@ -1,0 +1,13 @@
+**Improvement intent:**  
+The original triple‑nested loop runs in O(n³), which is extremely slow for large `n`.  
+By iterating only over the first child's candy count (`i`) and computing the number of valid `(j,k)` pairs directly, the complexity is reduced to O(min(limit, n)). This results in a massive speedup while producing identical results.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int count=0;\n        for(int i=0; i<=n; i++){\n            if(i>limit) continue;\n            for(int j=0; j<=n; j++){\n                if(j>limit) continue;\n                for(int k=0; k<=n; k++){\n                    if(k>limit) continue;\n\n                    int sum=i+j+k;\n                    if(sum==n) count++;\n                }\n            }\n        }\n        return count;",
+    "replace": "        int count=0;\n        int maxI = Math.min(limit, n);\n        for (int i = 0; i <= maxI; i++) {\n            int remaining = n - i;\n            int minJ = Math.max(0, remaining - limit);\n            int maxJ = Math.min(limit, remaining);\n            if (maxJ >= minJ) {\n                count += (maxJ - minJ + 1);\n            }\n        }\n        return count;"
+  }
+]
+```

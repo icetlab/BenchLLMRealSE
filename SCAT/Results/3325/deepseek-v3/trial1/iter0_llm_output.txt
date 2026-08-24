@@ -1,0 +1,13 @@
+## Improvement Intent
+
+The main performance bottleneck is in the `maxSquare` method which unnecessarily swaps rectangles and has redundant logic. The key optimization is to directly compute the intersection without swapping, and to use primitive local variables instead of creating temporary Rectangle objects. Additionally, we can avoid the `record` overhead by working directly with the input arrays.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    long maxSquare(Rectangle r1, Rectangle r2) {\n        if (!(r1.x1 < r2.x1 && r1.y1 < r2.y1)) {\n            // Swap\n            Rectangle r3 = r1;\n            r1 = r2;\n            r2 = r3;\n        }\n\n        // Find overlap\n        int x1 = Math.max(r1.x1, r2.x1);\n        int x2 = Math.min(r1.x2, r2.x2);\n        int y1 = Math.max(r1.y1, r2.y1);\n        int y2 = Math.min(r1.y2, r2.y2);\n\n        int xDim = x2 - x1;\n        int yDim = y2 - y1;\n        // System.out.printf(\"xDim: %d, yDim: %d%n\", xDim, yDim);\n\n        if (xDim > 0 && yDim > 0) {\n            return Math.min(xDim, yDim);\n        }\n\n        return 0;\n    }",
+    "replace": "    long maxSquare(Rectangle r1, Rectangle r2) {\n        // Find overlap directly without swapping\n        int x1 = Math.max(r1.x1, r2.x1);\n        int x2 = Math.min(r1.x2, r2.x2);\n        int y1 = Math.max(r1.y1, r2.y1);\n        int y2 = Math.min(r1.y2, r2.y2);\n\n        int xDim = x2 - x1;\n        int yDim = y2 - y1;\n\n        if (xDim > 0 && yDim > 0) {\n            return Math.min(xDim, yDim);\n        }\n\n        return 0;\n    }"
+  }
+]
+```

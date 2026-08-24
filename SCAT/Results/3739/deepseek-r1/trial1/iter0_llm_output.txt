@@ -1,0 +1,16 @@
+Improved by precomputing inverse factorials for O(1) `cnr`, and by replacing the `O(m*n)` HashMap enumeration with a direct `O(m+n)` prefix-sum calculation of pair counts by Manhattan distance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    static long[] fact = new long[(int) 1e5];\n\n    static {\n        fact[0] = 1;\n        for (int i = 1; i < (int) 1e5; i++) {\n            fact[i] = i * fact[i - 1];\n            fact[i] %= M;\n        }\n    }\n\n    public long cnr(int n, int r) {\n        return fact[n] * power2(fact[n - r], M - 2) % M * power2(fact[r], M - 2) % M;\n    }",
+    "replace": "    static long[] fact = new long[(int) 1e5];\n    static long[] invFact = new long[(int) 1e5];\n\n    static {\n        fact[0] = 1;\n        for (int i = 1; i < (int) 1e5; i++) {\n            fact[i] = i * fact[i - 1];\n            fact[i] %= M;\n        }\n        invFact[(int) 1e5 - 1] = power2(fact[(int) 1e5 - 1], M - 2);\n        for (int i = (int) 1e5 - 1; i >= 1; i--) {\n            invFact[i - 1] = invFact[i] * i % M;\n        }\n    }\n\n    public long cnr(int n, int r) {\n        return fact[n] * invFact[n - r] % M * invFact[r] % M;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int distanceSum(int m, int n, int k) {\n        long res = 0;\n        long time = cnr(n * m - 2, k - 2);\n        var ct = new HashMap<Integer, Long>();\n        for (int i = 1; i <= n; i++)\n            for (int j = 1; j <= m; j++) {\n                if (i == j && i == 1)\n                    continue;\n                if (i == 1 || j == 1)\n                    ct.merge(i + j - 2, (long) (n - i + 1) * (m - j + 1) % M, (a, b) -> (a + b) % M);\n                else\n                    ct.merge(i + j - 2, (long) (n - i + 1) * (m - j + 1) % M * 2 % M, (a, b) -> (a + b) % M);\n            }\n        for (var en : ct.entrySet()) {\n            res += en.getKey() * en.getValue() % M * time % M;\n            res %= M;\n        }\n\n        return (int) res;\n    }",
+    "replace": "    public int distanceSum(int m, int n, int k) {\n        long time = cnr(n * m - 2, k - 2);\n\n        int maxX = n - 1;\n        int maxY = m - 1;\n        long[] pref1 = new long[maxX + 1];\n        long[] pref2 = new long[maxX + 1];\n        for (int x = 1; x <= maxX; x++) {\n            pref1[x] = pref1[x - 1] + (n - x);\n            pref2[x] = pref2[x - 1] + (long) x * (n - x);\n        }\n\n        long res = 0;\n        for (int d = 1; d <= n + m - 2; d++) {\n            long cnt = 0;\n            if (d < m) {\n                cnt += (long) n * (m - d);\n            }\n            if (d < n) {\n                cnt += (long) m * (n - d);\n            }\n\n            int lo = Math.max(1, d - maxY);\n            int hi = Math.min(d - 1, maxX);\n            if (lo <= hi) {\n                long sum1 = pref1[hi] - pref1[lo - 1];\n                long sum2 = pref2[hi] - pref2[lo - 1];\n                long both = (m - d) * sum1 + sum2;\n                cnt += 2 * both;\n            }\n\n            res = (res + (long) d * (cnt % M) % M * time) % M;\n        }\n\n        return (int) res;\n    }"
+  }
+]
+```

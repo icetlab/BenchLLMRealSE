@@ -1,0 +1,27 @@
+Overall improvement intent:
+Replace the Rectangle record and ArrayList of objects with primitive arrays and inline overlap computation, then remove the unused record and helper method to cut object overhead and improve performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    record Rectangle(int x1, int y1, int x2, int y2) {}",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        ArrayList<Rectangle> rectangles = new ArrayList<>();\n        for (int i = 0; i < bottomLeft.length; i++) {\n            rectangles.add(new Rectangle(\n                bottomLeft[i][0],\n                bottomLeft[i][1],\n                topRight[i][0],\n                topRight[i][1]));\n        }\n\n",
+    "replace": "        int n = bottomLeft.length;\n        int[] x1 = new int[n], y1 = new int[n], x2 = new int[n], y2 = new int[n];\n        for (int i = 0; i < n; i++) {\n            x1[i] = bottomLeft[i][0];\n            y1[i] = bottomLeft[i][1];\n            x2[i] = topRight[i][0];\n            y2[i] = topRight[i][1];\n        }\n\n"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for (int i = 0; i < rectangles.size(); i++) {\n            for (int j = i + 1; j < rectangles.size(); j++) {\n                long size = maxSquare(rectangles.get(i), rectangles.get(j));\n                if (size > max) {\n                    max = size;\n                }\n            }\n        }",
+    "replace": "        for (int i = 0; i < n; i++) {\n            for (int j = i + 1; j < n; j++) {\n                int ox1 = Math.max(x1[i], x1[j]);\n                int ox2 = Math.min(x2[i], x2[j]);\n                int oy1 = Math.max(y1[i], y1[j]);\n                int oy2 = Math.min(y2[i], y2[j]);\n                int xDim = ox2 - ox1, yDim = oy2 - oy1;\n                long size = (xDim > 0 && yDim > 0) ? Math.min(xDim, yDim) : 0;\n                if (size > max) max = size;\n            }\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    long maxSquare(Rectangle r1, Rectangle r2) {\n        if (!(r1.x1 < r2.x1 && r1.y1 < r2.y1)) {\n            // Swap\n            Rectangle r3 = r1;\n            r1 = r2;\n            r2 = r3;\n        }\n\n        // Find overlap\n        int x1 = Math.max(r1.x1, r2.x1);\n        int x2 = Math.min(r1.x2, r2.x2);\n        int y1 = Math.max(r1.y1, r2.y1);\n        int y2 = Math.min(r1.y2, r2.y2);\n\n        int xDim = x2 - x1;\n        int yDim = y2 - y1;\n        // System.out.printf(\"xDim: %d, yDim: %d%n\", xDim, yDim);\n\n        if (xDim > 0 && yDim > 0) {\n            return Math.min(xDim, yDim);\n        }\n\n        return 0;\n    }",
+    "replace": ""
+  }
+]
+```

@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int minimumBoxes(int[] a, int[] c) {\n        int ans = 0;\n        int s = Arrays.stream(a).sum();\n        Arrays.sort(c);\n\n        int i = c.length - 1;\n        while (i >= 0) {\n            s -= c[i];\n            ans++;\n            if (s <= 0)\n                break;\n            i--;\n        }\n\n        return ans;\n    }\n}",
+    "replace": "import java.util.Arrays;\n\nclass Solution {\n    public int minimumBoxes(int[] a, int[] c) {\n        int ans = 0;\n        int s = 0;\n        for (int v : a) s += v;\n        Arrays.sort(c);\n\n        for (int i = c.length - 1; i >= 0 && s > 0; i--) {\n            s -= c[i];\n            ans++;\n        }\n\n        return ans;\n    }\n}"
+  }
+]
+```

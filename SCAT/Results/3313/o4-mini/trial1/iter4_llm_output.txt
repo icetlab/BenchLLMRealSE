@@ -1,0 +1,16 @@
+I’ve broken the large BigInteger-to-primitive rewrite into smaller, independently verifiable steps, starting with the DP array declaration and its initialization.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "BigInteger[][] dp = new BigInteger[k + 1][nums.length + 1];",
+    "replace": "long[][] dp = new long[k + 1][nums.length + 1];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for (int i = 0; i <= k; i++) {\\s*for \\(int j = 0; j <= nums\\.length; j\\+\\+\\) {\\s*dp\\[i\\]\\[j\\] = BigInteger.ZERO;\\s*}\\s*}",
+    "replace": "for (int i = 0; i <= k; i++) {\n            for (int j = 0; j <= nums.length; j++) {\n                dp[i][j] = (i == 0 ? 0L : Long.MIN_VALUE);\n            }\n        }"
+  }
+]
+```

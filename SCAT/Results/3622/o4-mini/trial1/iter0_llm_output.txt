@@ -1,0 +1,16 @@
+I have replaced the TreeMap + prefix‐sum approach with a simpler two‐pointer window over sorted (value, frequency) pairs. This reduces the complexity and overhead, using only a sort and a single pass.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public int maxFrequency(int[] nums, int k, int numOperations) {\\n        if(nums == null || nums.length == 0) return 0;\\n        if(numOperations < 0) return 0;\\n        if(nums.length == 1) return 1;\\n\\n        int res = 0;\\n        TreeMap<Integer, Integer> freq = new TreeMap<>(); // nums[i] -> freq",
+    "replace": "public int maxFrequency(int[] nums, int k, int numOperations) {\n        if(nums == null || nums.length == 0) return 0;\n        if(numOperations < 0) return 0;\n        if(nums.length == 1) return 1;\n\n        // count frequencies\n        Map<Integer,Integer> map = new HashMap<>();\n        for(int num: nums) map.put(num, map.getOrDefault(num,0)+1);\n        // build and sort (value, freq) pairs\n        List<int[]> pairs = new ArrayList<>(map.size());\n        for(Map.Entry<Integer,Integer> e: map.entrySet())\n            pairs.add(new int[]{e.getKey(), e.getValue()});\n        Collections.sort(pairs, Comparator.comparingInt(a->a[0]));\n\n        int l = 0, sumFreq = 0, result = 0;\n        for(int r = 0; r < pairs.size(); r++) {\n            int vR = pairs.get(r)[0], fR = pairs.get(r)[1];\n            sumFreq += fR;\n            // shrink until all in window are within k of vR\n            while(vR - pairs.get(l)[0] > k) {\n                sumFreq -= pairs.get(l)[1];\n                l++;\n            }\n            int windowSize = sumFreq;\n            int canConvert = Math.min(numOperations, windowSize - fR);\n            result = Math.max(result, fR + canConvert);\n        }\n        return result;\n    }"
+  }
+]
+```

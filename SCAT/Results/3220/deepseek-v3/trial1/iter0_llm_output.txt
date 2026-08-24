@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "The original code mutates the input array and prints the modified array to stdout, which may be unintended side effects. The improvement preserves the return value while avoiding unnecessary mutation and output, and simplifies the logic by directly counting devices that are still positive after subtracting the number of previously tested devices.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "class Solution {\n    public int countTestedDevices(int[] arr) {\n        \n        int prev = 0;\n        int curr = 0;\n        int ans = 0;\n        for (int i=0;i<arr.length;++i) {\n            curr = arr[i]; \n            arr[i] = Math.max(0, arr[i]-prev);\n            if (arr[i] <= 0) continue;\n            prev += curr > 0 ? 1 : 0;\n            ans += 1;\n        }\n        for (int i=0;i<arr.length;++i) {\n            System.out.print(arr[i]+\" \");\n        }\n        return ans;\n    }\n}",
+      "replace": "class Solution {\n    public int countTestedDevices(int[] arr) {\n        int tested = 0;\n        for (int battery : arr) {\n            if (battery - tested > 0) {\n                tested++;\n            }\n        }\n        return tested;\n    }\n}"
+    }
+  ]
+}

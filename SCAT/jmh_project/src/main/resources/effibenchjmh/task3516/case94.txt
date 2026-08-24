@@ -1,0 +1,2 @@
+NeighborSum,diagonalSum,adjacentSum,diagonalSum,diagonalSum,adjacentSum,diagonalSum,diagonalSum,diagonalSum
+29,47,36,38,34,17,25;1,20,32,27,28,43,24;12,15,0,37,4,6,44;42,3,41,46,45,18,30;13,2,31,22,21,39,23;48,5,35,11,7,8,40;19,9,26,16,14,10,33 | 25 | 0 | 30 | 29 | 38 | 39 | 42 | 39

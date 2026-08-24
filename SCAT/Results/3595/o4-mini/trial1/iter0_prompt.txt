@@ -1,0 +1,51 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public boolean isPossibleToRearrange(String s, String t, int k) {
+        if(s.length()%k!=0 || s.length()!=t.length()){
+            return false;
+        }
+
+        String[] s1 = new String[k];
+        String[] t1 = new String[k];
+        int sidx = 0;   
+        int tidx =0 ;
+        for(int i=0; i<k; i++){
+            StringBuilder sb = new StringBuilder("");
+            StringBuilder sb2 = new StringBuilder("");
+
+            for(int j=0; j<s.length()/k; j++){
+                sb.append(s.charAt(sidx++));
+                sb2.append(t.charAt(tidx++));
+            }
+            s1[i]=  sb.toString();
+            t1[i]=  sb2.toString();
+        }
+
+        Arrays.sort(s1);
+        Arrays.sort(t1);
+
+        for(int i=0; i<s1.length; i++){
+            if(!s1[i].equals(t1[i])){
+                return false;
+            }
+        }
+        return true;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: abcd cdab 2
+  expected output: true
+Example 2:
+  input: aabbcc bbaacc 3
+  expected output: true
+Example 3:
+  input: aabbcc bbaacc 2
+  expected output: false
+Example 4:
+  input: abc cab 1
+  expected output: false
+Example 5:
+  input: xyz zyx 3
+  expected output: true

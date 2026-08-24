@@ -1,0 +1,20 @@
+{
+  "explanation": "The previous attempt tried to replace the whole file with a different iterative DP, but the search text did not match the original source. To improve performance while preserving behavior, I will keep the original recursive memoized DP structure and make targeted optimizations: replace the HashMap-based rules with a compact 2D int array, avoid string concatenation and Map lookups in the hot path, and use a local char array for summons. These changes reduce overhead while keeping the same algorithm and results.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "    private static final int MOD = 1_000_000_007;\n    private String s;\n    private int n;\n    private Map<String, Integer> rules;\n    private Integer[][][] memo;",
+      "replace": "    private static final int MOD = 1_000_000_007;\n    private static final char[] SUMMONS = {'E', 'F', 'W'};\n    private static final int[][] GAIN = {\n        // current: E, F, W ; summon: E, F, W\n        {0, 1, -1},  // E vs E,F,W\n        {-1, 0, 1},  // F vs E,F,W\n        {1, -1, 0}   // W vs E,F,W\n    };\n    private String s;\n    private int n;\n    private Integer[][][] memo;"
+    },
+    {
+      "filepath": "Solution.java",
+      "search": "        this.memo = new Integer[n + 1][4][2 * n + 1];\n        initRules();\n        return dp(0, 3, 0);\n    }\n\n    private void initRules() {\n        rules = new HashMap<>();\n        rules.put(\"FE\", -1);\n        rules.put(\"FW\", 1);\n        rules.put(\"WF\", -1);\n        rules.put(\"WE\", 1);\n        rules.put(\"EF\", 1);\n        rules.put(\"EW\", -1);\n    }",
+      "replace": "        this.memo = new Integer[n + 1][4][2 * n + 1];\n        return dp(0, 3, 0);\n    }"
+    },
+    {
+      "filepath": "Solution.java",
+      "search": "        for (int j = 0; j < 3; j++) {\n            if (j != last) {\n                char summon = \"EFW\".charAt(j);\n                int gain = rules.getOrDefault(\"\" + current + summon, 0);\n                result = (result + dp(i + 1, j, score + gain)) % MOD;\n            }\n        }",
+      "replace": "        for (int j = 0; j < 3; j++) {\n            if (j != last) {\n                int gain = GAIN[current - 'E'][j];\n                result = (result + dp(i + 1, j, score + gain)) % MOD;\n            }\n        }"
+    }
+  ]
+}

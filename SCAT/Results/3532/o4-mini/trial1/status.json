@@ -1,0 +1,8 @@
+{
+  "outcome": "implausible",
+  "stage": "format",
+  "message": "Block 5: search text not found in source.\nsearch='Iterator<Integer> iterator  = vected.iterator() ;\\n        while (iterator.hasNext()){'",
+  "iteration": 2,
+  "format_attempts": 2,
+  "verify_attempts": 0
+}

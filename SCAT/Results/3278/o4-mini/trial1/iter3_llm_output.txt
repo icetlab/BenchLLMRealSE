@@ -1,0 +1,16 @@
+I’ve restored the removed `Arrays.sort` call and re‐added the second orientation `isValidPair` check so both rectangle configurations are counted, bringing the logic back to produce the correct pair counts.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int count = 0;\n",
+    "replace": "        int count = 0;\n        Arrays.sort(points, (point1, point2) -> point2[1] - point1[1]);\n"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            if (isValidPair(points, points[i], points[j])) {\n                count++;\n            }",
+    "replace": "            if (isValidPair(points, points[i], points[j])) {\n                count++;\n            }\n            if (isValidPair(points, points[j], points[i])) {\n                count++;\n            }"
+  }
+]
+```

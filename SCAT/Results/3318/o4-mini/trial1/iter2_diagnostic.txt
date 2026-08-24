@@ -1,0 +1,78 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 9: expected='2' got='14'
+>>>> Your previous output was:
+I’ve replaced the recursive/memoized approach with a much faster two‐pointer technique over the three candidate scores, and added the necessary `Arrays` import.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.Arrays;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    final int n = nums.length;\n    Map<String, Integer> mem = new HashMap<>();",
+    "replace": "    Arrays.sort(nums);\n    int n = nums.length;\n    int ans = 0;\n    int[] scores = new int[] { nums[0] + nums[1], nums[n - 1] + nums[n - 2], nums[0] + nums[n - 1] };\n    for (int score : scores) {\n        int i = 0, j = n - 1, count = 0;\n        while (i < j) {\n            int sum = nums[i] + nums[j];\n            if (sum == score) {\n                count++;\n                i++;\n                j--;\n            } else if (sum < score) {\n                i++;\n            } else {\n                j--;\n            }\n        }\n        ans = Math.max(ans, count);\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    return Math.max(Math.max(maxOperations(nums, 0, n - 1, nums[0] + nums[1], mem),\n                             maxOperations(nums, 0, n - 1, nums[n - 1] + nums[n - 2], mem)),\n                    maxOperations(nums, 0, n - 1, nums[0] + nums[n - 1], mem));",
+    "replace": "    return ans;"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+
+public int maxOperations(int[] nums) {
+    final int n = nums.length;
+    Map<String, Integer> mem = new HashMap<>();
+    return Math.max(Math.max(maxOperations(nums, 0, n - 1, nums[0] + nums[1], mem),
+                             maxOperations(nums, 0, n - 1, nums[n - 1] + nums[n - 2], mem)),
+                    maxOperations(nums, 0, n - 1, nums[0] + nums[n - 1], mem));
+  }
+
+  // Returns the maximum number of operations that can be performed for
+  // nums[i..j], s.t. all operations have the same `score`.
+  private int maxOperations(int[] nums, int i, int j, int score, Map<String, Integer> mem) {
+    if (i >= j)
+      return 0;
+    final String key = hash(i, j, score);
+    if (mem.containsKey(key))
+      return mem.get(key);
+    final int deleteFirstTwo =
+        nums[i] + nums[i + 1] == score ? 1 + maxOperations(nums, i + 2, j, score, mem) : 0;
+    final int deleteLastTwo =
+        nums[j] + nums[j - 1] == score ? 1 + maxOperations(nums, i, j - 2, score, mem) : 0;
+    final int deleteFirstAndLast =
+        nums[i] + nums[j] == score ? 1 + maxOperations(nums, i + 1, j - 1, score, mem) : 0;
+    mem.put(key, Math.max(Math.max(deleteFirstTwo, deleteLastTwo), deleteFirstAndLast));
+    return mem.get(key);
+  }
+
+  private String hash(int i, int j, int score) {
+    return i + "," + j + "," + score;
+  }
+    
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,1
+  expected output: 1
+Example 2:
+  input: 1,2
+  expected output: 1
+Example 3:
+  input: 5,5,5,5
+  expected output: 2
+Example 4:
+  input: 3,2,1,2,3,4
+  expected output: 3
+Example 5:
+  input: 3,2,6,1,4
+  expected output: 2
+

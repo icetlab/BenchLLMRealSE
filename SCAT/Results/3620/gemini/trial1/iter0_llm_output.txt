@@ -1,0 +1,21 @@
+The overall improvement intent is to optimize the `maxDistinctElements` method by reducing memory usage, improving efficiency, and fixing a potential integer overflow bug.
+
+The original code has three main drawbacks:
+1.  It allocates a `List` of ranges and a `HashSet`, leading to O(N) auxiliary space complexity.
+2.  The `HashSet` check is redundant given the greedy strategy of always picking an increasing sequence of numbers.
+3.  Range calculations `num +/- k` can overflow if `num` and `k` are large `int` values, leading to incorrect results.
+
+The improved solution addresses these issues:
+1.  **Space Efficiency**: Instead of creating a list of ranges, the input array `nums` is sorted in-place. This achieves the same ordering for the greedy algorithm while reducing space. The redundant `HashSet` is replaced by a single variable to track the next available number. This brings down auxiliary space from O(N) to that required by sorting (typically O(log N) or O(1)).
+2.  **Robustness**: All range and selection logic uses the `long` type to prevent integer overflows, making the solution correct for all valid integer inputs.
+3.  **Simplicity and Speed**: The logic is simplified, and by removing object allocations for ranges and `HashSet` operations, the constant factors of the runtime are improved.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<int[]> ranges = new ArrayList<>();\n        for (int num : nums) {\n            ranges.add(new int[]{num - k, num + k});\n        }\n        ranges.sort(Comparator.comparingInt(a -> a[0]));\n        Set<Integer> selected = new HashSet<>();\n        int cnt = Integer.MIN_VALUE; \n        for (int[] range : ranges) {\n            int start = range[0], end = range[1];\n            int val = Math.max(cnt, start);\n            if (val <= end && (selected.isEmpty() || !selected.contains(val))) {\n                selected.add(val);\n                cnt = val + 1; \n            }\n        }\n        return selected.size();",
+    "replace": "        java.util.Arrays.sort(nums);\n        int count = 0;\n        long nextAvailable = Long.MIN_VALUE;\n        for (int num : nums) {\n            long start = (long) num - k;\n            long end = (long) num + k;\n            long val = Math.max(nextAvailable, start);\n            if (val <= end) {\n                count++;\n                nextAvailable = val + 1;\n            }\n        }\n        return count;"
+  }
+]
+```

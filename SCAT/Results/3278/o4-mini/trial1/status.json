@@ -1,0 +1,8 @@
+{
+  "outcome": "implausible",
+  "stage": "format",
+  "message": "Block 1: search text not found in source.\nsearch='            if (isValidPair(points, points[i], points[j])) {\\n                count++;\\n            }'",
+  "iteration": 3,
+  "format_attempts": 2,
+  "verify_attempts": 1
+}

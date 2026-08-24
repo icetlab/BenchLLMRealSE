@@ -1,0 +1,11 @@
+The main improvement is to replace the recursive `Integer[][]` memoization with a compact one-dimensional boolean DP. After sorting and removing duplicate rewards, each reward `v` can extend only reachable sums `< v`, so we process those states and then scan backward for the largest reachable reward total.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    Integer dp[][];\n    public int maxTotalReward(int[] arr) {\n        Arrays.sort(arr);\n        int sum = 0;\n        for(int i : arr) sum += i;\n        dp = new Integer[arr.length][10000];\n        return util(arr, 0, 0);\n    }\n    private int util(int arr[], int i, int sum) {\n        if(i >= arr.length) return sum;\n        if(dp[i][sum] != null) return dp[i][sum];\n        if(sum < arr[i]) {\n            return dp[i][sum] = Math.max(util(arr, i+1, sum + arr[i]), util(arr, i+1, sum));\n        }\n        return dp[i][sum] = util(arr, i+1, sum);\n    }\n}",
+    "replace": "class Solution {\n    public int maxTotalReward(int[] arr) {\n        if (arr.length == 0) return 0;\n        java.util.Arrays.sort(arr);\n        int max = arr[arr.length - 1];\n        if (max == 0) return 0;\n        boolean[] dp = new boolean[2 * max];\n        dp[0] = true;\n        for (int i = 0; i < arr.length; i++) {\n            if (i > 0 && arr[i] == arr[i - 1]) continue;\n            int v = arr[i];\n            for (int s = v - 1; s >= 0; s--) {\n                if (dp[s]) {\n                    dp[s + v] = true;\n                }\n            }\n        }\n        for (int s = dp.length - 1; s >= 0; s--) {\n            if (dp[s]) return s;\n        }\n        return 0;\n    }\n}"
+  }
+]
+```

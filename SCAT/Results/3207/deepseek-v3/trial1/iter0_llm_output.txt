@@ -1,0 +1,13 @@
+## Improvement Intent
+
+The original code uses a while loop that repeatedly removes the last character from the longest string until all three strings are equal. This approach is inefficient because it modifies strings character by character. Instead, we can find the longest common prefix of all three strings directly, then calculate the minimum operations as the sum of the differences between each string's length and the common prefix length. This reduces time complexity from O(L²) to O(L) where L is the total length of strings.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int findMinimumOperations(String s1, String s2, String s3) {\n        int count=0;\n       while(!(s1.equals(s2)&&s2.equals(s3))){\n        if (s1.isEmpty() || s2.isEmpty() || s3.isEmpty()) {\n                return -1;\n            }\n            if(s1.length()>=s2.length() && s1.length()>=s3.length())\n            s1=s1.substring(0,s1.length()-1);\n            else if(s2.length()>=s1.length() && s2.length()>=s3.length())\n            s2=s2.substring(0,s2.length()-1);\n          else{\n       s3=s3.substring(0,s3.length()-1);\n        }\n            \n         count++;  \n\n        \n       }\n        return count;\n    }\n}",
+    "replace": "class Solution {\n    public int findMinimumOperations(String s1, String s2, String s3) {\n        int minLen = Math.min(s1.length(), Math.min(s2.length(), s3.length()));\n        int commonPrefixLen = 0;\n        \n        for (int i = 0; i < minLen; i++) {\n            if (s1.charAt(i) == s2.charAt(i) && s2.charAt(i) == s3.charAt(i)) {\n                commonPrefixLen++;\n            } else {\n                break;\n            }\n        }\n        \n        if (commonPrefixLen == 0) {\n            return -1;\n        }\n        \n        return (s1.length() - commonPrefixLen) + \n               (s2.length() - commonPrefixLen) + \n               (s3.length() - commonPrefixLen);\n    }\n}"
+  }
+]
+```

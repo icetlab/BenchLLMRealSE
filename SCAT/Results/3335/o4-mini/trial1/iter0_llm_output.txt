@@ -1,0 +1,11 @@
+We can replace the six repeated grid‐scans with a single pass that tallies counts of the “Y” positions and “other” positions, then evaluates all six (cY, cO) assignments in constant time. This reduces both code size and runtime overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int minimumOperationsToWriteY(int[][] grid) {\\n        int minPrice = Integer.MAX_VALUE;[\\s\\S]*?\\n    }",
+    "replace": "public int minimumOperationsToWriteY(int[][] grid) {\n        int n = grid.length;\n        int mid = n/2;\n        // cntY[v] = number of Y‐cells currently == v, cntO[v] = number of other cells == v\n        int[] cntY = new int[3], cntO = new int[3];\n        for (int i = 0; i < n; i++) {\n            for (int j = 0; j < n; j++) {\n                int v = grid[i][j];\n                boolean isY = (i < mid && i == j)\n                           || (i < mid && i + j == n - 1)\n                           || (i >= mid && j == mid);\n                if (isY) cntY[v]++; else cntO[v]++;\n            }\n        }\n        int totalY = cntY[0] + cntY[1] + cntY[2];\n        int totalO = cntO[0] + cntO[1] + cntO[2];\n        int minPrice = Integer.MAX_VALUE;\n        // try all distinct assignments cY != cO\n        for (int cY = 0; cY < 3; cY++) {\n            for (int cO = 0; cO < 3; cO++) {\n                if (cY == cO) continue;\n                int cost = (totalY - cntY[cY]) + (totalO - cntO[cO]);\n                if (cost < minPrice) minPrice = cost;\n            }\n        }\n        return minPrice;\n    }"
+  }
+]
+```

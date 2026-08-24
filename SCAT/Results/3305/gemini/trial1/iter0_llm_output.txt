@@ -1,0 +1,18 @@
+The original code uses a `HashMap` with `List<Character>` as keys to build the Trie. This is inefficient because it requires creating a new `List` object for every character pair lookup. This leads to frequent object allocations, high garbage collection pressure, and slower hash computations on the `List` objects.
+
+My improvement replaces the `List<Character>` key with a primitive `int`. Each pair of characters `(c1, c2)` is packed into a single `int` using bitwise operations (`(c1 << 16) | c2`), which provides a unique key for each pair. This change avoids object allocation for keys inside the hot loop. `HashMap` lookups with `Integer` keys (via autoboxing) are significantly faster than with `List` keys due to simpler `hashCode` and `equals` methods. This reduces memory overhead and improves overall execution speed.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "// Map to store child nodes based on character pairs\n      private HashMap<List<Character>, TrieNode> children = new HashMap<>();",
+    "replace": "// Map to store child nodes based on character pairs\n      private HashMap<Integer, TrieNode> children = new HashMap<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "// Computing or retrieve the child node for the character pair\n    ginti += (node = node.children.computeIfAbsent(\n      List.of(word.charAt(i), word.charAt(word.length() - i - 1)),\n      t -> new TrieNode())).ginti;",
+    "replace": "// Computing or retrieve the child node for the character pair\n    int key = (word.charAt(i) << 16) | word.charAt(word.length() - i - 1);\n    ginti += (node = node.children.computeIfAbsent(key, t -> new TrieNode())).ginti;"
+  }
+]
+```

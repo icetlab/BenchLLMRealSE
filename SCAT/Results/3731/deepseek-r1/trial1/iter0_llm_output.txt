@@ -1,0 +1,11 @@
+The main improvement is to remove the unnecessary debug output and combine prefix-sum construction with the main accumulation loop, reducing passes over the array. The replacement also keeps the original behavior for any prefix lookups that point forward by deferring them until that prefix value is available.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int n = nums.length;\n        int sum = 0;\n        int[] prefix = new int[n];\n        int start = 0;\n\n        prefix[0] = nums[0];\n        for (int i = 1; i < n; i++) {\n            prefix[i] = prefix[i - 1] + nums[i];\n        }\n        System.out.println();\n\n        // [2, 5, 1, 5]\n        // [2, 7, 8, 13]\n\n        // 2 + 7 = 9 + 6 = 15 + 11 = 26\n\n        for (int i = 0; i < n; i++) {\n            start = Math.max(0, i - nums[i]);\n\n            if (start == 0) {\n                sum += prefix[i];\n            } else {\n                sum += prefix[i] - prefix[start - 1];\n            }\n\n        }\n\n        return sum;",
+    "replace": "        int n = nums.length;\n        int[] prefix = new int[n];\n        int sum = 0;\n        int runningPrefix = 0;\n        int[] deferred = null;\n        int deferredCount = 0;\n\n        for (int i = 0; i < n; i++) {\n            int value = nums[i];\n            runningPrefix += value;\n            prefix[i] = runningPrefix;\n\n            int start = i - value;\n            if (start < 0) {\n                sum += runningPrefix;\n            } else if (start > i) {\n                sum += runningPrefix;\n                if (deferred == null) {\n                    deferred = new int[n];\n                }\n                deferred[deferredCount++] = start - 1;\n            } else if (start == 0) {\n                sum += runningPrefix;\n            } else {\n                sum += runningPrefix - prefix[start - 1];\n            }\n        }\n\n        for (int j = 0; j < deferredCount; j++) {\n            sum -= prefix[deferred[j]];\n        }\n\n        return sum;"
+  }
+]
+```

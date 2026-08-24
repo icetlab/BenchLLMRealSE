@@ -1,0 +1,53 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public char kthCharacter(long k, int[] operations) {
+        
+        int a = findit(k,operations);
+
+        return (char)('a' + a%26);
+
+        // return 
+
+        // return 'a';
+    }
+
+    private int findit(long k, int[] operations){
+        if(k == 1){
+            return 0;
+        }
+        int x = 1;
+        while((long)Math.pow(2,x) < k){
+            x++;
+        }
+        x--;
+        int a = 0;
+        if(operations[x] == 1){
+            k -= Math.pow(2,x);
+            return 1 + findit(k,operations);
+        }
+        else{
+            k -= Math.pow(2,x);
+            return findit(k,operations);
+        }
+       
+    }
+
+
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 0 1
+  expected output: a
+Example 2:
+  input: 0,0,0 5
+  expected output: a
+Example 3:
+  input: 0,1,0,1 10
+  expected output: b
+Example 4:
+  input: 1 2
+  expected output: b
+Example 5:
+  input: 1,1,1 8
+  expected output: d

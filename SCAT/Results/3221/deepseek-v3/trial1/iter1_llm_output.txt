@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "Scanner sc=new Scanner(System.in);\n      List<Integer>l=new ArrayList<>();",
+    "replace": "List<Integer>l=new ArrayList<>();"
+  }
+]
+```

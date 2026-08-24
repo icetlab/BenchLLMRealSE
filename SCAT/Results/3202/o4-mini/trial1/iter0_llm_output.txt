@@ -1,0 +1,41 @@
+I’ve optimized the access-time grouping and lookups by:
+1. Using a LinkedHashMap to preserve employee insertion order.
+2. Parsing times to integers once on input instead of repeatedly in the inner loop.
+3. Removing the debug print.
+4. Simplifying map population with computeIfAbsent.
+5. Updating all types and comparisons to work with integers.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "Map<String, List<String>> emp_access = new HashMap<>();",
+    "replace": "Map<String, List<Integer>> emp_access = new java.util.LinkedHashMap<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for(List<String> emp : access_times) {\n            List<String> temp = emp_access.containsKey(emp.get(0)) ? emp_access.get(emp.get(0)) : new ArrayList<String>();\n            temp.add(emp.get(1));\n            emp_access.put(emp.get(0), temp);\n        }",
+    "replace": "for (List<String> emp : access_times) {\n    int time = Integer.parseInt(emp.get(1));\n    List<Integer> temp = emp_access.computeIfAbsent(emp.get(0), k -> new ArrayList<>());\n    temp.add(time);\n}"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for(Map.Entry<String, List<String>> entry : emp_access.entrySet()) {",
+    "replace": "for (Map.Entry<String, List<Integer>> entry : emp_access.entrySet()) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "List<String> temp = entry.getValue();",
+    "replace": "List<Integer> temp = entry.getValue();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Collections.sort(temp);\n            System.out.println(temp);",
+    "replace": "Collections.sort(temp);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "if(Integer.parseInt(temp.get(i)) - Integer.parseInt(temp.get(i - 2)) < 100) {",
+    "replace": "if (temp.get(i) - temp.get(i - 2) < 100) {"
+  }
+]
+```

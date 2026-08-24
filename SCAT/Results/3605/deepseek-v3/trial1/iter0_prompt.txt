@@ -1,0 +1,35 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int[] minBitwiseArray(List<Integer> nums) {
+        int[] arr = new int[nums.size()];
+        for (int i=0; i<nums.size(); i++){
+            for (int j=0; j<nums.get(i); j++){
+                if ((j | (j+1)) == nums.get(i)){
+                    arr[i]=j;
+                    break;
+                }
+                if (arr[i]==0){
+                    arr[i]=-1;
+                } 
+            }
+        }
+        return arr;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 2,3,5,7
+  expected output: -1,1,4,3
+Example 2:
+  input: 11,13,31
+  expected output: 9,12,15
+Example 3:
+  input: 2
+  expected output: -1
+Example 4:
+  input: 3
+  expected output: 1
+Example 5:
+  input: 3,3,3,3
+  expected output: 1,1,1,1

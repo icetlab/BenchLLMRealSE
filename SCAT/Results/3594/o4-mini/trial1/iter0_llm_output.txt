@@ -1,0 +1,16 @@
+I’ve replaced the heavy index‐tracking Set/map with a simple frequency map and switched from int to long for the running sum to speed up lookups and reduce memory overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int sum = 0;\n        Map<Integer, Set<Integer>> num2indices = new HashMap<>();\n        for (int i = 0; i < nums.length; i ++) {\n            sum += nums[i];\n            Set<Integer> set = num2indices.getOrDefault(nums[i], new HashSet<Integer>());\n            set.add(i);\n            num2indices.put(nums[i], set);\n        }",
+    "replace": "long sum = 0;\n        Map<Integer, Integer> counts = new HashMap<>();\n        for (int num : nums) {\n            sum += num;\n            counts.put(num, counts.getOrDefault(num, 0) + 1);\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int result = Integer.MIN_VALUE;\n        for (int i = 0; i < nums.length; i ++) {\n            if (nums[i] <= result) {\n                continue;\n            }\n            int s = sum - nums[i];\n            if (s % 2 == 0) {\n                int half = s / 2;\n                if (num2indices.containsKey(half)) {\n                    Set<Integer> set = num2indices.get(half);\n                    if (!set.contains(i) || (set.contains(i) && set.size() > 1)) {\n                        result = Math.max(result, nums[i]);\n                    }\n                }\n            }\n        }",
+    "replace": "int result = Integer.MIN_VALUE;\n        for (int num : nums) {\n            if (num <= result) continue;\n            long s = sum - num;\n            if ((s & 1) == 0) {\n                int half = (int)(s / 2);\n                Integer cnt = counts.get(half);\n                if (cnt != null && (half != num || cnt > 1)) {\n                    result = num;\n                }\n            }\n        }"
+  }
+]
+```

@@ -1,0 +1,61 @@
+I’ve broken the big Vector/Iterator replacement into a series of small, context-specific edits so each “search” matches exactly once and can be applied independently.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.util.Vector ;",
+    "replace": "import java.util.List;\nimport java.util.ArrayList;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public static Vector<Integer>[] links ;",
+    "replace": "public static List<Integer>[] links;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "links = new Vector[spans] ;",
+    "replace": "links = new ArrayList[spans];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "links[fe] = new Vector<Integer>( ) ;",
+    "replace": "links[fe] = new ArrayList<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Vector<Integer> vected= links[index] ;",
+    "replace": "List<Integer> vected = links[index];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Iterator<Integer> iterator  = vected.iterator() ;\n        while (iterator.hasNext()){",
+    "replace": "for (Integer temps : vected) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Integer temps = iterator.next() ;",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "iterator =  vected.iterator() ;\n        while(iterator.hasNext()){",
+    "replace": "for (Integer temps : vected) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Integer temps=  iterator.next() ;",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Iterator<Integer> iterator = links[index].iterator() ;\n        while(iterator.hasNext()){",
+    "replace": "for (Integer phase : links[index]) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Integer phase = iterator.next() ;",
+    "replace": ""
+  }
+]
+```

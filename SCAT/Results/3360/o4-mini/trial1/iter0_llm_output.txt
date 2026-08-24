@@ -1,0 +1,21 @@
+I added a prefix sum array to eliminate repeated O(n) scans for `sum1` and `sum2`, reducing those inner calculations to O(1).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        Collections.sort(l);\n",
+    "replace": "        Collections.sort(l);\n        int n = l.size();\n        int[] prefix = new int[n + 1];\n        for (int i = 0; i < n; i++) prefix[i + 1] = prefix[i] + l.get(i);\n"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "                int sum1 = 0;\n                for (int i = 0; i < left; i ++){\n                    sum1 += l.get(i);\n                }\n                int sum2 = 0;\n                for (int i = right; i < l.size(); i ++){\n                    sum2 += l.get(i);\n                }",
+    "replace": "                int sum1 = prefix[left];\n                int sum2 = prefix[n] - prefix[right];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "                int sum1 = 0;\n                for (int i = 0; i < left; i ++){\n                    sum1 += l.get(i);\n                }\n                int sum2 = 0;\n                for (int i = right + 1; i < l.size(); i ++){\n                    sum2 += l.get(i);\n                }",
+    "replace": "                int sum1 = prefix[left];\n                int sum2 = prefix[n] - prefix[right + 1];"
+  }
+]
+```

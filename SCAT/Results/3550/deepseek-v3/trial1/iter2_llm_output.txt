@@ -1,0 +1,14 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "long solve(int[][] arr, int row, int mask, int rooks, Map<String, Long>dp)\n    {\n        int n = arr.length;\n        int m = arr[0].length;\n        if(rooks == 0)\n        {  \n            return 0;    \n        }\n        if(row >= n)\n        {\n            return Integer.MIN_VALUE;\n        }\n        String key = row + \"-\" + rooks + \"-\" + mask;\n        if(dp.containsKey(key))\n            return dp.get(key);\n        long ans = solve(arr, row + 1, mask, rooks, dp);\n        for(int i = 0; i < m; i++)\n        {\n            if((mask & (1 << i)) == 0)\n            {\n                long temp =  solve(arr, row + 1, mask | (1 << i), rooks - 1, dp);\n                if(temp != Integer.MIN_VALUE)\n                    ans = Math.max(ans, arr[row][i] + temp);\n            }\n\n        }\n        dp.put(key, ans);\n        return ans;      \n    }",
+    "replace": "long solve(int[][] arr, int row, int mask, int rooks, Map<Long, Long>dp)\n    {\n        int n = arr.length;\n        int m = arr[0].length;\n        if(rooks == 0)\n        {  \n            return 0;    \n        }\n        if(row >= n)\n        {\n            return Integer.MIN_VALUE;\n        }\n        long key = ((long)row << 20) | (mask << 2) | rooks;\n        if(dp.containsKey(key))\n            return dp.get(key);\n        long ans = solve(arr, row + 1, mask, rooks, dp);\n        for(int i = 0; i < m; i++)\n        {\n            if((mask & (1 << i)) == 0)\n            {\n                long temp =  solve(arr, row + 1, mask | (1 << i), rooks - 1, dp);\n                if(temp != Integer.MIN_VALUE)\n                    ans = Math.max(ans, arr[row][i] + temp);\n            }\n\n        }\n        dp.put(key, ans);\n        return ans;      \n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Map<String, Long> dp = new HashMap<>();\n        long x =  solve(board, 0, 0, 3, dp);",
+    "replace": "Map<Long, Long> dp = new HashMap<>();\n        long x =  solve(board, 0, 0, 3, dp);"
+  }
+]
+```

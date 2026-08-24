@@ -1,0 +1,16 @@
+I replaced the recursive helper and the original `waysToReachStair` implementation with an iterative DP that exactly mirrors the up/down transitions, counts every visit to stair k (including mid‐jump hits), and runs in O(k log k) time.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    private int helper(Move move, int k, Map<Move,Integer> cache) { \n        if(move.currentStair - k > 1)\n            return 0;\n\n        if(cache.containsKey(move))\n            return cache.get(move);\n\n        var res = move.currentStair == k? 1: 0;    \n\n        if(move.lastDirection == Direction.UP && move.currentStair > 0) {\n            res += helper(move.down(), k, cache);\n        }\n\n        res += helper(move.up(), k, cache);\n\n        cache.put(move, res);\n\n        return res;\n    }",
+    "replace": "    private int helper(Move move, int k, Map<Move,Integer> cache) {\n        // no longer used; replaced by iterative DP in waysToReachStair\n        throw new UnsupportedOperationException();\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int waysToReachStair(int k) {\n        return helper(new Move(Direction.UP, 1, 0), k, new HashMap<>());\n    }",
+    "replace": "    public int waysToReachStair(int k) {\n        // iterative DP: track ways to each stair before each jump, count every hit to k\n        int maxJump = 0;\n        while ((1 << maxJump) <= k + 1) maxJump++;\n        int limit = k + 2;\n        long[] dp = new long[limit];\n        dp[1] = 1;\n        long ans = (1 == k) ? 1 : 0;\n        for (int j = 0; j <= maxJump; j++) {\n            long[] next = new long[limit];\n            for (int pos = 0; pos < limit; pos++) {\n                long ways = dp[pos];\n                if (ways == 0) continue;\n                // down then up in jump j\n                if (pos > 0) {\n                    int downPos = pos - 1;\n                    if (downPos == k) ans += ways;\n                    int upFromDown = downPos + (1 << j);\n                    if (upFromDown - k <= 1 && upFromDown >= 0 && upFromDown < limit) {\n                        next[upFromDown] += ways;\n                    }\n                }\n                // direct up in jump j\n                int upPos = pos + (1 << j);\n                if (upPos == k) ans += ways;\n                if (upPos - k <= 1 && upPos >= 0 && upPos < limit) {\n                    next[upPos] += ways;\n                }\n            }\n            dp = next;\n        }\n        return (int) ans;\n    }"
+  }
+]
+```

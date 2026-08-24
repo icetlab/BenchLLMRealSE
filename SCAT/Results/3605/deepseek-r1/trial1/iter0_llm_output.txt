@@ -1,0 +1,11 @@
+The original brute-force scan is replaced with a direct bit-manipulation formula. For an odd `x`, the smallest valid `j` is `x - 2^(c-1)`, where `c` is the number of trailing 1 bits in `x` (obtained via trailing zeros of `x + 1`). Even values have no answer because `j | (j+1)` is always odd.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int[] minBitwiseArray(List<Integer> nums) {\n        int[] arr = new int[nums.size()];\n        for (int i=0; i<nums.size(); i++){\n            for (int j=0; j<nums.get(i); j++){\n                if ((j | (j+1)) == nums.get(i)){\n                    arr[i]=j;\n                    break;\n                }\n                if (arr[i]==0){\n                    arr[i]=-1;\n                } \n            }\n        }\n        return arr;\n    }",
+    "replace": "    public int[] minBitwiseArray(List<Integer> nums) {\n        int n = nums.size();\n        int[] arr = new int[n];\n        for (int i = 0; i < n; i++) {\n            int x = nums.get(i);\n            if ((x & 1) == 0) {\n                arr[i] = -1;\n            } else {\n                int trailingOnes = Integer.numberOfTrailingZeros(x + 1);\n                arr[i] = x - (1 << (trailingOnes - 1));\n            }\n        }\n        return arr;\n    }"
+  }
+]
+```

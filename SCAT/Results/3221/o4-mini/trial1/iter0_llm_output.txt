@@ -1,0 +1,21 @@
+I have removed the unnecessary Scanner instantiation to eliminate unused I/O overhead, pre-sized the ArrayList to reduce dynamic resizing, and cached the array length in a local variable to avoid repeated field access in the loop.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "Scanner sc=new Scanner(System.in);",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "List<Integer>l=new ArrayList<>\\(\\);",
+    "replace": "List<Integer> l = new ArrayList<>(Math.max(0, mountain.length - 2));"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for\\(int i=1;i<mountain\\.length-1;i\\+\\+\\)\\{",
+    "replace": "      int n = mountain.length;\n      for (int i = 1; i < n - 1; i++) {"
+  }
+]
+```

@@ -1,0 +1,16 @@
+I’ve replaced the brute‐force pairwise checks with a frequency map plus per‐unique‐value swap‐generation logic. This counts identical pairs in O(m) and all valid one‐swap partners in O(m·k²), correctly handling both equal‐length and cross‐length swaps exactly once.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public int countPairs(int[] nums) {\n        int cnt=0;\n        int n = nums.length;\n        for(int i=0;i<n;i++){\n            for(int j=i+1;j<n;j++){\n                if(f(nums[i],nums[j])){\n                    cnt++;\n                }\n            }\n        }\n        return cnt;\n    }",
+    "replace": "public int countPairs(int[] nums) {\n        // build frequency map\n        Map<Integer,Integer> freq = new HashMap<>();\n        for (int num : nums) {\n            freq.put(num, freq.getOrDefault(num, 0) + 1);\n        }\n        long ans = 0;\n        // identical pairs\n        for (int c : freq.values()) {\n            ans += (long)c * (c - 1) / 2;\n        }\n        // one-swap pairs\n        for (int a : freq.keySet()) {\n            String s = Integer.toString(a);\n            int lenA = s.length();\n            char[] arr = s.toCharArray();\n            Set<Integer> seen = new HashSet<>();\n            for (int i = 0; i < lenA; i++) {\n                for (int j = i + 1; j < lenA; j++) {\n                    if (arr[i] == arr[j]) continue;\n                    swap(arr, i, j);\n                    String t = new String(arr);\n                    int bVal = Integer.parseInt(t);\n                    swap(arr, i, j);\n                    if (bVal == a || !freq.containsKey(bVal) || seen.contains(bVal)) continue;\n                    int lenB = t.length();\n                    // count each valid pair exactly once:\n                    // if a has more digits (cross-length) or same-length and smaller\n                    if (lenA > lenB || (lenA == lenB && a < bVal)) {\n                        ans += (long)freq.get(a) * freq.get(bVal);\n                    }\n                    seen.add(bVal);\n                }\n            }\n        }\n        return (int) ans;\n    }"
+  }
+]
+```

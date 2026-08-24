@@ -1,0 +1,15 @@
+The primary performance bottleneck in the original code is the use of `System.out.print` and `System.out.println`. These I/O operations are significantly slower than the computational logic and are unnecessary for the function's goal of returning a boolean.
+
+The logic for determining a square's color can also be streamlined. A square's color depends on the parity of the sum of its coordinates. The original code calculates this by converting character coordinates (e.g., 'a', '1') to zero-based indices. However, we can directly use the sum of the character codes. The parity of `(col_char + row_char)` is the same as the parity of `(col_index + row_index)` because the character code offsets sum to an even number.
+
+The improved code removes the slow I/O calls and simplifies the calculation into a single return statement. It directly compares the parities of the sums of the character codes for each coordinate. For a potential micro-optimization, it uses a bitwise AND (`& 1`) which is typically faster than the modulo operator (`% 2`) for parity checks.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int col1 = coordinate1.charAt(0)-'a';\n        int row1 = coordinate1.charAt(1)- '1';\n        int color1 = (col1+row1)%2;\n\n        int col2 = coordinate2.charAt(0)-'a';\n        int row2 = coordinate2.charAt(1)- '1';\n        int color2 = (col2+row2)%2;\n\n        if (color1==color2){\n            System.out.print(\"both have same color \");\n            return true;\n\n        }else{\n            System.out.println(\"they have different colour\");\n            return false;\n        }",
+    "replace": "        // A square's color is determined by the parity of the sum of its coordinates.\n        // The parity of (col_char + row_char) is the same as (col_index + row_index).\n        // We use bitwise AND (& 1) which is generally faster than modulo 2 for parity checks.\n        return ((coordinate1.charAt(0) + coordinate1.charAt(1)) & 1) ==\n               ((coordinate2.charAt(0) + coordinate2.charAt(1)) & 1);"
+  }
+]
+```

@@ -1,0 +1,15 @@
+Looking at the error, the issue is that my search block included the entire file, but the actual source file might have different formatting or content than what I assumed. Let me provide a more targeted fix that addresses the core issue with the Aho-Corasick implementation.
+
+The main problem is that when creating new states in the automaton, we need to properly initialize the new row in the `next` array. Let me provide a smaller, more focused change:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "if (next[state][c] == 0) {\n                    next[state][c] = size++;\n                    next = Arrays.copyOf(next, size);\n                    link = Arrays.copyOf(link, size);\n                    maxLen = Arrays.copyOf(maxLen, size);\n                }",
+    "replace": "if (next[state][c] == 0) {\n                    next[state][c] = size++;\n                    next = Arrays.copyOf(next, size);\n                    next[size-1] = new int[ALPHABET];\n                    link = Arrays.copyOf(link, size);\n                    maxLen = Arrays.copyOf(maxLen, size);\n                }"
+  }
+]
+```
+
+The key fix is adding `next[size-1] = new int[ALPHABET];` after expanding the `next` array. This ensures that when we create a new state, its row in the transition table is properly initialized to zeros. Without this, the `Arrays.copyOf` only copies existing rows but doesn't create new rows for the expanded array, leading to null references when accessing the new state's transitions.

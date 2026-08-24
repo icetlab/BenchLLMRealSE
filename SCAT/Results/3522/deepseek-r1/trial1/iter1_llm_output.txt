@@ -1,0 +1,16 @@
+The previous whole-method replacement was too brittle due to whitespace/blank-line mismatches. I’m using a minimal single-line anchor to insert a new optimized linear-time implementation, leaving the original code inside an unused helper so the public method behaves correctly without requiring a large exact-match replacement.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int[] resultsArray(int[] nums, int k) {",
+    "replace": "public int[] resultsArray(int[] nums, int k) {\n        return resultsArrayOptimized(nums, k);\n    }\n\n    private int[] resultsArrayOptimized(int[] nums, int k) {\n        if (k == 1) {\n            return nums;\n        }\n        int n = nums.length;\n        int[] res = new int[n - k + 1];\n        int run = 0;\n\n        for (int i = 0; i < n; i++) {\n            if (i > 0) {\n                if ((long) nums[i] - nums[i - 1] == 1) {\n                    run++;\n                } else {\n                    run = 0;\n                }\n            }\n            if (i >= k - 1) {\n                res[i - k + 1] = (run >= k - 1) ? nums[i] : -1;\n            }\n        }\n\n        return res;\n    }\n\n    private int[] resultsArrayOld(int[] nums, int k) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Arrays.sort(temp);",
+    "replace": "java.util.Arrays.sort(temp);"
+  }
+]
+```

@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "Replace the Hashtable-based storage and nested iteration with a frequency map of divisors of nums1 elements. This avoids repeatedly iterating over nums2 values for each nums1 element and reduces the time complexity from O(n*m) to O(n*sqrt(max)+m). The public method signature and output behavior remain unchanged.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "import java.util.Hashtable;\nclass Solution {\n    public int numberOfPairs(int[] nums1, int[] nums2, int k) {\n\n        int count=0;\n\n       Hashtable<Integer,Integer> ht = new Hashtable<>();\n\n       for(int i=0;i<nums2.length;i++)\n       {\n            int product=nums2[i]*k;\n            ht.put(i,product);\n       }\n\n       for(int nums:nums1)\n       {\n            for(Integer value:ht.values())\n            {\n                if(nums%value==0)\n                {\n                    count++;\n                }\n            }\n       }\n        return count;\n    }\n}",
+      "replace": "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public int numberOfPairs(int[] nums1, int[] nums2, int k) {\n        Map<Integer, Integer> divisorCount = new HashMap<>();\n        for (int num : nums1) {\n            if (num % k != 0) continue;\n            int value = num / k;\n            for (int d = 1; d * d <= value; d++) {\n                if (value % d == 0) {\n                    divisorCount.put(d, divisorCount.getOrDefault(d, 0) + 1);\n                    int other = value / d;\n                    if (other != d) {\n                        divisorCount.put(other, divisorCount.getOrDefault(other, 0) + 1);\n                    }\n                }\n            }\n        }\n        int count = 0;\n        for (int b : nums2) {\n            count += divisorCount.getOrDefault(b, 0);\n        }\n        return count;\n    }\n}"
+    }
+  ]
+}

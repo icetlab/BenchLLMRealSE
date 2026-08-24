@@ -1,0 +1,11 @@
+The main overhead was converting `int[]` inputs into boxed `Integer[]` arrays and sorting them with a comparator. I replaced that with cloning to primitive `int[]` arrays, using Java’s optimized primitive sort, then reversing to get descending order. This preserves the original greedy logic and avoids boxing overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "Integer[] hCuts = Arrays.stream(horizontalCut).boxed().toArray(Integer[]::new);\n        Integer[] vCuts = Arrays.stream(verticalCut).boxed().toArray(Integer[]::new);\n\n        // Sort in descending order\n        Arrays.sort(hCuts, Collections.reverseOrder());\n        Arrays.sort(vCuts, Collections.reverseOrder());",
+    "replace": "int[] hCuts = horizontalCut.clone();\n        int[] vCuts = verticalCut.clone();\n        java.util.Arrays.sort(hCuts);\n        java.util.Arrays.sort(vCuts);\n        // Reverse to get descending order\n        for (int i = 0, j = hCuts.length - 1; i < j; i++, j--) {\n            int tmp = hCuts[i];\n            hCuts[i] = hCuts[j];\n            hCuts[j] = tmp;\n        }\n        for (int i = 0, j = vCuts.length - 1; i < j; i++, j--) {\n            int tmp = vCuts[i];\n            vCuts[i] = vCuts[j];\n            vCuts[j] = tmp;\n        }"
+  }
+]
+```

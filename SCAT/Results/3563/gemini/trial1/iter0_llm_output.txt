@@ -1,0 +1,25 @@
+The original code uses a recursive backtracking approach to find the maximum score. The state of the recursion is defined by an upper bound for the next number to select and a set of rows that have already been used. For larger grids, this can lead to re-computing the solution for the same state multiple times, resulting in poor performance.
+
+My main improvement is to introduce memoization to cache the results of the recursive function `maxHelper`. This avoids redundant computations for the same subproblems, which are defined by the pair `(num, vis)`. The state `(num, vis)` represents the maximum score achievable with values less than `num`, given that rows in the `vis` set are already occupied. By storing and retrieving results from a hash map (`memo`), we can significantly reduce the number of recursive calls, turning an exponential complexity algorithm into a pseudo-polynomial one (in terms of the number of reachable states).
+
+Additionally, I've made a minor improvement to the `createTreeMap` method by using `computeIfAbsent` for a more concise and potentially slightly more efficient way to populate the map.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "                if (!tm.containsKey(ele)) {\n                    tm.put(ele, new HashSet<>());\n                }\n                tm.get(ele).add(rIdx);",
+    "replace": "                tm.computeIfAbsent(ele, k -> new HashSet<>()).add(rIdx);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.Map;\nimport java.util.HashMap;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private int maxHelper(TreeMap<Integer, Set<Integer>> tm, Integer num, Set<Integer> vis) {\n        Integer curr = tm.lowerKey(num);\n        if (curr == null) {\n            return 0;\n        }\n\n        Set<Integer> rSet = tm.get(curr);\n        boolean flg = false;\n        int max = 0;\n        for (int rs : rSet) {\n            if (vis.contains(rs)) {\n                continue;\n            }\n            flg = true;\n            vis.add(rs);\n            max = Math.max(max, maxHelper(tm, curr, vis));\n            vis.remove(rs);\n        }\n        return flg ? max + curr : maxHelper(tm, curr, vis);\n    }\n\n    public int maxScore(List<List<Integer>> grid) {\n        TreeMap<Integer, Set<Integer>> tm = createTreeMap(grid);\n        return maxHelper(tm, tm.lastKey() + 1, new HashSet<>());\n    }",
+    "replace": "    private Map<Integer, Map<Set<Integer>, Integer>> memo;\n\n    private int maxHelper(TreeMap<Integer, Set<Integer>> tm, Integer num, Set<Integer> vis) {\n        Integer curr = tm.lowerKey(num);\n        if (curr == null) {\n            return 0;\n        }\n\n        if (memo.containsKey(num) && memo.get(num).containsKey(vis)) {\n            return memo.get(num).get(vis);\n        }\n\n        Set<Integer> rSet = tm.get(curr);\n        boolean flg = false;\n        int max = 0;\n        for (int rs : rSet) {\n            if (vis.contains(rs)) {\n                continue;\n            }\n            flg = true;\n            vis.add(rs);\n            max = Math.max(max, maxHelper(tm, curr, vis));\n            vis.remove(rs);\n        }\n        int result = flg ? max + curr : maxHelper(tm, curr, vis);\n\n        memo.computeIfAbsent(num, k -> new HashMap<>()).put(new HashSet<>(vis), result);\n\n        return result;\n    }\n\n    public int maxScore(List<List<Integer>> grid) {\n        TreeMap<Integer, Set<Integer>> tm = createTreeMap(grid);\n        memo = new HashMap<>();\n        return maxHelper(tm, tm.lastKey() + 1, new HashSet<>());\n    }"
+  }
+]
+```

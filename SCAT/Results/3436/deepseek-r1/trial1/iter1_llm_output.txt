@@ -1,0 +1,16 @@
+Improved by replacing the segment-tree plus binary-search approach with a linear scan over distinct OR values of subarrays ending at each position. Since OR only sets bits, each position has at most 32 distinct values, reducing time to O(n·32) and extra space to O(1). The old segment-tree loop is kept but disabled by making its loop condition always false.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        SegmentTree seg = new SegmentTree(0 , nums.length);\n        int ans = Integer.MAX_VALUE;\n        for(int i = 0;i < nums.length;i++)\n            seg.update(i , nums[i]);",
+    "replace": "        SegmentTree seg = null;\n        int ans = Integer.MAX_VALUE;\n        int[] prev = new int[64];\n        int[] cur = new int[64];\n        int prevSize = 0;\n\n        for (int num : nums) {\n            int curSize = 1;\n            cur[0] = num;\n            int last = num;\n            ans = Math.min(ans, Math.abs(k - num));\n            if (ans == 0) return 0;\n\n            for (int i = 0; i < prevSize; i++) {\n                int v = prev[i] | num;\n                ans = Math.min(ans, Math.abs(k - v));\n                if (ans == 0) return 0;\n                if (v != last) {\n                    cur[curSize++] = v;\n                    last = v;\n                }\n            }\n\n            int[] tmp = prev;\n            prev = cur;\n            cur = tmp;\n            prevSize = curSize;\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for(int i = 0;i < nums.length;i++) {",
+    "replace": "        for(int i = 0; i < 0; i++) {"
+  }
+]
+```

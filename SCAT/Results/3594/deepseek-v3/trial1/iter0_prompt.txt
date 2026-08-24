@@ -1,0 +1,49 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int getLargestOutlier(int[] nums) {
+        int sum = 0;
+        Map<Integer, Set<Integer>> num2indices = new HashMap<>();
+        for (int i = 0; i < nums.length; i ++) {
+            sum += nums[i];
+            Set<Integer> set = num2indices.getOrDefault(nums[i], new HashSet<Integer>());
+            set.add(i);
+            num2indices.put(nums[i], set);
+        }
+
+        int result = Integer.MIN_VALUE;
+        for (int i = 0; i < nums.length; i ++) {
+            if (nums[i] <= result) {
+                continue;
+            }
+            int s = sum - nums[i];
+            if (s % 2 == 0) {
+                int half = s / 2;
+                if (num2indices.containsKey(half)) {
+                    Set<Integer> set = num2indices.get(half);
+                    if (!set.contains(i) || (set.contains(i) && set.size() > 1)) {
+                        result = Math.max(result, nums[i]);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,1,2
+  expected output: 2
+Example 2:
+  input: 2,3,5,10
+  expected output: 10
+Example 3:
+  input: -2,-1,-3,-6,4
+  expected output: 4
+Example 4:
+  input: 1,1,1,1,1,5,5
+  expected output: 5
+Example 5:
+  input: 2,3,4,9,9
+  expected output: 9

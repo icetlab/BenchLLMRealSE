@@ -1,0 +1,21 @@
+The original solution uses a loop that iterates up to `limit + 1` times, resulting in a time complexity of O(limit). While this is acceptable for small values of `limit`, it can be inefficient for larger inputs.
+
+The problem of distributing `n` identical items to 3 distinct recipients with an upper bound constraint is a classic combinatorial problem. It can be solved more efficiently using a mathematical formula derived from the Principle of Inclusion-Exclusion. This approach calculates the result in constant O(1) time, regardless of the input size.
+
+My improvement replaces the iterative solution with this direct mathematical formula. This involves:
+1.  Calculating the total number of ways to distribute `n` candies to 3 children without any limit, which is `C(n + 2, 2)`.
+2.  Subtracting the cases where at least one child exceeds the `limit`.
+3.  Adding back the cases where at least two children exceed the `limit` (as they were subtracted twice).
+4.  Subtracting the cases where all three children exceed the `limit`.
+
+This change significantly improves performance by moving from a linear-time algorithm to a constant-time one. A helper function `combinations(k)` is introduced to compute `C(k, 2)` cleanly.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    private long cnt(int n, int l) {\n        if (l > n) l = n;\n        if (n > l * 2) return 0;\n    //    System.out.println(n + \" \" + l);\n        int b = n - l;\n        return l - b + 1;\n    }\n\n    public long distributeCandies(int n, int limit) {\n        long res = 0;\n        for (int i = 0; i <= limit; i++) {\n            res += cnt(n - i, limit);\n          //  System.out.println(i + \" \" + res);\n        }\n        return res;\n    }",
+    "replace": "    private long combinations(int k) {\n        if (k < 2) {\n            return 0;\n        }\n        return (long) k * (k - 1) / 2;\n    }\n\n    public long distributeCandies(int n, int limit) {\n        // Using the Principle of Inclusion-Exclusion for an O(1) solution.\n\n        // Total ways to distribute n candies to 3 children without a limit:\n        // C(n + 3 - 1, 3 - 1) = C(n + 2, 2)\n        long totalWays = combinations(n + 2);\n\n        // Cases where at least one child gets more than 'limit' candies:\n        // 3 * C(n - (limit + 1) + 2, 2) = 3 * C(n - limit + 1, 2)\n        long oneChildExceeds = combinations(n - limit + 1);\n\n        // Cases where at least two children get more than 'limit' candies:\n        // 3 * C(n - 2*(limit + 1) + 2, 2) = 3 * C(n - 2*limit, 2)\n        long twoChildrenExceed = combinations(n - 2 * limit);\n\n        // Cases where all three children get more than 'limit' candies:\n        // 1 * C(n - 3*(limit + 1) + 2, 2) = C(n - 3*limit - 1, 2)\n        long threeChildrenExceed = combinations(n - 3 * limit - 1);\n\n        return totalWays - 3 * oneChildExceeds + 3 * twoChildrenExceed - threeChildrenExceed;\n    }"
+  }
+]
+```

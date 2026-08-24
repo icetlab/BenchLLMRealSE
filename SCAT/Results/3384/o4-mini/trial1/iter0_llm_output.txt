@@ -1,0 +1,11 @@
+I refactored the counting logic to a single pass that tracks the most frequent k-length block, eliminates redundant lookups and temporary strings, pre-sizes the HashMap to avoid rehashing, and simplifies the final computation to `blocks – maxCount`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "HashMap<String, Integer> mp = new HashMap<>();\n        String maxStr = new String();\n        Integer inmax = 0;\n        for(int i =k; i<=word.length(); i+=k){\n            String s = word.substring(i-k, i);\n            if(mp.get(s) != null){\n                mp.put(s,mp.get(s)+1);\n                if(mp.get(s) > inmax){\n                    maxStr = s;\n                    inmax = mp.get(s);\n                }\n            }else {\n                mp.put(s,1);\n            }\n        }\n        if(inmax <= 1){\n            return (word.length()/k) -1;\n        }\n        else{\n            Integer ans = 0;\n            for(Map.Entry<String, Integer> i: mp.entrySet()){\n                // System.out.println(i.getKey());\n                if(!i.getKey().equals(maxStr)){\n                    ans+= i.getValue();\n                }\n            } \n            return ans;\n        }",
+    "replace": "        int m = word.length() / k;\n        if (m <= 1) return 0;\n        Map<String, Integer> mp = new HashMap<>(m);\n        int maxCount = 0;\n        for (int i = 0; i < m; i++) {\n            int start = i * k;\n            String s = word.substring(start, start + k);\n            int cnt = mp.getOrDefault(s, 0) + 1;\n            mp.put(s, cnt);\n            if (cnt > maxCount) maxCount = cnt;\n        }\n        return m - maxCount;"
+  }
+]
+```

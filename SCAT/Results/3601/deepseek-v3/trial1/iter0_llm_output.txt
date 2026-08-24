@@ -1,0 +1,11 @@
+{
+  "improvement_intent": "The original code uses Math.pow in a loop and recursively recomputes the position, which is inefficient and can suffer from floating-point precision for large k. I will replace it with an iterative bit-based approach that directly determines the character by tracing the k-th position through the operation levels, using integer arithmetic only.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "class Solution {\n    public char kthCharacter(long k, int[] operations) {\n        \n        int a = findit(k,operations);\n\n        return (char)('a' + a%26);\n\n        // return \n\n        // return 'a';\n    }\n\n    private int findit(long k, int[] operations){\n        if(k == 1){\n            return 0;\n        }\n        int x = 1;\n        while((long)Math.pow(2,x) < k){\n            x++;\n        }\n        x--;\n        int a = 0;\n        if(operations[x] == 1){\n            k -= Math.pow(2,x);\n            return 1 + findit(k,operations);\n        }\n        else{\n            k -= Math.pow(2,x);\n            return findit(k,operations);\n        }\n       \n    }\n\n\n}",
+      "replace": "class Solution {\n    public char kthCharacter(long k, int[] operations) {\n        int a = 0;\n        long pos = k - 1; // 0-indexed position in the final string\n        // The final string length is 2^operations.length.\n        // Trace from the highest level down to the first character.\n        for (int i = operations.length - 1; i >= 0; i--) {\n            long half = 1L << i; // length of each half at this level\n            if (pos >= half) {\n                if (operations[i] == 1) {\n                    a = (a + 1) % 26;\n                }\n                pos -= half;\n            }\n        }\n        return (char)('a' + a);\n    }\n}",
+      "replace_note": "Replaced the entire class body with an iterative O(operations.length) solution using bit shifts."
+    }
+  ]
+}

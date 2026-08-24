@@ -1,0 +1,16 @@
+## Improvement Intent
+
+The original code uses a greedy bit-by-bit approach with HashMap operations that can be optimized. The main improvements:
+1. Replace `HashMap` with arrays for faster lookups since we're dealing with integer keys in a limited range
+2. Use primitive arrays instead of boxing/unboxing with `Integer` objects
+3. Reduce redundant operations by combining the min/max tracking into a single pass
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n       public int maximumStrongPairXor(int[] A) {\n        int res = 0;\n        for (int i = 20; i >= 0; i--) {\n            res <<= 1;\n            HashMap<Integer, Integer> pref = new HashMap<>(), pref2 = new HashMap<>();\n            for (int a : A) {\n                int p = a >> i;\n                if (!pref.containsKey(p)) {\n                    pref.put(p, a);\n                    pref2.put(p, a);\n                }\n                pref.put(p, Math.min(pref.get(p), a));\n                pref2.put(p, Math.max(pref2.get(p), a));\n            }\n            for (int x : pref.keySet()) {\n                int y = res ^ 1 ^ x;\n                if (x >= y && pref.containsKey(y) && pref.get(x) <= pref2.get(y) * 2) {\n                    res |= 1;\n                    break;\n                }\n            }\n        }\n        return res;\n    }\n}",
+    "replace": "class Solution {\n    public int maximumStrongPairXor(int[] A) {\n        int res = 0;\n        int maxVal = 0;\n        for (int a : A) if (a > maxVal) maxVal = a;\n        int size = maxVal + 1;\n        \n        for (int i = 20; i >= 0; i--) {\n            res <<= 1;\n            int[] minVal = new int[size];\n            int[] maxValArr = new int[size];\n            boolean[] seen = new boolean[size];\n            \n            for (int a : A) {\n                int p = a >> i;\n                if (!seen[p]) {\n                    seen[p] = true;\n                    minVal[p] = a;\n                    maxValArr[p] = a;\n                } else {\n                    if (a < minVal[p]) minVal[p] = a;\n                    if (a > maxValArr[p]) maxValArr[p] = a;\n                }\n            }\n            \n            for (int x = 0; x < size; x++) {\n                if (!seen[x]) continue;\n                int y = res ^ 1 ^ x;\n                if (x >= y && y < size && seen[y] && minVal[x] <= maxValArr[y] * 2) {\n                    res |= 1;\n                    break;\n                }\n            }\n        }\n        return res;\n    }\n}"
+  }
+]
+```

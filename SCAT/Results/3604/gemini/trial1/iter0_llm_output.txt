@@ -1,0 +1,13 @@
+The provided code calculates a table of Stirling numbers of the second kind within the `numberOfWays` method. Since this table is stored in a `static` field and its contents are always the same, re-calculating it on every method invocation is redundant and inefficient, especially if the method is called multiple times.
+
+My improvement moves this expensive calculation into a `static` initializer block. This ensures the table is computed only once when the `Solution` class is first loaded by the JVM, and the pre-computed values are then reused in all subsequent calls to `numberOfWays`, significantly improving overall performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "private static long[][] s = new long[1001][1001];\n    \n\n    public int numberOfWays(int n, int x, int y) {\n\n       \n        s[0][0] = 1;\n        for (int i = 1; i <= 1000; i++)\n            for (int j = 1; j <= i; j++)\n                s[i][j] = (s[i - 1][j - 1] + s[i - 1][j] * j) % mod;",
+    "replace": "private static long[][] s = new long[1001][1001];\n\n    static {\n        s[0][0] = 1;\n        for (int i = 1; i <= 1000; i++)\n            for (int j = 1; j <= i; j++)\n                s[i][j] = (s[i - 1][j - 1] + s[i - 1][j] * j) % mod;\n    }\n    \n\n    public int numberOfWays(int n, int x, int y) {"
+  }
+]
+```

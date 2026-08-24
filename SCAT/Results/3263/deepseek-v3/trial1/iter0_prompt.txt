@@ -1,0 +1,30 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int minimumCost(int[] nums) {
+        ArrayList<Integer> arr= new ArrayList<>();
+        for(int i : nums){
+            arr.add(i);
+        }
+        int first =arr.remove(0);
+        Collections.sort(arr);
+        int result = first+arr.get(0)+arr.get(1);
+        return result;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,1,1
+  expected output: 3
+Example 2:
+  input: 1,2,3,12
+  expected output: 6
+Example 3:
+  input: 5,4,3,2
+  expected output: 10
+Example 4:
+  input: 10,3,1,1
+  expected output: 12
+Example 5:
+  input: 7,7,7,7,7
+  expected output: 21

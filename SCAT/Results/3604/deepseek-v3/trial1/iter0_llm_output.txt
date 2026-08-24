@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "The original code precomputes Stirling numbers of the second kind up to 1000 on every call, even when n is small. We can reduce the precomputation to only the needed size, and also avoid recomputing the table when the same or smaller n is requested. This preserves the algorithm and outputs while improving performance for typical inputs.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "    private static long[][] s = new long[1001][1001];\n    \n\n    public int numberOfWays(int n, int x, int y) {\n\n       \n        s[0][0] = 1;\n        for (int i = 1; i <= 1000; i++)\n            for (int j = 1; j <= i; j++)\n                s[i][j] = (s[i - 1][j - 1] + s[i - 1][j] * j) % mod;\n    \n        long res = 0, perm = 1, pow = 1;\n        for (int i = 1; i <= Math.min(n, x); i++) {\n            perm = perm * (x - i + 1) % mod;\n            pow = pow * y % mod;\n            res = (res + perm * s[n][i] % mod * pow) % mod;\n        }\n        return (int) res;\n    }",
+      "replace": "    private static long[][] s = new long[1001][1001];\n    private static int maxPrecomputed = 0;\n    \n\n    public int numberOfWays(int n, int x, int y) {\n\n       \n        if (maxPrecomputed < n) {\n            if (maxPrecomputed == 0) {\n                s[0][0] = 1;\n                maxPrecomputed = 1;\n            }\n            for (int i = maxPrecomputed; i <= n; i++)\n                for (int j = 1; j <= i; j++)\n                    s[i][j] = (s[i - 1][j - 1] + s[i - 1][j] * j) % mod;\n            maxPrecomputed = n;\n        }\n    \n        long res = 0, perm = 1, pow = 1;\n        for (int i = 1; i <= Math.min(n, x); i++) {\n            perm = perm * (x - i + 1) % mod;\n            pow = pow * y % mod;\n            res = (res + perm * s[n][i] % mod * pow) % mod;\n        }\n        return (int) res;\n    }"
+    }
+  ]
+}

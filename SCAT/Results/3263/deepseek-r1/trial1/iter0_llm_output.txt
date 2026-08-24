@@ -1,0 +1,12 @@
+**Improvement Intent:**
+The original code copies the array into an `ArrayList`, removes the first element, sorts the remaining elements (`O(n log n)`), and then sums the first element with the two smallest. By directly scanning the input array to find the two smallest values among `nums[1..n-1]`, we achieve `O(n)` time and avoid unnecessary object creation and sorting, preserving the exact same output for all valid inputs.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        ArrayList<Integer> arr= new ArrayList<>();\n        for(int i : nums){\n            arr.add(i);\n        }\n        int first =arr.remove(0);\n        Collections.sort(arr);\n        int result = first+arr.get(0)+arr.get(1);\n        return result;",
+    "replace": "        int first = nums[0];\n        int min1 = Integer.MAX_VALUE;\n        int min2 = Integer.MAX_VALUE;\n        for (int i = 1; i < nums.length; i++) {\n            int val = nums[i];\n            if (val < min1) {\n                min2 = min1;\n                min1 = val;\n            } else if (val < min2) {\n                min2 = val;\n            }\n        }\n        int result = first + min1 + min2;\n        return result;"
+  }
+]
+```

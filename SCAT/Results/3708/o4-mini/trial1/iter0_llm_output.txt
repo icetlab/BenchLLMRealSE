@@ -1,0 +1,16 @@
+I’ve optimized the traversal by eliminating the intermediate array and the costly stream boxing step, instead building the result list directly with a pre-sized ArrayList. This reduces memory overhead and speeds up construction.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.ArrayList;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int\\[\\] output = new int\\[out_len\\];\\s*\\n\\s*for\\(int i = 0; i < out_len; i\\+\\+\\)\\{[\\s\\S]*?return list;",
+    "replace": "List<Integer> result = new ArrayList<>(out_len);\n\n        for(int i = 0; i < out_len; i++){\n            int r = (i*2)/cols;\n            int c = (i*2)%cols;\n            if(r%2==1){c=cols-1-c;}\n            result.add(grid[r][c]);\n        }\n        return result;"
+  }
+]
+```

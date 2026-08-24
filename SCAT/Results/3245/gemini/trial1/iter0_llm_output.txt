@@ -1,0 +1,13 @@
+The original solution's primary performance bottleneck lies in its method for finding "beautiful indices". After efficiently locating all occurrences of substrings `a` and `b` using the KMP algorithm, it employs a nested loop to compare every occurrence of `a` against every occurrence of `b`. This leads to a time complexity of O(N*M) for this checking phase, where N and M are the respective counts of occurrences. In scenarios where `a` and `b` appear frequently, this can approach a quadratic complexity relative to the length of the input string `s`.
+
+My improvement replaces this inefficient nested loop with a linear-time two-pointer algorithm. Since the lists of indices for `a` and `b` are inherently sorted, we can iterate through both lists simultaneously with two pointers. For each index of `a`, we advance the pointer for `b` just enough to find a valid corresponding index within the specified distance `k`. This avoids redundant comparisons and reduces the complexity of this critical step from O(N*M) to O(N+M), resulting in a much faster solution.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<Integer> answer =  new ArrayList<>();\n        int i=0;\n        while(i <  aArray.size())\n        {\n            for(int j=0;j<  bArray.size();j++)\n            {\n                if(Math.abs(aArray.get(i) -  bArray.get(j)) <=k )\n                {\n                    answer.add(aArray.get(i));\n                    break;\n                }\n            }\n            i++;\n        }",
+    "replace": "        List<Integer> answer = new ArrayList<>();\n        int bIndex = 0;\n        for (int aIndex : aArray) {\n            // Advance the bIndex to the start of the window [aIndex - k, aIndex + k]\n            while (bIndex < bArray.size() && bArray.get(bIndex) < aIndex - k) {\n                bIndex++;\n            }\n            // Check if the current bIndex is within the window\n            if (bIndex < bArray.size() && bArray.get(bIndex) <= aIndex + k) {\n                answer.add(aIndex);\n            }\n        }"
+  }
+]
+```

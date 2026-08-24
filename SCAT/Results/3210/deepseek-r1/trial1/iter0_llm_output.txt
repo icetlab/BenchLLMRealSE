@@ -1,0 +1,20 @@
+## Improvement Intent
+
+The original algorithm uses nested loops to check every substring, resulting in \(O(n^2)\) time complexity. This is improved to \(O(n)\) by:
+
+- Treating vowels as +1 and consonants as –1, and computing a prefix difference.
+- Observing that the condition `(vowelCount * consonantCount) % k == 0` simplifies to `vowelCount² % k == 0` because the counts are equal.
+- Precomputing a modulus `L` such that a substring satisfies the condition iff `vowelCount % L == 0`.
+- Using a hashmap to count previous prefixes with the same `(diff, vowelCount % L)`, so each substring that meets both criteria is counted in constant time.
+
+This eliminates the nested loop, handling large inputs efficiently.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int beautifulSubstrings(String s, int k) {\n        int n = s.length();\n        int count = 0;\n        String vowels = \"aeiou\";\n\n        for(int i = 0; i < n; i++){\n            int vowelCount = 0;\n            int consonantCount = 0;\n            \n            for(int j = i; j < n; j++){\n                char c = s.charAt(j);\n\n                if(vowels.indexOf(c) != -1){\n                    vowelCount++;\n                } else{\n                    consonantCount++;\n                }\n                if(vowelCount == consonantCount && ( vowelCount * consonantCount) % k == 0){\n                        count++;\n                    }\n                }\n            }\n            return count;\n        }   \n}",
+    "replace": "import java.util.*;\n\nclass Solution {\n    public int beautifulSubstrings(String s, int k) {\n        int n = s.length();\n        // Precompute vowel classification for all ASCII chars\n        boolean[] isVowel = new boolean[256];\n        String vowels = \"aeiou\";\n        for (int i = 0; i < vowels.length(); i++) {\n            isVowel[vowels.charAt(i)] = true;\n        }\n\n        // Find smallest L such that L*L % k == 0\n        int L = 1;\n        while ((L * L) % k != 0) {\n            L++;\n        }\n\n        // Map from (diff, vowelMod) to count of prefixes seen\n        Map<Long, Integer> map = new HashMap<>();\n        map.put(0L, 1); // initial prefix (diff=0, vowelMod=0)\n\n        int diff = 0;\n        int vowelCount = 0;\n        int total = 0;\n        // multiplier to combine diff and vowelMod into a unique key\n        int modBase = k + 1; // vowelMod is always < L <= k, so k+1 is safe\n\n        for (int i = 0; i < n; i++) {\n            char c = s.charAt(i);\n            if (isVowel[c]) {\n                diff++;\n                vowelCount++;\n            } else {\n                diff--;\n            }\n            int vowelMod = vowelCount % L;\n            long key = (long) diff * modBase + vowelMod;\n            int prev = map.getOrDefault(key, 0);\n            total += prev;\n            map.put(key, prev + 1);\n        }\n        return total;\n    }\n}"
+  }
+]
+```

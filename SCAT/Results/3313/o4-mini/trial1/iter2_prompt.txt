@@ -1,0 +1,64 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search='        for (int i = 1; i <= k; i++) {\n            long maxsum = Long.MIN_VALUE;\n            long curr = Long.MIN_VALUE;\n            long valueMul = (i % 2 == 1) ? (long)(k + 1 - i) : (long)(i - 1 - k);\n            for (int j = i - 1; j < nums.length; j++) {\n                long value = nums[j] * valueMul;\n                curr = curr + value;\n                curr = Math.max(curr, dp[i - 1][j] + value);\n                maxsum = Math.max(maxsum, curr);\n                dp[i][j + 1] = maxsum;\n            }\n        }'
+>>>> Your previous output was:
+We need to avoid overflow when adding to the initial `curr = Long.MIN_VALUE`.  Instead of doing `curr + value` unconditionally (which can underflow and wrap to a huge positive), we should compute  
+`curr = Math.max(dp[i-1][j], curr) + value;`  
+so that on the first iteration (when `curr` is `Long.MIN_VALUE`) we always use `dp[i-1][j]` as the base.  
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        for (int i = 1; i <= k; i++) {\n            long maxsum = Long.MIN_VALUE;\n            long curr = Long.MIN_VALUE;\n            long valueMul = (i % 2 == 1) ? (long)(k + 1 - i) : (long)(i - 1 - k);\n            for (int j = i - 1; j < nums.length; j++) {\n                long value = nums[j] * valueMul;\n                curr = curr + value;\n                curr = Math.max(curr, dp[i - 1][j] + value);\n                maxsum = Math.max(maxsum, curr);\n                dp[i][j + 1] = maxsum;\n            }\n        }",
+    "replace": "        for (int i = 1; i <= k; i++) {\n            long maxsum = Long.MIN_VALUE;\n            long curr = Long.MIN_VALUE;\n            long valueMul = (i % 2 == 1) ? (long)(k + 1 - i) : (long)(i - 1 - k);\n            for (int j = i - 1; j < nums.length; j++) {\n                long value = nums[j] * valueMul;\n                // avoid underflow on the first add by taking the larger of dp[i-1][j] and curr\n                curr = Math.max(dp[i - 1][j], curr) + value;\n                maxsum = Math.max(maxsum, curr);\n                dp[i][j + 1] = maxsum;\n            }\n        }"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+import java.math.BigInteger;
+
+class Solution {
+    public long maximumStrength(int[] nums, int k) {
+        BigInteger[][] dp = new BigInteger[k + 1][nums.length + 1];
+        for (int i = 0; i <= k; i++) {
+            for (int j = 0; j <= nums.length; j++) {
+                dp[i][j] = BigInteger.ZERO;
+            }
+        }
+
+        for (int i = 1; i <= k; i++) {
+            BigInteger maxsum = BigInteger.valueOf(Long.MIN_VALUE);
+            BigInteger curr = BigInteger.valueOf(Long.MIN_VALUE);
+            int multiplier = (i % 2 == 1) ? k + 1 - i : i - 1 - k;
+            for (int j = i - 1; j < nums.length; j++) {
+                curr = curr.add(BigInteger.valueOf(nums[j]).multiply(BigInteger.valueOf(multiplier)));
+                curr = curr.max(dp[i - 1][j].add(BigInteger.valueOf(nums[j]).multiply(BigInteger.valueOf(multiplier))));
+                maxsum = maxsum.max(curr);
+                dp[i][j + 1] = maxsum;
+            }
+        }
+
+        return dp[k][nums.length].longValue();
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1 1
+  expected output: 1
+Example 2:
+  input: 1,2,3,-1,2 3
+  expected output: 22
+Example 3:
+  input: 12,-2,-2,-2,-2 5
+  expected output: 64
+Example 4:
+  input: -1,-2,-3 1
+  expected output: -1
+Example 5:
+  input: 5,-1,3,2,-3 3
+  expected output: 22
+

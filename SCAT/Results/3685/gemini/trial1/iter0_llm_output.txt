@@ -1,0 +1,13 @@
+The original code is inefficient because it creates and stores all subarrays of size 3 in a list of lists before iterating through them again to check the condition. This leads to unnecessary memory allocation (O(N) space complexity) and multiple passes over the data, which is slow due to object creation and garbage collection overhead.
+
+The improved solution eliminates this intermediate storage. It uses a single loop to iterate through the array, considering each "sliding window" of three elements at a time. The condition is checked directly on the array elements within this single pass. This approach significantly reduces memory usage to O(1) and improves runtime by avoiding the overhead of list creation. Additionally, the calculation is performed using `long` to prevent potential integer overflow, making the code more robust and correct for a wider range of inputs.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<List<Integer>> result = new ArrayList<>();\n        int k = 3;\n        int sum = 0;\n\n        for (int i = 0; i <= nums.length - k; i++) {\n            List<Integer> subarray = new ArrayList<>();\n            for (int j = i; j < i + k; j++) {\n                subarray.add(nums[j]);\n            }\n            result.add(subarray);\n        }\n        for(List s: result) {\n            int n = (int) s.get(0) + (int)s.get(2);\n            if(n * 2 ==(int)s.get(1)) {\n                sum += 1;\n            }\n        }\n        return sum;",
+    "replace": "        int count = 0;\n        // Iterate through the array using a sliding window of size 3,\n        // which is much more efficient than creating subarray objects.\n        for (int i = 0; i <= nums.length - 3; i++) {\n            // Use 'long' in the calculation to prevent potential integer overflow.\n            if (((long) nums[i] + nums[i + 2]) * 2 == nums[i + 1]) {\n                count++;\n            }\n        }\n        return count;"
+  }
+]
+```

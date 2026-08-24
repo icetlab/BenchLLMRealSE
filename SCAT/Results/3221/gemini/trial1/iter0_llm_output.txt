@@ -1,0 +1,11 @@
+The primary performance improvement is the removal of an unused `Scanner` object that was created on every method call. This avoids the unnecessary overhead of object allocation and initialization. For better code quality and maintainability, the variable `l` is renamed to the more descriptive `peaks`, and the code is reformatted to follow standard Java conventions.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "      Scanner sc=new Scanner(System.in);\n      List<Integer>l=new ArrayList<>();\n      for(int i=1;i<mountain.length-1;i++){\n        \n            if(mountain[i]>mountain[i-1] && mountain[i]>mountain[i+1])\n            l.add(i);\n        }\n      return l;  ",
+    "replace": "      List<Integer> peaks = new ArrayList<>();\n      for (int i = 1; i < mountain.length - 1; i++) {\n          if (mountain[i] > mountain[i - 1] && mountain[i] > mountain[i + 1]) {\n              peaks.add(i);\n          }\n      }\n      return peaks;"
+  }
+]
+```

@@ -1,0 +1,18 @@
+The original code uses a recursive approach with memoization. The algorithm's time complexity is efficient because the number of unique states visited is small, approximately `O((log k)^2)`. However, the implementation has a critical flaw for large values of `k`: integer overflow.
+
+The `currentStair` variable is an `int`, but as we jump up by powers of two, its value can exceed `Integer.MAX_VALUE`. This overflow can lead to several problems:
+1.  The calculated `currentStair` becomes incorrect (e.g., a large positive number wraps around to a negative one).
+2.  The crucial pruning condition `if(move.currentStair - k > 1)` may fail to trigger, as an overflowed negative `currentStair` would not be greater than `k + 1`.
+3.  Failure to prune leads to exploring an unnecessarily large number of states, causing a significant performance degradation, potentially resulting in a `StackOverflowError` or a "Time Limit Exceeded" verdict.
+
+My improvement addresses this by changing `currentStair` to a `long`. This prevents overflow during stair calculations. I also update the up-jump calculation to `1L << currentJump` to ensure the bit shift operates on a `long`, preventing overflow within that expression itself. These changes make the implementation robust, ensuring the pruning logic works correctly for all valid `k`, thereby preserving the algorithm's intended high performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "private record Move(Direction lastDirection, int currentStair, int currentJump) {\n\n        public Move down() {\n            return new Move(Direction.DOWN, currentStair - 1, currentJump);\n        }\n\n        public Move up() {\n            return new Move(Direction.UP, currentStair + (1 << currentJump), currentJump + 1);\n        }\n    }",
+    "replace": "private record Move(Direction lastDirection, long currentStair, int currentJump) {\n\n        public Move down() {\n            return new Move(Direction.DOWN, currentStair - 1, currentJump);\n        }\n\n        public Move up() {\n            return new Move(Direction.UP, currentStair + (1L << currentJump), currentJump + 1);\n        }\n    }"
+  }
+]
+```

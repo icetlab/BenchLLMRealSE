@@ -1,0 +1,5 @@
+lrs
+scm
+l,r,s
+s,c,m
+8,9,7

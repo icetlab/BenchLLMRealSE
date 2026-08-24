@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int numberOfAlternatingGroups(int[] colors) {\n        int start=0, end=0, count=0;\n        HashMap<Integer, Integer> map = new HashMap<>();\n        while(start<colors.length){\n            int color = colors[end%colors.length];\n            map.put(color, map.getOrDefault(color, 0)+1);\n            if(end-start+1==3){\n                int startColor = colors[start];\n                if(map.size()==2 && startColor==color){\n                    count++;\n                }\n                map.put(startColor, map.get(startColor)-1);\n                if(map.get(startColor)==0){\n                    map.remove(startColor);\n                }\n                start++;\n            }\n            end++;\n        }\n\n        return count;\n    }\n}",
+    "replace": "class Solution {\n    public int numberOfAlternatingGroups(int[] colors) {\n        int n = colors.length;\n        int count = 0;\n        for (int i = 0; i < n; i++) {\n            int a = colors[i];\n            int b = colors[(i + 1) % n];\n            int c = colors[(i + 2) % n];\n            if (a != b && b != c && a == c) {\n                count++;\n            }\n        }\n        return count;\n    }\n}"
+  }
+]
+```

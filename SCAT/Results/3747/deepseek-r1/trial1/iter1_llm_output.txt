@@ -1,0 +1,16 @@
+Optimization intent: replace the `Arrays.sort`-based approach with a linear-time `Collections.max` over the existing list, removing the O(n log n) sorting step while preserving the original maximum result.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "Arrays.sort(array);",
+    "replace": "// Arrays.sort(array);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "return array[array.length-1];",
+    "replace": "return java.util.Collections.max(l);"
+  }
+]
+```

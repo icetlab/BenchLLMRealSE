@@ -1,0 +1,11 @@
+I replaced the quadratic scan of bArray for each aIndex with a logarithmic lookup using `Collections.binarySearch`, reducing the time complexity from O(M·N) to O(M·log N).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        while(i <  aArray.size())\n        {\n            for(int j=0;j<  bArray.size();j++)\n            {\n                if(Math.abs(aArray.get(i) -  bArray.get(j)) <=k )\n                {\n                    answer.add(aArray.get(i));\n                    break;\n                }\n            }\n            i++;\n        }",
+    "replace": "        for (int ai : aArray) {\n            int lo = ai - k;\n            int idx = java.util.Collections.binarySearch(bArray, lo);\n            if (idx < 0) idx = -idx - 1;\n            if (idx < bArray.size() && bArray.get(idx) <= ai + k) {\n                answer.add(ai);\n            }\n        }"
+  }
+]
+```

@@ -1,0 +1,11 @@
+The original loop is already linear, but the parity check can be made cheaper by replacing the modulo and addition with a bitwise XOR operation. Two numbers have an even sum exactly when their least significant bits are equal, so `((v ^ f) & 1) == 0` is equivalent and faster.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int minOperations(int[] nums) {\n        var f = 0;\n\n        for (var v : nums) {\n            if ((v + f) % 2 == 0) {\n                f++;\n            }\n        }\n\n        return f;\n    }",
+    "replace": "    public int minOperations(int[] nums) {\n        int f = 0;\n\n        for (int v : nums) {\n            if (((v ^ f) & 1) == 0) {\n                f++;\n            }\n        }\n\n        return f;\n    }"
+  }
+]
+```

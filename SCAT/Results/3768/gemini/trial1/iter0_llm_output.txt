@@ -1,0 +1,13 @@
+The provided Java code repeatedly processes a string of digits, creating new strings and performing costly string-to-integer conversions in a loop. This approach is inefficient due to the overhead of string concatenation and parsing.
+
+My improvement replaces this string-based logic with a more performant, array-based numerical approach. The input string is converted into an integer array just once. All subsequent transformations are done using fast integer arithmetic on this array. The complex `for` loop is replaced with a straightforward `while` loop that continues until the array is reduced to two digits. This new implementation avoids expensive string operations, leading to a significant performance boost, and is also more robust in handling edge cases.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        boolean flag=false;\n        int n=s.length();\n        String newString=\"\";\n\n        for(int i=0;i<n-1;i++){\n            int first=Integer.parseInt(String.valueOf(s.charAt(i)));\n            int second=Integer.parseInt(String.valueOf(s.charAt(i+1)));\n            int newNumber=(first+second)%10;\n            newString+=newNumber;\n            if(i>=(n-2)){\n                if(newString.length()==2){\n                   break;\n                }else{\n                    i=-1;\n                    s=newString;\n                    newString=\"\";\n                    n=s.length();\n                }\n            }\n        }\n        //System.out.print(\"NewString: \"+newString);\n        if(newString.charAt(0)==newString.charAt(1)){\n            return true;\n        }\n\n        return false;",
+    "replace": "        int n = s.length();\n        if (n < 2) {\n            return false;\n        }\n\n        int[] digits = new int[n];\n        for (int i = 0; i < n; i++) {\n            digits[i] = s.charAt(i) - '0';\n        }\n\n        while (digits.length > 2) {\n            int[] nextDigits = new int[digits.length - 1];\n            for (int i = 0; i < digits.length - 1; i++) {\n                nextDigits[i] = (digits[i] + digits[i + 1]) % 10;\n            }\n            digits = nextDigits;\n        }\n\n        return digits[0] == digits[1];"
+  }
+]
+```

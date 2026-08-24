@@ -1,0 +1,21 @@
+I’ve removed the unnecessary initial sort, collapsed the double-orientation checks into a single call, and replaced the point-in-rectangle logic with simple bounding‐box math and reference checks to cut down on overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "Arrays.sort(points, (point1, point2) -> point2[1] - point1[1]);",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "if (isValidPair(points, points[i], points[j])) {\\n                count++;\\n            }\\n            \\n            if (isValidPair(points, points[j], points[i])) {\\n                count++;\\n            }",
+    "replace": "if (isValidPair(points, points[i], points[j])) {\\n                count++;\\n            }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "private boolean isValidPair(int[][] points, int[] point1, int[] point2) {\\n        int upperLeftX = point1[0];\\n        int upperLeftY = point1[1];\\n        int lowerRightX = point2[0];\\n        int lowerRightY = point2[1];\\n        \\n        if (upperLeftX > lowerRightX || upperLeftY < lowerRightY) return false;\\n        for (int[] point : points) {\\n            int x = point[0];\\n            int y = point[1];\\n             // for points[0] & points[1] count all such pairs where\\n             // no point is present in between them\\n\\n            if (x >= upperLeftX && x <= lowerRightX && y <= upperLeftY && y >= lowerRightY && !Arrays.equals(point, point1) && !Arrays.equals(point, point2)) {\\n                return false;\\n            }\\n        }\\n\\n        return true;\\n    }",
+    "replace": "private boolean isValidPair(int[][] points, int[] p1, int[] p2) {\\n        int ulx = Math.min(p1[0], p2[0]);\\n        int uly = Math.max(p1[1], p2[1]);\\n        int lrx = Math.max(p1[0], p2[0]);\\n        int lry = Math.min(p1[1], p2[1]);\\n        for (int[] point : points) {\\n            if (point == p1 || point == p2) continue;\\n            int x = point[0];\\n            int y = point[1];\\n            if (x >= ulx && x <= lrx && y <= uly && y >= lry) {\\n                return false;\\n            }\\n        }\\n\\n        return true;\\n    }"
+  }
+]
+```

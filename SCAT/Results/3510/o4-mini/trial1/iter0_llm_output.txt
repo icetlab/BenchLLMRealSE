@@ -1,0 +1,16 @@
+I replaced the custom recursive merge‐sort with Java’s highly optimized Arrays.sort and added the necessary import, reducing code complexity and improving runtime performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.Arrays;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "mergeSort(maximumHeight, 0, maximumHeight.length-1);",
+    "replace": "Arrays.sort(maximumHeight);"
+  }
+]
+```

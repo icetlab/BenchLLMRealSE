@@ -1,0 +1,15 @@
+The original solution has performance issues related to its use of a large, fixed-size array for dynamic programming. The array's size is proportional to the maximum possible value in the input `nums`, leading to high memory consumption and slow processing for inputs with large but sparse numbers. Specifically, the final loop to find the maximum value iterates over this entire large array, making the time complexity dependent on the magnitude of the input values, not just the number of elements.
+
+My improvement replaces this array with a `java.util.HashMap`. This change has two key benefits:
+1.  **Memory Efficiency**: The `HashMap` stores DP states only for values relevant to the input, reducing space complexity from O(max(value)) to O(N), where N is the number of elements in `nums`.
+2.  **Time Efficiency**: I've implemented a more direct, forward-pass dynamic programming approach. This new approach iterates through the sorted `nums` array once, calculating sequence lengths and tracking the maximum length on the fly. This eliminates the final, slow loop over the DP table, improving the overall time complexity from O(N log N + max(value)) to O(N log N), which is dominated by the initial sorting step.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int n = nums.length;\n        int[] dp = new int[1000002 + 2];  // dp of size 1e6 + 2 (maximum nums[i] is 1e6)\n\n        for (int j = n - 1; j >= 0; j--) {\n            dp[nums[j]] = Math.max(dp[nums[j]], 1 + dp[nums[j] + 1]);\n            dp[nums[j] + 1] = Math.max(dp[nums[j] + 1], 1 + dp[nums[j] + 2]);\n        }\n\n        int ans = 0;\n        for (int val : dp) {\n            ans = Math.max(ans, val);\n        }\n        return ans;",
+    "replace": "        // dp maps the end of a consecutive sequence to its length.\n        java.util.Map<Integer, Integer> dp = new java.util.HashMap<>();\n        int maxLen = 0;\n\n        for (int num : nums) {\n            // Option 1: Use num as (num + 1). This extends a sequence ending at num.\n            int lenUsingNumPlus1 = dp.getOrDefault(num, 0) + 1;\n            \n            // Option 2: Use num as is. This extends a sequence ending at num - 1.\n            int lenUsingNum = dp.getOrDefault(num - 1, 0) + 1;\n\n            // Update lengths for sequences ending at num and num + 1.\n            dp.put(num, lenUsingNum);\n            dp.put(num + 1, lenUsingNumPlus1);\n\n            // Track the maximum length found so far.\n            maxLen = Math.max(maxLen, lenUsingNum);\n            maxLen = Math.max(maxLen, lenUsingNumPlus1);\n        }\n\n        return maxLen;"
+  }
+]
+```

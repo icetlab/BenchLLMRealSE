@@ -1,0 +1,61 @@
+package effibenchjmh.task3739.original;
+
+import java.util.*;
+import java.util.stream.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+import java.math.*;
+import effibenchjmh.common.Pair;
+
+class Solution {
+    static int M = (int) 1e9 + 7;
+    static long[] fact = new long[(int) 1e5];
+
+    static {
+        fact[0] = 1;
+        for (int i = 1; i < (int) 1e5; i++) {
+            fact[i] = i * fact[i - 1];
+            fact[i] %= M;
+        }
+    }
+
+    public long cnr(int n, int r) {
+        return fact[n] * power2(fact[n - r], M - 2) % M * power2(fact[r], M - 2) % M;
+    }
+
+    public static long power2(long x, long n) {
+
+        long res = 1;
+        while (n > 0) {
+            if (n % 2 == 1) {
+                res *= x;
+                res %= M;
+            }
+            x *= x;
+            x %= M;
+            n >>= 1;
+        }
+        return res;
+    }
+
+    public int distanceSum(int m, int n, int k) {
+        long res = 0;
+        long time = cnr(n * m - 2, k - 2);
+        var ct = new HashMap<Integer, Long>();
+        for (int i = 1; i <= n; i++)
+            for (int j = 1; j <= m; j++) {
+                if (i == j && i == 1)
+                    continue;
+                if (i == 1 || j == 1)
+                    ct.merge(i + j - 2, (long) (n - i + 1) * (m - j + 1) % M, (a, b) -> (a + b) % M);
+                else
+                    ct.merge(i + j - 2, (long) (n - i + 1) * (m - j + 1) % M * 2 % M, (a, b) -> (a + b) % M);
+            }
+        for (var en : ct.entrySet()) {
+            res += en.getKey() * en.getValue() % M * time % M;
+            res %= M;
+        }
+
+        return (int) res;
+    }
+}

@@ -1,0 +1,26 @@
+I’ve optimized the sliding window by eliminating redundant map lookups for the “right” element, tracking its count in a local variable, initialized the answer to 0, and removed the unused helper method to streamline the class.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public boolean isGood(HashMap<Integer, Integer> map, int k) {\n        for (int val : map.values())\n            if (val > k)\n                return false;\n        return true;\n    }\n\n",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int ans = Integer.MIN_VALUE;",
+    "replace": "        int ans = 0;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            map.put(nums[right], map.getOrDefault(nums[right], 0) + 1);",
+    "replace": "            int cnt = map.getOrDefault(nums[right], 0) + 1;\n            map.put(nums[right], cnt);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            while(map.get(nums[right]) > k) {\n                map.put(nums[left], map.get(nums[left]) - 1);\n                if ((int) map.get(nums[left]) == 0)\n                    map.remove(nums[left]);\n                left++;\n            }",
+    "replace": "            while (cnt > k) {\n                if (nums[left] == nums[right]) {\n                    cnt--;\n                }\n                map.put(nums[left], map.get(nums[left]) - 1);\n                if (map.get(nums[left]) == 0)\n                    map.remove(nums[left]);\n                left++;\n            }"
+  }
+]
+```

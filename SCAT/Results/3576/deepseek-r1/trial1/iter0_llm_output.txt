@@ -1,0 +1,16 @@
+The main optimization is to replace the `HashSet`-based adjacency lists and recursive DFS with a single iterative DFS that uses primitive arrays. Subtree sizes are accumulated as each node is exited, avoiding recursion, boxing, and repeated set removals.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int[] findSubtreeSizes(int[] parent, String s) {\n        int n = parent.length;\n\n        Set<Integer>[] adj = new Set[n];\n        Set<Integer>[] adj2 = new Set[n];\n\n        for(int i = 0; i < n; i++) {\n            adj[i] = new HashSet();\n            adj2[i] = new HashSet();\n        }\n\n        for(int i = 1; i < n; i++) {\n            adj[parent[i]].add(i);\n            adj2[parent[i]].add(i);\n        }\n\n       // System.out.println(adj2[1].toString());\n\n        dfs(0, adj, s, new Integer[27], -1, adj2);\n    \n        int[] sizes = new int[n];\n\n\n        findSize(0, adj2, sizes);\n\n      //  System.out.println(adj2[1].toString());\n\n        return sizes;\n    }",
+    "replace": "    public int[] findSubtreeSizes(int[] parent, String s) {\n        int n = parent.length;\n\n        int[] head = new int[n];\n        int[] next = new int[n];\n        java.util.Arrays.fill(head, -1);\n\n        for (int i = 1; i < n; i++) {\n            int p = parent[i];\n            next[i] = head[p];\n            head[p] = i;\n        }\n\n        int[] closest = new int[26];\n        java.util.Arrays.fill(closest, -1);\n        int[] saved = new int[n];\n        int[] sizes = new int[n];\n\n        int[] stack = new int[n];\n        int top = 0;\n\n        int root = 0;\n        int rootChar = s.charAt(root) - 'a';\n        closest[rootChar] = root;\n        saved[root] = -1;\n        sizes[root] = 1;\n        stack[top++] = root;\n\n        while (top > 0) {\n            int u = stack[top - 1];\n            int v = head[u];\n\n            if (v != -1) {\n                head[u] = next[v];\n\n                int ch = s.charAt(v) - 'a';\n                saved[v] = closest[ch];\n                closest[ch] = v;\n                sizes[v] = 1;\n                stack[top++] = v;\n            } else {\n                top--;\n\n                int p = (saved[u] != -1) ? saved[u] : parent[u];\n                if (p != -1) {\n                    sizes[p] += sizes[u];\n                }\n\n                closest[s.charAt(u) - 'a'] = saved[u];\n            }\n        }\n\n        return sizes;\n    }"
+  }
+]
+```

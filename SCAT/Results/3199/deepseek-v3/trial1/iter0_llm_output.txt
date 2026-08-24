@@ -1,0 +1,13 @@
+## Improvement Intent
+
+The original code uses three nested loops iterating up to `n` (which can be large, e.g., 50), resulting in O(n³) time complexity. We can optimize by reducing the loops: since `i + j + k = n`, once we choose `i` and `j`, `k` is determined as `n - i - j`. We only need to check if `k` is within the limit and non-negative. This reduces complexity to O(n²) and eliminates the innermost loop entirely.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int distributeCandies(int n, int limit) {\n        int count=0;\n        for(int i=0; i<=n; i++){\n            if(i>limit) continue;\n            for(int j=0; j<=n; j++){\n                if(j>limit) continue;\n                for(int k=0; k<=n; k++){\n                    if(k>limit) continue;\n\n                    int sum=i+j+k;\n                    if(sum==n) count++;\n                }\n            }\n        }\n        return count;\n    }\n}",
+    "replace": "class Solution {\n    public int distributeCandies(int n, int limit) {\n        int count = 0;\n        for (int i = 0; i <= Math.min(n, limit); i++) {\n            for (int j = 0; j <= Math.min(n - i, limit); j++) {\n                int k = n - i - j;\n                if (k >= 0 && k <= limit) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}"
+  }
+]
+```

@@ -1,0 +1,19 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.util.*;\n\nclass Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        //define input variables\n        int cols = grid[0].length;\n        int rows = grid.length;\n        int inp_len = cols*rows;\n        //define output variables\n        int out_len = (inp_len-1)/2 + 1;\n        int[] output = new int[out_len];",
+    "replace": "        int cols = grid[0].length;\n        int rows = grid.length;\n        int total = cols * rows;\n        int outLen = (total + 1) / 2;\n        List<Integer> result = new ArrayList<>(outLen);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for(int i = 0; i < out_len; i++){\n            int r = (i*2)/cols;\n            //int c = ((r%2)*(cols-1)) + (1-(r%2)*2)*((i*2)%cols);\n            int c = (i*2)%cols;\n            if(r%2==1){c=cols-1-c;}\n            output[i] = grid[r][c]; \n        }\n        List<Integer> list = Arrays.stream(output).boxed().toList();\n        return list;",
+    "replace": "        for (int idx = 0; idx < outLen; idx++) {\n            int pos = idx * 2;\n            int r = pos / cols;\n            int c = pos % cols;\n            if ((r & 1) == 1) {\n                c = cols - 1 - c;\n            }\n            result.add(grid[r][c]);\n        }\n        return result;"
+  }
+]
+```

@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int[] numberGame(int[] nums) {\n        List<Integer> list = new ArrayList<>();\n        for(int i : nums) list.add(i);\n        Collections.sort(list);\n        int[] ans = new int[nums.length];\n        int c=nums.length;\n        int i=0;\n        int ptr=0;\n        while(c!=0){\n            c-=2;\n            int firstSmall = list.get(ptr++);\n            int secondSmall = list.get(ptr++);\n            ans[i++] = secondSmall;\n            ans[i++] = firstSmall;\n        }\n    return ans;\n    }\n}",
+    "replace": "import java.util.Arrays;\n\nclass Solution {\n    public int[] numberGame(int[] nums) {\n        Arrays.sort(nums);\n        int[] ans = new int[nums.length];\n        for (int i = 0; i < nums.length; i += 2) {\n            ans[i] = nums[i + 1];\n            ans[i + 1] = nums[i];\n        }\n        return ans;\n    }\n}"
+  }
+]
+```

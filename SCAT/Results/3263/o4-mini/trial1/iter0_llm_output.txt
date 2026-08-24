@@ -1,0 +1,11 @@
+I’ve replaced the ArrayList creation and full sort with a single-pass scan to find the two smallest elements, reducing both time and memory overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int minimumCost(int[] nums) {\n        ArrayList<Integer> arr= new ArrayList<>();\n        for(int i : nums){\n            arr.add(i);\n        }\n        int first =arr.remove(0);\n        Collections.sort(arr);\n        int result = first+arr.get(0)+arr.get(1);\n        return result;\n    }",
+    "replace": "public int minimumCost(int[] nums) {\n        int first = nums[0];\n        int min1 = Integer.MAX_VALUE, min2 = Integer.MAX_VALUE;\n        for (int i = 1; i < nums.length; i++) {\n            int v = nums[i];\n            if (v < min1) {\n                min2 = min1;\n                min1 = v;\n            } else if (v < min2) {\n                min2 = v;\n            }\n        }\n        return first + min1 + min2;\n    }"
+  }
+]
+```

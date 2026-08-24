@@ -1,0 +1,36 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int distributeCandies(int n, int limit) {
+        int count=0;
+        for(int i=0; i<=n; i++){
+            if(i>limit) continue;
+            for(int j=0; j<=n; j++){
+                if(j>limit) continue;
+                for(int k=0; k<=n; k++){
+                    if(k>limit) continue;
+
+                    int sum=i+j+k;
+                    if(sum==n) count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1 1
+  expected output: 3
+Example 2:
+  input: 5 2
+  expected output: 3
+Example 3:
+  input: 3 3
+  expected output: 10
+Example 4:
+  input: 10 3
+  expected output: 0
+Example 5:
+  input: 50 1
+  expected output: 0

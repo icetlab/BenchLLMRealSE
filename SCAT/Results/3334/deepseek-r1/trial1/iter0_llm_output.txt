@@ -1,0 +1,11 @@
+The main improvement is to avoid the overhead of `Arrays.stream(a).sum()` by summing the array with a simple loop, while keeping the same greedy logic. I also fully qualify `java.util.Arrays.sort` so the file does not rely on any implicit imports.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int minimumBoxes(int[] a, int[] c) {\n        int ans = 0;\n        int s = Arrays.stream(a).sum();\n        Arrays.sort(c);\n\n        int i = c.length - 1;\n        while (i >= 0) {\n            s -= c[i];\n            ans++;\n            if (s <= 0)\n                break;\n            i--;\n        }\n\n        return ans;\n    }",
+    "replace": "public int minimumBoxes(int[] a, int[] c) {\n        int ans = 0;\n        int s = 0;\n        for (int value : a) {\n            s += value;\n        }\n        java.util.Arrays.sort(c);\n\n        for (int i = c.length - 1; i >= 0; i--) {\n            s -= c[i];\n            ans++;\n            if (s <= 0) {\n                break;\n            }\n        }\n\n        return ans;\n    }"
+  }
+]
+```

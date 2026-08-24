@@ -1,0 +1,49 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int addedInteger(int[] nums1, int[] nums2) {
+        int freq1[] = new int[1001];
+        int freq2[] = new int[1001];
+
+        for(int i = 0; i< nums1.length; i++){
+            freq1[nums1[i]]++;
+            freq2[nums2[i]]++;
+        }
+
+        int num1 = -1;
+        int num2 = -1;
+
+        for(int i = 0; i< 1001; i++){
+            if(num1 == -1 && freq1[i] != 0) num1 = i;
+            if(num2 == -1 && freq2[i] != 0) num2 = i;
+        }
+    return num2 - num1;
+    }
+}
+
+/**
+class Solution {
+    public int addedInteger(int[] nums1, int[] nums2) {
+        Arrays.sort(nums1);
+        Arrays.sort(nums2);
+
+        return nums2[0] - nums1[0];
+    }
+}
+ */
+---------
+>> Example test cases are:
+Example 1:
+  input: 759;759
+  expected output: 0
+Example 2:
+  input: 808,354,942,392;104,692,558,142
+  expected output: -250
+Example 3:
+  input: 517,574,27,616;517,27,574,616
+  expected output: 0
+Example 4:
+  input: 348,714,432;348,432,714
+  expected output: 0
+Example 5:
+  input: 389,99;389,99
+  expected output: 0

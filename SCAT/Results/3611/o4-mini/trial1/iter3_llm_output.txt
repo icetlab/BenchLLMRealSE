@@ -1,0 +1,11 @@
+I’m injecting a fast bitwise-only path at the top of the loop and short-circuiting with `continue`, so we skip the old string-based logic entirely. This preserves behavior but avoids all the binary-string manipulation.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        for(int j=0; j<n; j++){",
+    "replace": "        for(int j=0; j<n; j++){\n            int x = nums.get(j);\n            if (x == 1 || x == 2) {\n                ans[j] = -1;\n                continue;\n            }\n            int L = 32 - Integer.numberOfLeadingZeros(x);\n            if (x == (1 << L) - 1) {\n                ans[j] = x - (1 << (L - 1));\n            } else {\n                int r = Integer.numberOfTrailingZeros(~x);\n                if (r > 0) {\n                    ans[j] = x - (1 << (r - 1));\n                } else {\n                    ans[j] = x;\n                }\n            }\n            continue;"
+  }
+]
+```

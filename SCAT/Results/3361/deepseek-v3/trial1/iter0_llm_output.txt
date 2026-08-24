@@ -1,0 +1,20 @@
+## Improvement Intent
+
+The original code has several performance issues:
+1. **Inefficient loop logic**: It loops through numbers 0-9 for each `?` position, but the logic for finding the latest time is convoluted and error-prone.
+2. **Unnecessary string operations**: Multiple string replacements and parsing operations are performed.
+3. **Incorrect algorithm**: The approach of calculating "diff" from 11 or 59 and then subtracting doesn't correctly handle all cases (e.g., hours 10-19 are valid, but the code only checks 0-9).
+
+The fix replaces the entire algorithm with a simpler, more efficient approach:
+- For each `?` in the time string, try the maximum valid digit (from 9 down to 0) and check if the resulting time is valid.
+- This eliminates unnecessary loops and string operations while correctly handling all time constraints.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public String findLatestTime(String s) {\n                String[] sa=s.split(\":\");\n        int min1=Integer.MAX_VALUE;\n        int min2=Integer.MAX_VALUE;\n\n        for(int i=0;i<sa.length;i++){\n            String value=sa[i];\n            if(i==0) {\n                if(value.charAt(0)=='?' && value.charAt(1)=='?'){\n                    min1=0;\n                }else{\n                        for (int number = 0; number < 10; number++) {\n                        String s1=value.replace(\"?\", String.valueOf(number));\n                        int nb = Integer.parseInt(s1);\n                        int diff = 11 - nb;\n                        if(diff>=0)\n                        min1 = Math.min(min1, diff);\n                    }\n                }    \n                \n            }else {\n                 if(value.charAt(0)=='?' && value.charAt(1)=='?'){\n                    min2=0;\n                }else{\n                for (int number = 0; number < 10; number++) {\n                    String s2 = value.replace(\"?\", String.valueOf(number));\n                    int nb = Integer.parseInt(s2);\n                    int diff = 59 - nb;\n                    if(diff>=0)\n                    min2 = Math.min(min2, diff);\n                }\n              }\n            }\n\n        }\n\n        String s4= String.valueOf(11-min1);\n        if(s4.length()==1)\n        s4=\"0\"+s4;\n        String s5=String.valueOf(59-min2);\n       if(s5.length()==1)\n        s5=\"0\"+s5;\n        String ans=String.join(\":\",s4,s5);\n\n        return ans;\n    }\n}",
+    "replace": "class Solution {\n    public String findLatestTime(String s) {\n        char[] chars = s.toCharArray();\n        \n        // Process hours (positions 0 and 1)\n        for (int i = 0; i < 2; i++) {\n            if (chars[i] == '?') {\n                for (char c = '9'; c >= '0'; c--) {\n                    chars[i] = c;\n                    if (isValidHour(chars[0], chars[1])) {\n                        break;\n                    }\n                }\n            }\n        }\n        \n        // Process minutes (positions 3 and 4)\n        for (int i = 3; i < 5; i++) {\n            if (chars[i] == '?') {\n                for (char c = '9'; c >= '0'; c--) {\n                    chars[i] = c;\n                    if (isValidMinute(chars[3], chars[4])) {\n                        break;\n                    }\n                }\n            }\n        }\n        \n        return new String(chars);\n    }\n    \n    private boolean isValidHour(char h1, char h2) {\n        int hour = (h1 - '0') * 10 + (h2 - '0');\n        return hour >= 0 && hour <= 11;\n    }\n    \n    private boolean isValidMinute(char m1, char m2) {\n        int minute = (m1 - '0') * 10 + (m2 - '0');\n        return minute >= 0 && minute <= 59;\n    }\n}"
+  }
+]
+```

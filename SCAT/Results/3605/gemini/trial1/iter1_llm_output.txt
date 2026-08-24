@@ -1,0 +1,18 @@
+The original code uses a brute-force approach with a nested loop to find the smallest integer `j` for each number `num` in the input list such that `j | (j+1) == num`. This is inefficient, with a time complexity proportional to the magnitude of the numbers in the input, making it slow for large values.
+
+The performance is improved by replacing the inner loop with a direct mathematical formula derived from bitwise analysis. This allows for a constant-time calculation for each number.
+
+1.  **Parity Check**: The expression `j | (j+1)` is always odd for any non-negative `j`. Therefore, if the input number `num` is even, no solution exists, and the result is -1.
+2.  **Direct Formula**: For an odd `num`, the smallest non-negative `j` satisfying the condition can be calculated directly using the formula: `j = num - (Integer.lowestOneBit(num + 1) / 2)`.
+
+This optimization reduces the overall time complexity from being dependent on the values in `nums` to being linear in the size of the list, O(N), which is a significant improvement.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int[] arr = new int[nums.size()];\n        for (int i=0; i<nums.size(); i++){\n            for (int j=0; j<nums.get(i); j++){\n                if ((j | (j+1)) == nums.get(i)){\n                    arr[i]=j;\n                    break;\n                }\n                if (arr[i]==0){\n                    arr[i]=-1;\n                } \n            }\n        }\n        return arr;",
+    "replace": "        int[] arr = new int[nums.size()];\n        for (int i = 0; i < nums.size(); i++) {\n            int num = nums.get(i);\n            if ((num & 1) == 0) {\n                arr[i] = -1;\n            } else {\n                arr[i] = num - (Integer.lowestOneBit(num + 1) / 2);\n            }\n        }\n        return arr;"
+  }
+]
+```

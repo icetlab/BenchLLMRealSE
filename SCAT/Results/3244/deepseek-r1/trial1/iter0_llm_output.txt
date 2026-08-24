@@ -1,0 +1,11 @@
+The original code uses a `HashMap` to store frequencies of all numbers, but only the count of the minimum value is needed. This introduces unnecessary memory overhead (O(n) space) and autoboxing cost. The improved version reduces space to O(1) by finding the minimum in a single pass, then counting its occurrences and checking divisibility in a second pass. It also replaces floating-point `Math.ceil` with integer arithmetic `(count + 1) / 2` for better performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int minimumArrayLength(int[] nums) {\n        HashMap<Integer,Integer> map=new HashMap<>();\n        int min=Integer.MAX_VALUE;\n\n        for(int i=0;i<nums.length;i++){\n            map.put(nums[i],map.getOrDefault(nums[i],0)+1);\n            min=Math.min(min,nums[i]);\n        }   \n\n        if(map.get(min)==1){\n            return 1;\n        }\n        else if(map.get(min)>1){\n            for(int i=0;i<nums.length;i++){\n                if(nums[i]%min!=0){\n                    return 1;\n                }\n            }\n        }\n        \n        return (int)Math.ceil((double)map.get(min)/2);\n    }",
+    "replace": "    public int minimumArrayLength(int[] nums) {\n        int min = Integer.MAX_VALUE;\n        for (int num : nums) {\n            if (num < min) min = num;\n        }\n\n        int count = 0;\n        for (int num : nums) {\n            if (num == min) {\n                count++;\n            } else if (num % min != 0) {\n                return 1;\n            }\n        }\n\n        if (count == 1) {\n            return 1;\n        }\n        return (count + 1) / 2;\n    }"
+  }
+]
+```

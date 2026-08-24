@@ -1,0 +1,11 @@
+I’ve replaced the HashSet-based tracking with fixed‐size boolean arrays to eliminate boxing/unboxing and HashSet overhead, yielding O(n) time and O(1) extra space.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int numberOfSpecialChars(String word) {\n        int count = 0;\n        Set<Character> set = new HashSet<>();\n        Set<Character> alreadyCounted = new HashSet<>();\n\n        for (char c : word.toCharArray()) {\n            if (set.contains(Character.toUpperCase(c))) {\n                if(alreadyCounted.contains(c)){\n                    count--;\n                    alreadyCounted.remove(Character.toUpperCase(c));\n                    alreadyCounted.remove(Character.toLowerCase(c));\n                }else\n                continue;\n            }\n            if (Character.toUpperCase(c) == c && set.contains(Character.toLowerCase(c))) {\n                alreadyCounted.add(c);\n                alreadyCounted.add(Character.toLowerCase(c));\n                count++;\n            }\n\n            set.add(c);\n        }\n\n        return count;\n    }",
+    "replace": "public int numberOfSpecialChars(String word) {\n        int count = 0;\n        boolean[] seenLower = new boolean[26];\n        boolean[] seenUpper = new boolean[26];\n        boolean[] counted = new boolean[26];\n\n        for (char c : word.toCharArray()) {\n            if (c < 'A' || (c > 'Z' && c < 'a') || c > 'z') continue;\n            int idx = (c <= 'Z') ? (c - 'A') : (c - 'a');\n\n            if (seenUpper[idx]) {\n                if (counted[idx]) {\n                    count--;\n                    counted[idx] = false;\n                } else {\n                    continue;\n                }\n            }\n            if (c <= 'Z' && seenLower[idx] && !counted[idx]) {\n                count++;\n                counted[idx] = true;\n            }\n            if (c <= 'Z') {\n                seenUpper[idx] = true;\n            } else {\n                seenLower[idx] = true;\n            }\n        }\n\n        return count;\n    }"
+  }
+]
+```

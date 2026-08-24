@@ -1,0 +1,16 @@
+Improvement intent: replace the innermost `while` loop’s one-by-one increments with a single arithmetic update. This keeps the original algorithm’s behavior but avoids iterating over potentially large value differences.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "grid[k][j]++;",
+    "replace": "int diff = grid[i][j] + 1 - grid[k][j];\n\t\t\t\t\tcount += diff;\n\t\t\t\t\tgrid[k][j] = grid[i][j] + 1;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "count++;",
+    "replace": "// count is updated in the replacement above"
+  }
+]
+```

@@ -1,0 +1,22 @@
+package effibenchjmh.task3226.llm_deepseekv3;
+
+import java.util.*;
+import java.util.stream.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+import java.math.*;
+import effibenchjmh.common.Pair;
+
+import java.util.Arrays;
+
+class Solution {
+    public int[] numberGame(int[] nums) {
+        Arrays.sort(nums);
+        int[] ans = new int[nums.length];
+        for (int i = 0; i < nums.length; i += 2) {
+            ans[i] = nums[i + 1];
+            ans[i + 1] = nums[i];
+        }
+        return ans;
+    }
+}

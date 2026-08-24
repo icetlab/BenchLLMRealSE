@@ -1,0 +1,26 @@
+I replaced the boxed `List<Integer>` bit‐counts with a primitive `int[]` and maintain a rolling OR (`currentOr`) to avoid repeated full scans and autoboxing. The sliding window now updates counts and OR inline, and we remove the now‐unused helper methods.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        //Initialize 'list' with 32 zeros to store bit counts\n        List<Integer> list = new ArrayList<>(Collections.nCopies(32, 0));",
+    "replace": "        //Initialize primitive counts and rolling OR\n        int[] counts = new int[32];\n        int currentOr = 0;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        while (j < n) { // O(n)\n            update(nums[j], list, 1); // Add nums[j] to the current window\n\n            //Check if the current window has a sum >= k\n            while (i <= j && getDecimalFromBinary(list) >= k) {\n                result = Math.min(result, j - i + 1);\n                update(nums[i], list, -1); // Remove nums[i] from the window\n                i++;\n            }\n\n            j++;\n        }",
+    "replace": "        while (j < n) {\n            int num = nums[j];\n            currentOr |= num;\n            for (int b = 0; b < 32; b++) {\n                if (((num >> b) & 1) == 1) {\n                    counts[b]++;\n                }\n            }\n            while (i <= j && currentOr >= k) {\n                result = Math.min(result, j - i + 1);\n                int rem = nums[i];\n                for (int b = 0; b < 32; b++) {\n                    if (((rem >> b) & 1) == 1) {\n                        counts[b]--;\n                        if (counts[b] == 0) {\n                            currentOr &= ~(1 << b);\n                        }\n                    }\n                }\n                i++;\n            }\n            j++;\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    //Updates the 'list' array based on the set bits in the number.\n    private void update(int number, List<Integer> list, int val) {\n        for (int i = 0; i < 32; i++) { // O(32)\n            if ((number >> i & 1) == 1) {\n                list.set(i, list.get(i) + val);\n            }\n        }\n    }",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    //Converts the binary representation stored in 'list' back to a decimal integer.\n    private int getDecimalFromBinary(List<Integer> list) {\n        int num = 0;\n        for (int i = 0; i < 32; i++) { // O(32)\n            if (list.get(i) > 0) { // ith position has a set bit\n                num |= (1 << i);\n            }\n        }\n        return num;\n    }",
+    "replace": ""
+  }
+]
+```

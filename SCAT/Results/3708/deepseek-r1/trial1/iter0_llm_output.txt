@@ -1,0 +1,11 @@
+Improved by removing the temporary `int[]` + stream/boxing pipeline and by tracking the zigzag traversal position incrementally, avoiding division/modulo for every output element.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int[] output = new int[out_len];\n\n        for(int i = 0; i < out_len; i++){\n            int r = (i*2)/cols;\n            //int c = ((r%2)*(cols-1)) + (1-(r%2)*2)*((i*2)%cols);\n            int c = (i*2)%cols;\n            if(r%2==1){c=cols-1-c;}\n            output[i] = grid[r][c]; \n        }\n        List<Integer> list = Arrays.stream(output).boxed().toList();\n        return list;",
+    "replace": "        Integer[] output = new Integer[out_len];\n        int lastCol = cols - 1;\n\n        for (int i = 0, r = 0, p = 0; i < out_len; i++, p += 2) {\n            while (p >= cols) {\n                p -= cols;\n                r++;\n            }\n            int c = (r & 1) == 0 ? p : lastCol - p;\n            output[i] = grid[r][c];\n        }\n        return List.of(output);"
+  }
+]
+```

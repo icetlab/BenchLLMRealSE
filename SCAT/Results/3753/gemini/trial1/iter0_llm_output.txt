@@ -1,0 +1,15 @@
+The original code calculates the maximum difference between an odd character frequency and an even character frequency by using a nested loop. This approach compares every pair of character frequencies, leading to a time complexity of O(U^2) for this part of the logic, where U is the number of unique characters.
+
+The performance can be significantly improved by recognizing that to maximize the difference `odd_freq - even_freq`, we only need the maximum possible odd frequency and the minimum possible even frequency.
+
+The proposed change replaces the O(U^2) nested loop with a single pass over the frequency map's values. This pass identifies the `maxOdd` frequency and `minEven` frequency in O(U) time. The final result is then a simple subtraction. This optimization reduces the overall time complexity without changing the logic or the final result.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int max = Integer.MIN_VALUE;\n\n        // Compare odd and even frequencies\n        for (Map.Entry<Character, Integer> entry1 : map.entrySet()) {\n            int freq1 = entry1.getValue();\n            for (Map.Entry<Character, Integer> entry2 : map.entrySet()) {\n                int freq2 = entry2.getValue();\n\n                // freq1 is odd, freq2 is even → calculate (odd - even)\n                if (freq1 % 2 != 0 && freq2 % 2 == 0) {\n                    max = Math.max(max, freq1 - freq2);\n                }\n            }\n        }\n\n        return max == Integer.MIN_VALUE ? 0 : max;",
+    "replace": "        // Find the maximum odd frequency and minimum even frequency\n        int maxOdd = Integer.MIN_VALUE;\n        int minEven = Integer.MAX_VALUE;\n\n        for (int freq : map.values()) {\n            if (freq % 2 != 0) { // Odd frequency\n                maxOdd = Math.max(maxOdd, freq);\n            } else { // Even frequency\n                minEven = Math.min(minEven, freq);\n            }\n        }\n\n        // If no odd or no even frequencies were found, no valid difference exists.\n        if (maxOdd == Integer.MIN_VALUE || minEven == Integer.MAX_VALUE) {\n            return 0;\n        }\n\n        return maxOdd - minEven;"
+  }
+]
+```

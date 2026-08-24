@@ -1,0 +1,49 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public boolean hasSameDigits(String s) {
+        boolean flag=false;
+        int n=s.length();
+        String newString="";
+
+        for(int i=0;i<n-1;i++){
+            int first=Integer.parseInt(String.valueOf(s.charAt(i)));
+            int second=Integer.parseInt(String.valueOf(s.charAt(i+1)));
+            int newNumber=(first+second)%10;
+            newString+=newNumber;
+            if(i>=(n-2)){
+                if(newString.length()==2){
+                   break;
+                }else{
+                    i=-1;
+                    s=newString;
+                    newString="";
+                    n=s.length();
+                }
+            }
+        }
+        //System.out.print("NewString: "+newString);
+        if(newString.charAt(0)==newString.charAt(1)){
+            return true;
+        }
+
+        return false;
+        
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 3902
+  expected output: true
+Example 2:
+  input: 34789
+  expected output: false
+Example 3:
+  input: 123
+  expected output: false
+Example 4:
+  input: 111
+  expected output: true
+Example 5:
+  input: 909
+  expected output: true

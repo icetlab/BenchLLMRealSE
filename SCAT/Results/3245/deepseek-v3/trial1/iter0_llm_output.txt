@@ -1,0 +1,13 @@
+## Improvement Intent
+
+The main performance bottleneck is the nested loop approach (O(n*m)) when checking if any `b` index is within distance `k` of each `a` index. I'll optimize this by using a two-pointer technique on the sorted indices lists, reducing the complexity to O(n + m). Additionally, I'll make minor improvements to the KMP implementation.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<Integer> answer =  new ArrayList<>();\n        int i=0;\n        while(i <  aArray.size())\n        {\n            for(int j=0;j<  bArray.size();j++)\n            {\n                if(Math.abs(aArray.get(i) -  bArray.get(j)) <=k )\n                {\n                    answer.add(aArray.get(i));\n                    break;\n                }\n            }\n            i++;\n        }\n        return answer;",
+    "replace": "        List<Integer> answer = new ArrayList<>();\n        int j = 0;\n        for (int i = 0; i < aArray.size(); i++) {\n            int aIdx = aArray.get(i);\n            // Move j forward to find the first b index >= aIdx - k\n            while (j < bArray.size() && bArray.get(j) < aIdx - k) {\n                j++;\n            }\n            // Check if this b index is within range\n            if (j < bArray.size() && Math.abs(aIdx - bArray.get(j)) <= k) {\n                answer.add(aIdx);\n            }\n        }\n        return answer;"
+  }
+]
+```

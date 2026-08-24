@@ -1,0 +1,34 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "List<Integer> list = new ArrayList<>(Collections.nCopies(32, 0));",
+    "replace": "int[] bitCounts = new int[32];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "update(nums[j], list, 1); // Add nums[j] to the current window",
+    "replace": "update(nums[j], bitCounts, 1); // Add nums[j] to the current window"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "while (i <= j && getDecimalFromBinary(list) >= k) {",
+    "replace": "while (i <= j && getDecimalFromBinary(bitCounts) >= k) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "update(nums[i], list, -1); // Remove nums[i] from the window",
+    "replace": "update(nums[i], bitCounts, -1); // Remove nums[i] from the window"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "private void update(int number, List<Integer> list, int val) {\n        for (int i = 0; i < 32; i++) { // O(32)\n            if ((number >> i & 1) == 1) {\n                list.set(i, list.get(i) + val);\n            }\n        }\n    }",
+    "replace": "private void update(int number, int[] bitCounts, int val) {\n        for (int i = 0; i < 32; i++) { // O(32)\n            if ((number >> i & 1) == 1) {\n                bitCounts[i] += val;\n            }\n        }\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "private int getDecimalFromBinary(List<Integer> list) {\n        int num = 0;\n        for (int i = 0; i < 32; i++) { // O(32)\n            if (list.get(i) > 0) { // ith position has a set bit\n                num |= (1 << i);\n            }\n        }\n        return num;\n    }",
+    "replace": "private int getDecimalFromBinary(int[] bitCounts) {\n        int num = 0;\n        for (int i = 0; i < 32; i++) { // O(32)\n            if (bitCounts[i] > 0) { // ith position has a set bit\n                num |= (1 << i);\n            }\n        }\n        return num;\n    }"
+  }
+]
+```

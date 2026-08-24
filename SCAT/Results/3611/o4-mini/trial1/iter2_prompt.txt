@@ -1,0 +1,104 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search='public static int[] minBitwiseArray(List<Integer> nums) {\n        int n = nums.size();\n        int[] ans = new int[n];\n        for (int i = 0; i < n; i++) {\n            int x = nums.get(i);\n            if (x == 1 || x == 2) {\n                ans[i] = -1;\n                continue;\n            }\n            // highest one-bit'
+>>>> Your previous output was:
+I’ve replaced the flawed “highest/remainder” logic with a direct computation of the trailing‐ones block and flip of the appropriate bit (or handle the all‐ones case), exactly matching the original behavior and fixing the 13→12 mapping.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public static int[] minBitwiseArray(List<Integer> nums) {\n        int n = nums.size();\n        int[] ans = new int[n];\n        for (int i = 0; i < n; i++) {\n            int x = nums.get(i);\n            if (x == 1 || x == 2) {\n                ans[i] = -1;\n                continue;\n            }\n            // highest one-bit",
+    "replace": "public static int[] minBitwiseArray(List<Integer> nums) {\n        int n = nums.size();\n        int[] ans = new int[n];\n        for (int i = 0; i < n; i++) {\n            int x = nums.get(i);\n            if (x == 1 || x == 2) {\n                ans[i] = -1;\n                continue;\n            }\n            // compute bit-length\n            int L = 32 - Integer.numberOfLeadingZeros(x);\n            // all-ones? e.g. 7(111), 3(11)\n            if (x == (1 << L) - 1) {\n                ans[i] = x - (1 << (L - 1));\n            } else {\n                // count trailing ones (bits = 1 from LSB upward)\n                int r = Integer.numberOfTrailingZeros(~x);\n                if (r > 0) {\n                    // flip the highest bit within that trailing-ones block\n                    ans[i] = x - (1 << (r - 1));\n                } else {\n                    // no trailing ones (pure power of two > 2)\n                    ans[i] = x;\n                }\n            }\n        }\n        return ans;\n    }"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public static int[] minBitwiseArray(List<Integer> nums) {
+        int n = nums.size();
+        int[] ans = new int[n];
+        for(int j=0; j<n; j++){
+            String s = Integer.toBinaryString(nums.get(j));
+
+            boolean AllsetBit = true;
+            for(char ch : s.toCharArray()){
+                if (ch == '0'){
+                    AllsetBit = false;
+                    break;
+                }
+            }
+            
+            if (nums.get(j) == 1 || nums.get(j) == 2){
+                ans[j] = -1;
+                continue;
+            }
+
+
+            boolean first = false;
+            boolean second = false;
+            StringBuilder str = new StringBuilder();
+
+            for(int i=0; i<s.length() && !AllsetBit; i++){
+                if (s.charAt(i) == '1'){
+                    if (!first){
+                        first = true;
+                        str.append("1");
+                    }else{
+                        if (!second){
+                            boolean flag = true;
+                            for(int k=i+1; k<s.length(); k++){
+                                if (s.charAt(k) == '0'){
+                                    flag = false;
+                                    break;
+                                }
+                            }
+                            
+                            if (flag){
+                                second = true;
+                                str.append("0");  
+                            }else{
+                                str.append("1");
+                            }
+                            
+                            
+                        }else{
+                            str.append("1");
+                        }
+                    }
+                }
+                else str.append("0");
+            }
+
+            if (AllsetBit){
+                str = new StringBuilder(s);
+                str.setCharAt(0, '0');
+            }
+
+            int num = Integer.parseInt(str.toString(), 2);
+            ans[j] = num;
+        }
+
+        return ans;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 2
+  expected output: -1
+Example 2:
+  input: 2,3,5,7
+  expected output: -1,1,4,3
+Example 3:
+  input: 11,13,31
+  expected output: 9,12,15
+Example 4:
+  input: 3,3,3,3,3
+  expected output: 1,1,1,1,1
+Example 5:
+  input: 2,3,2,5,2,7
+  expected output: -1,1,-1,4,-1,3
+

@@ -1,0 +1,16 @@
+I’ve switched out the TreeMap + prefix‐sum machinery for a clean two‐pointer window over the sorted unique values with their counts. This both simplifies and corrects the edge‐cases (in particular for test 5).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int res = 0;[ \\t]*TreeMap<Integer, Integer> freq = new TreeMap<>\\(\\);[\\s\\S]*?return res;",
+    "replace": "int res = 0;\n        // build frequency map of each value\n        Map<Integer,Integer> map = new HashMap<>();\n        for(int num: nums) map.put(num, map.getOrDefault(num,0) + 1);\n        // turn into a sorted list of (value, count)\n        List<int[]> pairs = new ArrayList<>(map.size());\n        for(Map.Entry<Integer,Integer> e: map.entrySet())\n            pairs.add(new int[]{e.getKey(), e.getValue()});\n        Collections.sort(pairs, Comparator.comparingInt(a -> a[0]));\n        \n        // two‐pointer over pairs to include all values within ±k\n        int left = 0;\n        int sumFreq = 0;\n        for(int right = 0; right < pairs.size(); right++){\n            int vR = pairs.get(right)[0], fR = pairs.get(right)[1];\n            sumFreq += fR;\n            // shrink left until window is within k\n            while (vR - pairs.get(left)[0] > k) {\n                sumFreq -= pairs.get(left)[1];\n                left++;\n            }\n            // we can convert at most 'sumFreq - fR' others, up to numOperations\n            int canConvert = Math.min(numOperations, sumFreq - fR);\n            res = Math.max(res, fR + canConvert);\n        }\n        return res;"
+  }
+]
+```

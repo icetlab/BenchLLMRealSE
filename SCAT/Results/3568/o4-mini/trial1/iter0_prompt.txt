@@ -1,0 +1,36 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int generateKey(int num1, int num2, int num3) {
+      String s1 = String.format("%04d",num1);
+      String s2 = String.format("%04d",num2);
+      String s3= String.format("%04d",num3);
+
+      StringBuilder sb = new StringBuilder();
+      for(int i=0;i<4;i++){
+        char min=(char)Math.min(s1.charAt(i),Math.min(s2.charAt(i),s3.charAt(i)));
+        sb.append(min);
+      }
+
+      return Integer.parseInt(sb.toString());
+      
+        
+        
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,10,1000
+  expected output: 0
+Example 2:
+  input: 987,879,798
+  expected output: 777
+Example 3:
+  input: 1,2,3
+  expected output: 1
+Example 4:
+  input: 9999,9999,9999
+  expected output: 9999
+Example 5:
+  input: 123,456,789
+  expected output: 123

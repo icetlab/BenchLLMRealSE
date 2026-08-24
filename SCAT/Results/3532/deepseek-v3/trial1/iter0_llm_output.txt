@@ -1,0 +1,38 @@
+## Improvement Intent
+
+The original code has several performance issues: it uses `Vector` (synchronized, slower) instead of `ArrayList`, uses manual iteration with `Iterator` instead of enhanced for-loops, has redundant calculations and unnecessary array operations, and uses static fields that prevent thread-safety. The main improvements will be:
+1. Replace `Vector` with `ArrayList` for better performance
+2. Replace `Iterator` with enhanced for-loops
+3. Optimize the traversal logic by removing redundant computations
+4. Use local variables instead of static fields where possible
+5. Simplify the complex logic in `determine()` method
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import  java.util.Arrays ;  \nimport java.util.Vector ;",
+    "replace": "import java.util.*;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public static Vector<Integer>[] links ;  \n    public static boolean[] visited ;  \n    public static int[][] signs ;",
+    "replace": "private List<Integer>[] links;\n    private boolean[] visited;\n    private int[][] signs;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public static void determine (int index,int previous){\n        visited[index] = true ; \n         Vector<Integer> vected= links[index] ; \n        Iterator<Integer> iterator  = vected.iterator() ; \n        int[] greater  =  {0,0} ; \n        int[] grace  =  {0,0} ; \n        while (iterator.hasNext()){\n            Integer temps = iterator.next() ;  \n            if(visited[temps]==true){continue ; }  \n            int other = (temps%2+(1-temps%2)*2)+signs[temps][0] ; \n            if(other==greater[0]){grace[0] = grace[0]+1 ; }   \n            for(int fe=0;fe<2;fe++){ \n            if(other>greater[fe]){    \n               for (int fc=1;fc>=fe+1;fc--){  //if(fe<1){\n                greater[fc] =  greater[fc-1] ;  }   \n                greater[fe] = other ;  \n                if(fe==0){\n                grace[0] =  1 ;  \n                grace[1] = temps ;  }  \n                break ;     } }   }   \n        signs[index][1] =   Math.max (previous,greater[0])  ;  \n     //   System.out.println(Arrays.toString(greater))    ;  \n       // System.out.println(Arrays.toString(grace)) ; \n        iterator =  vected.iterator() ; \n        while(iterator.hasNext()){\n            Integer temps=  iterator.next() ; \n            if (visited[temps]==true){continue ;  }    \n            int reach = 0 ;       \n            if (index%2==0){reach = reach+2 ; } \n            if(index%2==1){reach = reach+1 ;  } \n            if(temps!=grace[1]){\n                reach = Math.max(greater[0],previous)+reach ; \n            }else{\n                reach = Math.max(greater[1],previous)+reach ;  \n            }  \n            determine(temps,reach) ; \n        } \n    }",
+    "replace": "private void determine(int index, int previous) {\n        visited[index] = true;\n        List<Integer> neighbors = links[index];\n        \n        int max1 = 0, max2 = 0;\n        int max1Child = -1;\n        \n        for (int child : neighbors) {\n            if (visited[child]) continue;\n            int val = (child % 2 == 0 ? 2 : 1) + signs[child][0];\n            if (val > max1) {\n                max2 = max1;\n                max1 = val;\n                max1Child = child;\n            } else if (val > max2) {\n                max2 = val;\n            }\n        }\n        \n        signs[index][1] = Math.max(previous, max1);\n        \n        for (int child : neighbors) {\n            if (visited[child]) continue;\n            int add = (index % 2 == 0) ? 2 : 1;\n            int reach = (child == max1Child) \n                ? Math.max(max2, previous) + add\n                : Math.max(max1, previous) + add;\n            determine(child, reach);\n        }\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public static int traverse(int index){\n        visited[index] = true ; \n        int  higher = 0  ;\n        Iterator<Integer> iterator = links[index].iterator() ; \n        while(iterator.hasNext()){\n            Integer phase = iterator.next() ; \n            if(visited[phase]==true){continue ; }  \n            int temps = traverse(phase) ; \n            if(phase%2==1){higher = Math.max(temps+1,higher) ; }  \n            if(phase%2==0){higher = Math.max(temps+2,higher ) ; }\n        }  \n        signs[ index][0] = higher ; \n        visited[index] = false ; \n        return higher ;  \n    }",
+    "replace": "private int traverse(int index) {\n        visited[index] = true;\n        int higher = 0;\n        for (int child : links[index]) {\n            if (visited[child]) continue;\n            int val = traverse(child);\n            higher = Math.max(higher, val + (child % 2 == 0 ? 2 : 1));\n        }\n        signs[index][0] = higher;\n        visited[index] = false;\n        return higher;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public int[] timeTaken(int[][] edges) {\n        int spans = edges.length+1 ; \n        links = new Vector[spans] ; \n        visited = new boolean[spans] ; \n        signs = new int[spans][2] ;  \n        for (int fe=spans-1;fe>=0;fe--){\n            links[fe] = new Vector<Integer>( ) ;  \n            visited[fe] = false ; \n            signs[fe] = new int[]{0,0} ;\n        }\n        for(int fc=0;fc<edges.length;fc++){\n            int[] phase = edges[fc] ;\n            links[phase[1]].addElement(phase[0]) ;\n            links[phase[0]].addElement(phase[1]) ; \n        }   \n         int check = traverse(0) ;   \n         determine (0,0) ; \n       // System.out.println(Arrays.deepToString(signs)) ; \n\n        int[] buffer = new int[ spans] ;   \n        for (int fh=spans-1;fh>=0;fh--){\n            buffer[fh] = signs[fh][1] ; \n        }\n        return buffer ;  \n    }",
+    "replace": "public int[] timeTaken(int[][] edges) {\n        int n = edges.length + 1;\n        links = new ArrayList[n];\n        visited = new boolean[n];\n        signs = new int[n][2];\n        \n        for (int i = 0; i < n; i++) {\n            links[i] = new ArrayList<>();\n        }\n        \n        for (int[] edge : edges) {\n            links[edge[0]].add(edge[1]);\n            links[edge[1]].add(edge[0]);\n        }\n        \n        traverse(0);\n        determine(0, 0);\n        \n        int[] result = new int[n];\n        for (int i = 0; i < n; i++) {\n            result[i] = signs[i][1];\n        }\n        return result;\n    }"
+  }
+]
+```

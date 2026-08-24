@@ -1,0 +1,17 @@
+The original code's performance suffers from using string concatenation within a loop to track runs of identical characters. This operation is inefficient in Java, as it creates a new string object in each iteration, leading to a time complexity of O(N^2) in the worst case. The code also has a bug, throwing an exception when the input string is empty.
+
+My improvement addresses these issues by:
+1.  Replacing the expensive string manipulation with a simple integer counter. This counter tracks the length of the current run of identical characters, reducing the time complexity to a single O(N) pass and space complexity to O(1).
+2.  Adding a guard clause at the beginning of the method to handle edge cases gracefully, such as null or empty strings and non-positive `k` values, which also resolves the crash bug.
+
+This revised approach is significantly more performant and robust while preserving the original logic for all valid inputs.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        String str = \"\" + s.charAt(0);\n        // if(s.length()>0 && k==1) {\n        //     return true;\n        // }\n        for(int i=1; i<s.length(); i++) {\n            if(s.charAt(i-1) == s.charAt(i)) {\n                str+= s.charAt(i-1);\n            } else {\n                if(str.length() == k) {\n                    return true;\n                }\n                str =\"\"+ s.charAt(i);\n            }\n        }\n        if(str.length() == k) {\n            return true;\n        }\n        return false;",
+    "replace": "        if (s == null || s.isEmpty() || k <= 0) {\n            return false;\n        }\n\n        int count = 1;\n        for (int i = 1; i < s.length(); i++) {\n            if (s.charAt(i) == s.charAt(i - 1)) {\n                count++;\n            } else {\n                if (count == k) {\n                    return true;\n                }\n                count = 1;\n            }\n        }\n\n        return count == k;"
+  }
+]
+```

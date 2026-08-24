@@ -1,0 +1,16 @@
+The original code's O(N*M) complexity from nested loops is inefficient for large inputs. The new approach pre-calculates a frequency array for `nums1`. It then iterates through each potential divisor `d = nums2[j] * k` and, using the frequency array, efficiently sums up the counts of all multiples of `d` found in `nums1`. This optimized algorithm is substantially faster, with complexity related to the maximum value in `nums1` rather than the product of array lengths.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.util.Hashtable;",
+    "replace": "import java.util.HashMap;\nimport java.util.Map;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int count=0;\n\n       Hashtable<Integer,Integer> ht = new Hashtable<>();\n\n       for(int i=0;i<nums2.length;i++)\n       {\n            int product=nums2[i]*k;\n            ht.put(i,product);\n       }\n\n       for(int nums:nums1)\n       {\n            for(Integer value:ht.values())\n            {\n                if(nums%value==0)\n                {\n                    count++;\n                }\n            }\n       }\n        return count;",
+    "replace": "        int maxNum1 = 0;\n        for (int num : nums1) {\n            if (num > maxNum1) {\n                maxNum1 = num;\n            }\n        }\n\n        if (maxNum1 == 0) {\n            return 0;\n        }\n\n        int[] freq1 = new int[maxNum1 + 1];\n        for (int num : nums1) {\n            freq1[num]++;\n        }\n\n        Map<Integer, Integer> freq2_k = new HashMap<>();\n        for (int num2 : nums2) {\n            long target = (long) num2 * k;\n            if (target > maxNum1) {\n                continue;\n            }\n            int t = (int) target;\n            freq2_k.put(t, freq2_k.getOrDefault(t, 0) + 1);\n        }\n\n        long count = 0;\n        for (Map.Entry<Integer, Integer> entry : freq2_k.entrySet()) {\n            int t = entry.getKey();\n            int numOccurrences = entry.getValue();\n            for (int multiple = t; multiple <= maxNum1; multiple += t) {\n                count += (long) numOccurrences * freq1[multiple];\n            }\n        }\n\n        return (int) count;"
+  }
+]
+```

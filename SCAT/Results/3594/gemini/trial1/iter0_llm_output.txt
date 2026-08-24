@@ -1,0 +1,11 @@
+The provided code is improved for performance, memory usage, and robustness. The change replaces the map of index sets with a more efficient frequency map. This reduces memory overhead and avoids redundant computations for duplicate numbers by iterating over unique values in the main logic. Additionally, the total sum is calculated using a `long` to prevent potential integer overflow.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int sum = 0;\nMap<Integer, Set<Integer>> num2indices = new HashMap<>();\nfor (int i = 0; i < nums.length; i ++) {\n    sum += nums[i];\n    Set<Integer> set = num2indices.getOrDefault(nums[i], new HashSet<Integer>());\n    set.add(i);\n    num2indices.put(nums[i], set);\n}\n\nint result = Integer.MIN_VALUE;\nfor (int i = 0; i < nums.length; i ++) {\n    if (nums[i] <= result) {\n        continue;\n    }\n    int s = sum - nums[i];\n    if (s % 2 == 0) {\n        int half = s / 2;\n        if (num2indices.containsKey(half)) {\n            Set<Integer> set = num2indices.get(half);\n            if (!set.contains(i) || (set.contains(i) && set.size() > 1)) {\n                result = Math.max(result, nums[i]);\n            }\n        }\n    }\n}",
+    "replace": "long sum = 0;\nMap<Integer, Integer> counts = new HashMap<>();\nfor (int num : nums) {\n    sum += num;\n    counts.put(num, counts.getOrDefault(num, 0) + 1);\n}\n\nint result = Integer.MIN_VALUE;\nfor (int num : counts.keySet()) {\n    if (num <= result) {\n        continue;\n    }\n    long s = sum - num;\n    if (s % 2 == 0) {\n        int half = (int) (s / 2);\n        if (counts.containsKey(half)) {\n            if (num != half || counts.get(half) > 1) {\n                result = Math.max(result, num);\n            }\n        }\n    }\n}"
+  }
+]
+```

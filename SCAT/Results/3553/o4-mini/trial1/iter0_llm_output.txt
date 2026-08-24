@@ -1,0 +1,11 @@
+I’ve removed the unnecessary print statements and replaced the multi-step color calculation with a single parity comparison, reducing code size and overhead.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int col1 = coordinate1.charAt(0)-'a';\n        int row1 = coordinate1.charAt(1)- '1';\n        int color1 = (col1+row1)%2;\n\n        int col2 = coordinate2.charAt(0)-'a';\n        int row2 = coordinate2.charAt(1)- '1';\n        int color2 = (col2+row2)%2;\n\n        if (color1==color2){\n            System.out.print(\"both have same color \");\n            return true;\n\n        }else{\n            System.out.println(\"they have different colour\");\n            return false;\n        }",
+    "replace": "        return ((coordinate1.charAt(0)-'a') + (coordinate1.charAt(1)-'1')) % 2 == ((coordinate2.charAt(0)-'a') + (coordinate2.charAt(1)-'1')) % 2;"
+  }
+]
+```

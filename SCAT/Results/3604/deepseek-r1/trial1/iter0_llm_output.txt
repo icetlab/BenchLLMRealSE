@@ -1,0 +1,16 @@
+The main cost is recomputing the full Stirling-number table on every call. I made the table computation lazy and cached, so it only computes rows up to the requested `n` once and reuses them across calls.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    private static long[][] s = new long[1001][1001];",
+    "replace": "    private static long[][] s = new long[1001][1001];\n    private static int prepared = 0;\n\n    private static void ensureStirling(int n) {\n        if (prepared == 0) {\n            s[0][0] = 1;\n        }\n        if (n <= prepared) {\n            return;\n        }\n        for (int i = prepared + 1; i <= n; i++) {\n            for (int j = 1; j <= i; j++) {\n                s[i][j] = (s[i - 1][j - 1] + s[i - 1][j] * j) % mod;\n            }\n        }\n        prepared = n;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        s[0][0] = 1;\n        for (int i = 1; i <= 1000; i++)\n            for (int j = 1; j <= i; j++)\n                s[i][j] = (s[i - 1][j - 1] + s[i - 1][j] * j) % mod;",
+    "replace": "        ensureStirling(n);"
+  }
+]
+```

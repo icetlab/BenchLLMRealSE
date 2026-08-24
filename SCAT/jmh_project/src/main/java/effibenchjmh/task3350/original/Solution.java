@@ -1,0 +1,54 @@
+package effibenchjmh.task3350.original;
+
+import java.util.*;
+import java.util.stream.*;
+
+class Solution {
+    public int[] resultArray(int[] nums) {
+        int n=nums.length;
+        var n1 = new ArrayList<Integer>();
+        var os1 = new ArrayList<Double>();
+        n1.add(nums[0]);
+        os1.add(nums[0] - 0.0);
+        var n2 = new ArrayList<Integer>();
+        var os2 = new ArrayList<Double>();
+        n2.add(nums[1]);
+        os2.add(nums[1] - 0.0);
+        
+        for (int i=2;i<n;i++) {
+            var v=nums[i];
+            int j1 = Collections.binarySearch(os1, v + 0.5);
+            int j2 = Collections.binarySearch(os2, v + 0.5);
+            
+            j1 = (j1>=0)?j1:-(j1+1);
+            j2 = (j2>=0)?j2:-(j2+1);
+            int gct1=n1.size()-j1;
+            int gct2=n2.size()-j2;
+
+            if (
+                gct1 > gct2 || 
+                (gct1 == gct2 && n1.size() <= n2.size())
+            ) {
+                n1.add(nums[i]);
+                os1.add(j1, .0 + v);
+            } else {
+                n2.add(nums[i]);
+                os2.add(j2, .0 + v);
+            }
+            // System.out.print("os1: ");
+            // println(os1);
+            // System.out.print("os2: ");
+            // println(os2);
+        }
+
+        var ans = new int[n];
+        for (int i=0;i<n1.size();i++) ans[i]=n1.get(i);
+        for (int i=0;i<n2.size();i++) ans[n1.size() + i]=n2.get(i);
+        return ans;
+    }
+
+    private void println(TreeSet<int[]> os) {
+        for (var e: os) System.out.printf("[%d, %d] ", e[0], e[1]);
+        System.out.println();
+    }
+}

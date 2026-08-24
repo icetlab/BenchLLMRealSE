@@ -1,0 +1,13 @@
+The original code has a time complexity of O(n * k log k) because it re-evaluates each sliding window from scratch. For each window, it creates a temporary copy, sorts it, and performs multiple linear scans to determine if the window's elements are sorted and consecutive.
+
+The improved solution first recognizes that the complex checks in the original code are equivalent to a single, simpler check: whether the window's elements form a sequence of consecutive increasing integers (e.g., `[2, 3, 4]`). To optimize this check for a sliding window, the new approach uses a prefix sum array. It pre-computes the locations of "breaks" in consecutiveness throughout the input array in O(n) time. This preprocessing allows determining the number of breaks within any given window in O(1) time. Consequently, the overall time complexity is reduced to O(n), a significant improvement.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        for(int i=0;i<res.length;i++)\n        {\n            int num=0;\n            int temp[]=new int[k];\n            int ind=0;\n            \n            boolean diff=false;\n            \n            for(int j=i;j<i+k;j++)\n            {\n                temp[ind++]=nums[j];\n            \n                if((j+1)<i+k && (nums[j]-nums[j+1]!=-1))    \n                {\n                    diff=true;\n                }\n                \n                \n            }\n            \n            Arrays.sort(temp);\n            ind=0;\n            \n            boolean flag=true;\n            for(int j=i;j<i+k;j++)\n            {\n                if(nums[j]!=temp[ind++])\n                {\n                    flag=false;\n                    break;\n                }\n\n                \n            }\n            \n            if(flag && !diff)\n            {\n                res[i]=temp[k-1];\n            }\n            else\n                res[i]=-1;\n            \n        }\n\n        \n        return res;",
+    "replace": "        // prefixBreaks[i] stores the number of non-consecutive pairs in nums[0...i-1].\n        int[] prefixBreaks = new int[nums.length];\n        for (int i = 0; i < nums.length - 1; i++) {\n            prefixBreaks[i + 1] = prefixBreaks[i] + (nums[i + 1] == nums[i] + 1 ? 0 : 1);\n        }\n\n        for (int i = 0; i < res.length; i++) {\n            // Number of breaks in the window nums[i...i+k-1]\n            // corresponds to checking pairs from index i to i+k-2.\n            int breaksInWindow = prefixBreaks[i + k - 1] - prefixBreaks[i];\n            \n            if (breaksInWindow == 0) {\n                res[i] = nums[i + k - 1];\n            } else {\n                res[i] = -1;\n            }\n        }\n\n        \n        return res;"
+  }
+]
+```

@@ -1,0 +1,11 @@
+The improvement replaces the original loop with repeated substring operations (O(total deletions * length)) by a single pass to compute the longest common prefix (LCP) among the three strings. This reduces time complexity to O(min length) and avoids costly string allocations. The result is computed directly from the LCP length, preserving all original behaviors including the special case where all strings are empty.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int findMinimumOperations(String s1, String s2, String s3) {\n        int count=0;\n       while(!(s1.equals(s2)&&s2.equals(s3))){\n        if (s1.isEmpty() || s2.isEmpty() || s3.isEmpty()) {\n                return -1;\n            }\n            if(s1.length()>=s2.length() && s1.length()>=s3.length())\n            s1=s1.substring(0,s1.length()-1);\n            else if(s2.length()>=s1.length() && s2.length()>=s3.length())\n            s2=s2.substring(0,s2.length()-1);\n          else{\n       s3=s3.substring(0,s3.length()-1);\n        }\n            \n         count++;  \n\n        \n       }\n        return count;\n    }",
+    "replace": "    public int findMinimumOperations(String s1, String s2, String s3) {\n        // If all strings are empty, no operations needed (edge case)\n        if (s1.isEmpty() && s2.isEmpty() && s3.isEmpty()) {\n            return 0;\n        }\n\n        // Compute the length of the longest common prefix (LCP)\n        int minLen = Math.min(s1.length(), Math.min(s2.length(), s3.length()));\n        int prefixLen = 0;\n        while (prefixLen < minLen\n                && s1.charAt(prefixLen) == s2.charAt(prefixLen)\n                && s2.charAt(prefixLen) == s3.charAt(prefixLen)) {\n            prefixLen++;\n        }\n\n        // If no common prefix and strings exist, cannot make equal without emptying one\n        if (prefixLen == 0) {\n            return -1;\n        }\n\n        // Total deletions = (len1 - prefixLen) + (len2 - prefixLen) + (len3 - prefixLen)\n        return (s1.length() - prefixLen)\n             + (s2.length() - prefixLen)\n             + (s3.length() - prefixLen);\n    }"
+  }
+]
+```

@@ -1,0 +1,103 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 1: expected='2' got='200'
+>>>> Your previous output was:
+Looking at the code, I notice the main performance issue is in the `calculateReverse` and `calculateStraight` methods. They use while loops that iterate through the alphabet one character at a time, which is inefficient. Since we're working with a fixed alphabet of 26 letters, we can precompute prefix sums to get O(1) lookups instead of O(26) per character.
+
+The improvement: Precompute prefix sums for both directions (nextCost and previousCost) so we can calculate the cost between any two letters in O(1) time instead of O(26).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public long calculateReverse(char start,char end,int[] previousCost)\n    {\n        long sum=0;\n        int s= ((start-'a')+1)%26;\n        int e = end-'a';\n        while(true)\n        {\n            sum += previousCost[s];\n            if(s==e)\n            {\n                break;\n            }\n            s = (s+1)%26;\n        }\n\n        return sum;\n    }\n    public long calculateStraight(char start,char end,int[] nextCost)\n    {\n        long sum=0;\n        int s=start-'a';\n        int e = end-'a';\n        while(true)\n        {\n            sum+=nextCost[s];\n            s=(s+1)%26;\n            if(s==e)\n            {\n                break;\n            }\n        }\n\n        return sum;\n    }\n    public long shiftDistance(String s, String t, int[] nextCost, int[] previousCost) {\n\n        long mainSum = 0;\n\n        for(int i=0;i<s.length();i++)\n        {\n            if(s.charAt(i)!=t.charAt(i))\n            {\n                long revSum = calculateReverse(t.charAt(i),s.charAt(i),previousCost);\n                long straSum = calculateStraight(s.charAt(i),t.charAt(i),nextCost);\n                mainSum+= Math.min(revSum,straSum);\n            }\n        }\n        return mainSum;\n    }\n}",
+    "replace": "class Solution {\n    public long shiftDistance(String s, String t, int[] nextCost, int[] previousCost) {\n        // Precompute prefix sums for both directions\n        long[] nextPrefix = new long[27]; // prefix[i] = sum of nextCost[0..i-1]\n        long[] prevPrefix = new long[27]; // prefix[i] = sum of previousCost[0..i-1]\n        \n        for (int i = 0; i < 26; i++) {\n            nextPrefix[i + 1] = nextPrefix[i] + nextCost[i];\n            prevPrefix[i + 1] = prevPrefix[i] + previousCost[i];\n        }\n        \n        long mainSum = 0;\n        \n        for (int i = 0; i < s.length(); i++) {\n            if (s.charAt(i) != t.charAt(i)) {\n                int start = s.charAt(i) - 'a';\n                int end = t.charAt(i) - 'a';\n                \n                // Calculate straight distance (clockwise)\n                long straSum;\n                if (start <= end) {\n                    straSum = nextPrefix[end] - nextPrefix[start];\n                } else {\n                    straSum = (nextPrefix[26] - nextPrefix[start]) + (nextPrefix[end] - nextPrefix[0]);\n                }\n                \n                // Calculate reverse distance (counter-clockwise)\n                long revSum;\n                if (start >= end) {\n                    revSum = prevPrefix[start] - prevPrefix[end];\n                } else {\n                    revSum = (prevPrefix[26] - prevPrefix[end]) + (prevPrefix[start] - prevPrefix[0]);\n                }\n                \n                mainSum += Math.min(revSum, straSum);\n            }\n        }\n        return mainSum;\n    }\n}"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public long calculateReverse(char start,char end,int[] previousCost)
+    {
+        long sum=0;
+        int s= ((start-'a')+1)%26;
+        int e = end-'a';
+        while(true)
+        {
+            sum += previousCost[s];
+            if(s==e)
+            {
+                break;
+            }
+            s = (s+1)%26;
+        }
+
+        return sum;
+    }
+    public long calculateStraight(char start,char end,int[] nextCost)
+    {
+        long sum=0;
+        int s=start-'a';
+        int e = end-'a';
+        while(true)
+        {
+            sum+=nextCost[s];
+            s=(s+1)%26;
+            if(s==e)
+            {
+                break;
+            }
+        }
+
+        return sum;
+    }
+    public long shiftDistance(String s, String t, int[] nextCost, int[] previousCost) {
+
+        long mainSum = 0;
+
+        for(int i=0;i<s.length();i++)
+        {
+            if(s.charAt(i)!=t.charAt(i))
+            {
+                long revSum = calculateReverse(t.charAt(i),s.charAt(i),previousCost);
+                long straSum = calculateStraight(s.charAt(i),t.charAt(i),nextCost);
+                mainSum+= Math.min(revSum,straSum);
+            }
+        }
+        return mainSum;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: a
+a
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  expected output: 0
+Example 2:
+  input: abab
+baba
+100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  expected output: 2
+Example 3:
+  input: leet
+code
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+  expected output: 31
+Example 4:
+  input: axih
+hexd
+69,11,75,54,4,3,11,27,29,64,77,3,71,25,91,83,89,69,53,28,57,75,35,0,97,20
+89,54,43,35,19,27,97,43,13,11,48,12,45,44,77,33,5,93,58,68,15,48,10,70,37,80
+  expected output: 1276
+Example 5:
+  input: lsgwcbvhyjchdmioulfl
+lgviwvuctufrxhfomiuw
+87,41,98,99,7,29,4,40,51,34,8,27,72,91,40,27,83,63,50,82,58,18,33,17,31,95
+71,68,33,95,74,54,74,51,46,28,17,65,63,11,96,6,14,19,80,20,87,54,76,8,49,48
+  expected output: 6692
+

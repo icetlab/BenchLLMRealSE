@@ -1,0 +1,16 @@
+I’ve added the necessary import at the top and replaced the exhaustive permutation-based method with an O(n log n) greedy solution in `findMinimumTime`, sorting the list and computing the time in one pass.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int findMinimumTime(List<Integer> strength, int k) {\n        int n = strength.size();\n        boolean visited[]= new boolean[n];\n        List<Integer> list = new ArrayList<>();\n        premutations(list,strength,visited,k);\n\n      return min;\n        \n    }",
+    "replace": "    public int findMinimumTime(List<Integer> strength, int k) {\n        // Greedy: sort strengths and break in ascending order\n        Collections.sort(strength);\n        int time = 0;\n        int x = 1;\n        for (int s : strength) {\n            // ceil(s / x) is (s + x - 1) / x\n            time += (s + x - 1) / x;\n            x += k;\n        }\n        return time;\n    }"
+  }
+]
+```

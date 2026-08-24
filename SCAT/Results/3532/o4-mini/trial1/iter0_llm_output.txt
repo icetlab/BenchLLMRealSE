@@ -1,0 +1,41 @@
+The changes below replace the legacy, synchronized Vector/Iterator usage with ArrayList and for-each loops on the List interface. This reduces synchronization overhead, removes Iterator creation, and uses more efficient, modern collections.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.util.Vector ;",
+    "replace": "import java.util.List;\nimport java.util.ArrayList;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public static Vector<Integer>[] links ;",
+    "replace": "public static List<Integer>[] links;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "links = new Vector[spans] ;",
+    "replace": "links = new ArrayList[spans];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "links[fe] = new Vector<Integer>( ) ;",
+    "replace": "links[fe] = new ArrayList<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Vector<Integer> vected= links[index] ;  \n        Iterator<Integer> iterator  = vected.iterator() ; \n        int[] greater  =  {0,0} ; \n        int[] grace  =  {0,0} ; \n        while (iterator.hasNext()){",
+    "replace": "List<Integer> vected = links[index];\n        int[] greater = {0,0};\n        int[] grace   = {0,0};\n        for (Integer temps : vected) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "iterator =  vected.iterator() ; \n        while(iterator.hasNext()){",
+    "replace": "for (Integer temps : vected) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Iterator<Integer> iterator = links[index].iterator() ; \n        while(iterator.hasNext()){",
+    "replace": "for (Integer phase : links[index]) {"
+  }
+]
+```

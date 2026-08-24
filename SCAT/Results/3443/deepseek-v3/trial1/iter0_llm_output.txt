@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "The original solution uses BigInteger bitsets, which is correct but slow for large inputs. I will replace it with a boolean-array DP that tracks reachable sums up to the maximum possible reward (2*max-1). This preserves the exact semantics while being much faster and using less memory.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "import java.math.BigInteger;\nimport java.util.Arrays;\n\nclass Solution {\n    public int maxTotalReward(int[] rewardValues) {\n        int[] nums = Arrays.stream(rewardValues).distinct().sorted().toArray();\n        BigInteger f = BigInteger.ONE;\n        for (int v : nums) {\n            BigInteger mask = BigInteger.ONE.shiftLeft(v).subtract(BigInteger.ONE);\n            BigInteger shifted = f.and(mask).shiftLeft(v);\n            f = f.or(shifted);\n        }\n        return f.bitLength() - 1;\n    }\n}",
+      "replace": "import java.util.Arrays;\n\nclass Solution {\n    public int maxTotalReward(int[] rewardValues) {\n        int[] nums = Arrays.stream(rewardValues).distinct().sorted().toArray();\n        int max = nums[nums.length - 1];\n        int limit = 2 * max; // maximum possible sum is < 2*max\n        boolean[] dp = new boolean[limit];\n        dp[0] = true;\n        for (int v : nums) {\n            for (int s = v - 1; s >= 0; s--) {\n                if (dp[s]) {\n                    dp[s + v] = true;\n                }\n            }\n        }\n        for (int s = limit - 1; s >= 0; s--) {\n            if (dp[s]) return s;\n        }\n        return 0;\n    }\n}"
+    }
+  ]
+}

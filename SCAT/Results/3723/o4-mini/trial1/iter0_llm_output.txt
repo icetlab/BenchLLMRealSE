@@ -1,0 +1,16 @@
+I’ve removed the unnecessary System.gc() call and simplified the per-index boundary checks by introducing `left`/`right` variables, reducing repeated computations and improving readability without altering functionality.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "for (int i = 0; i < n; i++) {\n            if (i - k >= 0 && i + k < n) {\n                if (nums[i + k] < nums[i] && nums[i - k] < nums[i])\n                    sum += nums[i];\n            } else if (i - k >= 0) {\n                if (nums[i - k] < nums[i])\n                    sum += nums[i];\n            } else if (nums[i + k] < nums[i]) {\n                sum += nums[i];\n            }\n        }",
+    "replace": "for (int i = 0; i < n; i++) {\n            int left = i - k, right = i + k;\n            if (left >= 0 && right < n) {\n                if (nums[left] < nums[i] && nums[right] < nums[i]) {\n                    sum += nums[i];\n                }\n            } else if (left >= 0) {\n                if (nums[left] < nums[i]) {\n                    sum += nums[i];\n                }\n            } else if (right < n && nums[right] < nums[i]) {\n                sum += nums[i];\n            }\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "System.gc();",
+    "replace": ""
+  }
+]
+```

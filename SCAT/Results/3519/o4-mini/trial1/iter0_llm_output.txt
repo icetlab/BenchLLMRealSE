@@ -1,0 +1,11 @@
+I’ve replaced the two-pass nested‐map build + scan with a single pass that tracks per‐player pick counts and immediately flags “winning” players once they reach their threshold, eliminating the extra loop and reducing map lookups.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int count=0;\nHashMap<Integer,HashMap<Integer,Integer>> map=new HashMap<>();\nfor(int arr[]:pick)\n{\n    int i=arr[0];\n    int j=arr[1];\n    if(map.containsKey(i))\n    {\n       HashMap<Integer,Integer> h=map.get(i);\n       if(h.containsKey(j))\n       h.put(j,h.get(j)+1);\n       else\n       h.put(j,1);\n       map.put(i,h);\n    }\n    else\n    {\n        HashMap<Integer,Integer> h=new HashMap<>();\n        h.put(j,1);\n        map.put(i,h);\n    }\n}\n\nfor(int i=0;i<n;i++)\n{\n    if(!map.containsKey(i))\n    continue;\n\n    HashMap<Integer,Integer> h=map.get(i);\n    for(int k:h.values())\n    {\n        if(k>=i+1)\n        {\n        count++;\n        break;\n        }\n    }\n}",
+    "replace": "int count = 0;\nboolean[] counted = new boolean[n];\nHashMap<Integer,Integer>[] countMap = new HashMap[n];\nfor (int[] arr : pick) {\n    int i = arr[0], j = arr[1];\n    // once a player i is counted as winning, skip further updates\n    if (counted[i]) continue;\n    if (countMap[i] == null) countMap[i] = new HashMap<>();\n    HashMap<Integer,Integer> h = countMap[i];\n    int freq = h.getOrDefault(j, 0) + 1;\n    h.put(j, freq);\n    // as soon as any pick-count for i reaches (i+1), mark i as winning\n    if (freq >= i + 1) {\n        counted[i] = true;\n        count++;\n    }\n}"
+  }
+]
+```

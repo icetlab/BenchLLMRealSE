@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.util.*;\n\nclass Solution {\n    public List<Integer> findPeaks(int[] mountain) {\n      Scanner sc=new Scanner(System.in);\n      List<Integer>l=new ArrayList<>();\n      for(int i=1;i<mountain.length-1;i++){\n        \n            if(mountain[i]>mountain[i-1] && mountain[i]>mountain[i+1])\n            l.add(i);\n        }\n      return l;  \n    }\n}",
+    "replace": "import java.util.*;\n\nclass Solution {\n    public List<Integer> findPeaks(int[] mountain) {\n      List<Integer>l=new ArrayList<>();\n      for(int i=1;i<mountain.length-1;i++){\n        \n            if(mountain[i]>mountain[i-1] && mountain[i]>mountain[i+1])\n            l.add(i);\n        }\n      return l;  \n    }\n}"
+  }
+]
+```

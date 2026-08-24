@@ -1,0 +1,11 @@
+The main optimization is to replace the `HashMap` with a fixed-size `int[]` array of length 24, since hour remainders are always in `0..23`. This removes hashing overhead and simplifies the counting logic.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        HashMap<Integer, Integer> remainder_count = new HashMap<>();\n        int count = 0;\n        for(int h: hours){\n            int remainder = h%24;\n            if(remainder == 0){\n                if(remainder_count.containsKey(0)){count += remainder_count.get(0);}\n            }else{\n                int cur = 24-remainder;\n                if(remainder_count.containsKey(cur)){\n                    count += remainder_count.get(cur);\n                }\n            }\n            remainder_count.putIfAbsent(remainder, 0);\n            remainder_count.put(remainder, remainder_count.get(remainder)+1);\n        }\n        return count;",
+    "replace": "        int[] remainderCount = new int[24];\n        int count = 0;\n        for (int h : hours) {\n            int remainder = h % 24;\n            int complement = remainder == 0 ? 0 : 24 - remainder;\n            count += remainderCount[complement];\n            remainderCount[remainder]++;\n        }\n        return count;"
+  }
+]
+```

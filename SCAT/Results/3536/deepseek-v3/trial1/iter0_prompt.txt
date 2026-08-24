@@ -1,0 +1,42 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int countOfPairs(int[] nums) {
+        int n=nums.length;
+        int mod=1000000007;
+        long dp[][]=new long[n+1][1002];
+        for(int j=0;j<=nums[n-1];j++) dp[n-1][j]=1;
+        for(int j=1;j<=1000;j++) dp[n-1][j]+=dp[n-1][j-1];
+        for(int i=n-2;i>=0;i--){
+            for(int j=0;j<=nums[i];j++){
+                int l=Math.max(j,nums[i+1]-nums[i]+j);
+                int h=nums[i+1];
+                dp[i][j]=(dp[i+1][h])%mod;
+                if(l>0) dp[i][j]=(dp[i][j]-dp[i+1][l-1])%mod;
+                dp[i][j]+=mod;
+                dp[i][j]%=mod;
+            }
+            for(int j=1;j<=1000;j++){
+                dp[i][j]+=dp[i][j-1];
+                dp[i][j]%=mod;
+            }
+        }
+        return (int)dp[0][1000];
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1
+  expected output: 2
+Example 2:
+  input: 2,3,2
+  expected output: 4
+Example 3:
+  input: 5,5,5,5
+  expected output: 126
+Example 4:
+  input: 1,10,5
+  expected output: 0
+Example 5:
+  input: 3,3
+  expected output: 10

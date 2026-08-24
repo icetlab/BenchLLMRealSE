@@ -1,0 +1,53 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int minimumOperationsToMakeKPeriodic(String word, int k) {
+        
+        HashMap<String, Integer> mp = new HashMap<>();
+        String maxStr = new String();
+        Integer inmax = 0;
+        for(int i =k; i<=word.length(); i+=k){
+            String s = word.substring(i-k, i);
+            if(mp.get(s) != null){
+                mp.put(s,mp.get(s)+1);
+                if(mp.get(s) > inmax){
+                    maxStr = s;
+                    inmax = mp.get(s);
+                }
+            }else {
+                mp.put(s,1);
+            }
+        }
+        if(inmax <= 1){
+            return (word.length()/k) -1;
+        }
+        else{
+            Integer ans = 0;
+            for(Map.Entry<String, Integer> i: mp.entrySet()){
+                // System.out.println(i.getKey());
+                if(!i.getKey().equals(maxStr)){
+                    ans+= i.getValue();
+                }
+            } 
+            return ans;
+        }
+    }
+
+
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: a 1
+  expected output: 0
+Example 2:
+  input: ab 1
+  expected output: 1
+Example 3:
+  input: ab 2
+  expected output: 0
+Example 4:
+  input: leetcodeleet 4
+  expected output: 1
+Example 5:
+  input: leetcoleet 2
+  expected output: 3

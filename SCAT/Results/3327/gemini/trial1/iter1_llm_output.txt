@@ -1,0 +1,20 @@
+The previous solution failed because it incorrectly calculated the cost of gathering ones. It computed the cost to move all chosen `1`s to a single point (their median position), but the problem requires making them *consecutive* (e.g., at positions `p, p+1, ...`). A zero-cost solution exists if `k` ones are already consecutive, but the previous logic would calculate a non-zero cost, and in some edge cases, it failed to find any solution at all, resulting in a `Long.MAX_VALUE` output.
+
+The standard way to solve the "minimum moves to make consecutive" problem is to transform the positions of the `1`s. If the original positions are `p_0, p_1, ...`, we create a new set of positions `p'_i = p_i - i`. The cost to make a sub-array of original positions consecutive is equivalent to the cost of gathering the corresponding transformed positions to a single point.
+
+My fix applies this transformation. By changing `pos[i] = posList.get(i)` to `pos[i] = posList.get(i) - i`, the rest of the sliding window logic correctly calculates the minimum cost to make a group of existing `1`s consecutive. This correctly identifies zero-cost scenarios and handles all cases according to the standard interpretation of this problem type, resolving the test failure. While the overall time complexity remains a concern for very large `maxChanges`, this change prioritizes correctness, which was the cause of the failure.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        long[] pos = new long[m];\n        for (int i = 0; i < m; ++i) pos[i] = posList.get(i);",
+    "replace": "        long[] pos = new long[m];\n        for (int i = 0; i < m; ++i) pos[i] = posList.get(i) - (long) i;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            // Sliding window to find min cost to gather 'len' ones",
+    "replace": "            // Sliding window to find min cost to make 'len' ones consecutive"
+  }
+]
+```

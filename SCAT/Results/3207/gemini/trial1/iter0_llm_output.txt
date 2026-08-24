@@ -1,0 +1,18 @@
+The original code simulates the process of removing characters one by one from the longest string until all three strings become equal. This approach is inefficient due to repeated string manipulations (e.g., `substring`) and comparisons inside a loop, which can be slow for long strings.
+
+The improved solution is based on a direct calculation. The problem is equivalent to finding the longest common prefix of the three strings. The final state of all three strings must be this common prefix.
+1.  First, we find the length of the longest common prefix by iterating through the strings' characters from the beginning.
+2.  If the strings do not share any common prefix (i.e., the prefix length is zero), it's impossible to make them equal by only removing trailing characters, so we return -1. The only exception is if the strings are already equal (e.g., all empty), which is handled by an initial check.
+3.  If a common prefix exists, the minimum number of operations is the total number of characters that must be removed from the end of each string to reduce them to this common prefix. This is calculated directly from the string lengths and the common prefix length.
+
+This method avoids the costly simulation and string re-creation, resulting in a much faster solution with a time complexity of O(L), where L is the length of the shortest string.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int count=0;\n       while(!(s1.equals(s2)&&s2.equals(s3))){\n        if (s1.isEmpty() || s2.isEmpty() || s3.isEmpty()) {\n                return -1;\n            }\n            if(s1.length()>=s2.length() && s1.length()>=s3.length())\n            s1=s1.substring(0,s1.length()-1);\n            else if(s2.length()>=s1.length() && s2.length()>=s3.length())\n            s2=s2.substring(0,s2.length()-1);\n          else{\n       s3=s3.substring(0,s3.length()-1);\n        }\n            \n         count++;  \n\n        \n       }\n        return count;",
+    "replace": "int l1 = s1.length();\n        int l2 = s2.length();\n        int l3 = s3.length();\n\n        int minLength = Math.min(l1, Math.min(l2, l3));\n        int commonPrefixLength = 0;\n        for (int i = 0; i < minLength; i++) {\n            if (s1.charAt(i) == s2.charAt(i) && s2.charAt(i) == s3.charAt(i)) {\n                commonPrefixLength++;\n            } else {\n                break;\n            }\n        }\n\n        if (commonPrefixLength == 0) {\n            // If there's no common prefix, it's impossible unless they are already equal.\n            // The original code returns 0 if they are already equal (e.g., all empty).\n            return s1.equals(s2) && s2.equals(s3) ? 0 : -1;\n        }\n\n        // The number of operations is the total characters to remove.\n        return (l1 - commonPrefixLength) + (l2 - commonPrefixLength) + (l3 - commonPrefixLength);"
+  }
+]
+```

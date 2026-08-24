@@ -1,0 +1,11 @@
+Improved by removing the `HashMap` sliding-window overhead and using direct circular index comparisons. The original window condition is equivalent to checking `colors[i] == colors[(i + 2) % n]` and `colors[i] != colors[(i + 1) % n]`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int start=0, end=0, count=0;\n        HashMap<Integer, Integer> map = new HashMap<>();\n        while(start<colors.length){\n            int color = colors[end%colors.length];\n            map.put(color, map.getOrDefault(color, 0)+1);\n            if(end-start+1==3){\n                int startColor = colors[start];\n                if(map.size()==2 && startColor==color){\n                    count++;\n                }\n                map.put(startColor, map.get(startColor)-1);\n                if(map.get(startColor)==0){\n                    map.remove(startColor);\n                }\n                start++;\n            }\n            end++;\n        }\n\n        return count;",
+    "replace": "        int n = colors.length;\n        int count = 0;\n        for (int i = 0; i < n; i++) {\n            if (colors[i] == colors[(i + 2) % n] && colors[i] != colors[(i + 1) % n]) {\n                count++;\n            }\n        }\n        return count;"
+  }
+]
+```

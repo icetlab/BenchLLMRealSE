@@ -1,0 +1,16 @@
+My overall improvement strategy is to enhance the performance of the existing algorithm by optimizing the hash map operations within the main loop. The original implementation has inefficiencies in how it populates the maps that store the minimum and maximum values for each bit prefix. I will replace this with the more efficient `Map.merge` method. Additionally, I will optimize the subsequent loop that checks for strong pairs by iterating over map entries directly, which avoids redundant lookups and makes the code cleaner. These changes are micro-optimizations that preserve the `O(L*N)` complexity but reduce constant factors, leading to better performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "            HashMap<Integer, Integer> pref = new HashMap<>(), pref2 = new HashMap<>();\n            for (int a : A) {\n                int p = a >> i;\n                if (!pref.containsKey(p)) {\n                    pref.put(p, a);\n                    pref2.put(p, a);\n                }\n                pref.put(p, Math.min(pref.get(p), a));\n                pref2.put(p, Math.max(pref2.get(p), a));\n            }",
+    "replace": "            HashMap<Integer, Integer> pref = new HashMap<>(), pref2 = new HashMap<>();\n            for (int a : A) {\n                int p = a >> i;\n                pref.merge(p, a, Integer::min);\n                pref2.merge(p, a, Integer::max);\n            }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            for (int x : pref.keySet()) {\n                int y = res ^ 1 ^ x;\n                if (x >= y && pref.containsKey(y) && pref.get(x) <= pref2.get(y) * 2) {\n                    res |= 1;\n                    break;\n                }\n            }",
+    "replace": "            for (java.util.Map.Entry<Integer, Integer> entry : pref.entrySet()) {\n                int x = entry.getKey();\n                int min_x = entry.getValue();\n                int y = res ^ 1 ^ x;\n                if (x >= y) {\n                    Integer max_y = pref2.get(y);\n                    if (max_y != null && min_x <= max_y * 2) {\n                        res |= 1;\n                        break;\n                    }\n                }\n            }"
+  }
+]
+```

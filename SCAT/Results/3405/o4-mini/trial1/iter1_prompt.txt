@@ -1,0 +1,63 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 6: expected='7' got='12'
+>>>> Your previous output was:
+I’ve replaced the HashSet-based logic with a simple fixed-size int array state machine (size 26) to track each letter’s state, eliminating object overhead and repeated case conversions while preserving the exact counting behavior.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int numberOfSpecialChars(String word) {\n        int count = 0;\n        Set<Character> set = new HashSet<>();\n        Set<Character> alreadyCounted = new HashSet<>();\n\n        for (char c : word.toCharArray()) {\n            if (set.contains(Character.toUpperCase(c))) {\n                if(alreadyCounted.contains(c)){\n                    count--;\n                    alreadyCounted.remove(Character.toUpperCase(c));\n                    alreadyCounted.remove(Character.toLowerCase(c));\n                }else\n                continue;\n            }\n            if (Character.toUpperCase(c) == c && set.contains(Character.toLowerCase(c))) {\n                alreadyCounted.add(c);\n                alreadyCounted.add(Character.toLowerCase(c));\n                count++;\n            }\n\n            set.add(c);\n        }\n\n        return count;\n    }",
+    "replace": "public int numberOfSpecialChars(String word) {\n    int count = 0;\n    int[] state = new int[26];  // 0=none, 1=seen lowercase, 2=seen lowercase→uppercase (counted)\n    for (char c : word.toCharArray()) {\n        if (c >= 'a' && c <= 'z') {\n            int idx = c - 'a';\n            if (state[idx] == 2) {\n                // lowercase after counted uppercase cancels\n                count--;\n                state[idx] = 0;\n            } else if (state[idx] == 0) {\n                state[idx] = 1;\n            }\n        } else if (c >= 'A' && c <= 'Z') {\n            int idx = c - 'A';\n            if (state[idx] == 1) {\n                // uppercase following lowercase counts\n                count++;\n                state[idx] = 2;\n            }\n        }\n    }\n    return count;\n}"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int numberOfSpecialChars(String word) {
+        int count = 0;
+        Set<Character> set = new HashSet<>();
+        Set<Character> alreadyCounted = new HashSet<>();
+
+        for (char c : word.toCharArray()) {
+            if (set.contains(Character.toUpperCase(c))) {
+                if(alreadyCounted.contains(c)){
+                    count--;
+                    alreadyCounted.remove(Character.toUpperCase(c));
+                    alreadyCounted.remove(Character.toLowerCase(c));
+                }else
+                continue;
+            }
+            if (Character.toUpperCase(c) == c && set.contains(Character.toLowerCase(c))) {
+                alreadyCounted.add(c);
+                alreadyCounted.add(Character.toLowerCase(c));
+                count++;
+            }
+
+            set.add(c);
+        }
+
+        return count;
+    }
+}
+
+---------
+>> Example test cases are:
+Example 1:
+  input: aaAbcBC
+  expected output: 3
+Example 2:
+  input: abc
+  expected output: 0
+Example 3:
+  input: AbBCab
+  expected output: 0
+Example 4:
+  input: a
+  expected output: 0
+Example 5:
+  input: A
+  expected output: 0
+

@@ -1,0 +1,31 @@
+I’ve replaced the string-based memoization with a faster 3D array lookup, removing key construction and Map overhead, and initialized the dp array with a sentinel. I also added the necessary import for Arrays.fill.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "long solve(int[][] arr, int row, int mask, int rooks, Map<String, Long>dp)",
+    "replace": "long solve(int[][] arr, int row, int mask, int rooks, long[][][] dp)"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "String key = row + \"-\" + rooks + \"-\" + mask;\n        if(dp.containsKey(key))\n            return dp.get(key);",
+    "replace": "if (dp[row][rooks][mask] != Long.MIN_VALUE)\n            return dp[row][rooks][mask];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "dp.put(key, ans);",
+    "replace": "dp[row][rooks][mask] = ans;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Map<String, Long> dp = new HashMap<>();",
+    "replace": "long[][][] dp = new long[n+1][4][1<<m];\n        for (int i = 0; i <= n; i++)\n            for (int j = 0; j < 4; j++)\n                Arrays.fill(dp[i][j], Long.MIN_VALUE);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.Arrays;\n\nclass Solution {"
+  }
+]
+```

@@ -1,0 +1,37 @@
+The user wants to improve the performance of a Java solution for a tree problem.
+
+### Analysis of the Original Code
+The provided code implements a dynamic programming solution on a tree. The `solve` method computes the maximum sum of edge weights in the subtree of a given `node`, subject to the constraint that no node's degree exceeds `k`.
+
+For each node, the core logic is as follows:
+1.  Recursively compute the results for all children, considering two cases for each child edge: keeping it (`dontRemove`) or removing it (`remove`).
+2.  Calculate the "gain" of keeping an edge, which is `dontRemove - remove`.
+3.  Determine how many child edges must be removed (`edgesToRemove`) to satisfy the degree constraint at the current node.
+4.  To maximize the total weight, it's optimal to forcibly remove the edges with the smallest gains.
+5.  The original code achieves this by creating a list of `candidates` (one for each child), sorting this list based on the gain, and then iterating through the sorted list to calculate the total sum.
+
+The performance bottleneck lies in the sorting step: `candidates.sort(...)`. If a node has a degree `d`, this sort takes `O(d * log d)` time. For a tree with nodes of high degree (e.g., a star graph), this can be inefficient. The total complexity is roughly `sum over all nodes v of O(degree(v) * log(degree(v)))`.
+
+### Improvement Strategy
+The full sort is unnecessary. We only need to partition the children's edges into two groups: those we are forced to remove (with the smallest gains) and those where we have a choice (with larger gains). This is a selection problem, not a sorting problem.
+
+A more efficient approach is to find the `edgesToKeep` edges with the largest gains. This can be done using a selection algorithm. A min-priority queue (min-heap) of size `edgesToKeep` is a standard and easy way to implement this.
+
+The improved logic is:
+1.  Reformulate the total sum calculation. The final sum can be expressed as the sum of weights if all child edges were removed (`baseSum`), plus a "bonus" from the edges we choose to keep. The bonus for keeping an edge is `max(0, dontRemove - remove)`.
+2.  Iterate through each child, calculate `dontRemove`, `remove`, and the `diff` (gain). Add `remove` to a running `baseSum`.
+3.  We need to add the bonus from the `edgesToKeep` edges with the largest `diff`s.
+4.  Use a min-priority queue of size `edgesToKeep` to find these top `edgesToKeep` diffs in `O(d * log(edgesToKeep))` time.
+5.  Iterate through the elements in the priority queue and add any positive diffs to the `baseSum`.
+
+Since `edgesToKeep` is at most `k`, the complexity for processing a node becomes `O(d * log k)`. This is a significant improvement over `O(d * log d)` when the node degree `d` is much larger than `k`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int edgesToRemove = Math.max(0, gr.get(node).size() - k - isParEdgeRemoved);\n        long answer = 0;\n        List<long[]> candidates = new ArrayList<>();\n        for (Edge edge : gr.get(node)) {\n            int ne = edge.neighbour, wt = edge.weight;\n            if (ne != parent) {\n                long dontRemove = solve(ne, 0, node) + wt;\n                long remove = solve(ne, 1, node);\n                candidates.add(new long[]{dontRemove, remove});\n            }\n        }\n\n        candidates.sort((p1, p2) -> Long.compare(p1[0] - p1[1], p2[0] - p2[1]));\n        for (int i = 0; i < candidates.size(); i++) {\n            long dontRemove = candidates.get(i)[0];\n            long remove = candidates.get(i)[1];\n            if (i < edgesToRemove) {\n                answer += remove;\n            } else {\n                answer += Math.max(dontRemove, remove);\n            }\n        }\n        return dp[node][isParEdgeRemoved] = answer;",
+    "replace": "        int edgesToRemove = Math.max(0, gr.get(node).size() - k - isParEdgeRemoved);\n\n        long baseSum = 0;\n        List<Long> diffs = new ArrayList<>();\n        for (Edge edge : gr.get(node)) {\n            int ne = edge.neighbour, wt = edge.weight;\n            if (ne != parent) {\n                long dontRemove = solve(ne, 0, node) + wt;\n                long remove = solve(ne, 1, node);\n                baseSum += remove;\n                diffs.add(dontRemove - remove);\n            }\n        }\n\n        int numChildren = diffs.size();\n        if (edgesToRemove >= numChildren) {\n            return dp[node][isParEdgeRemoved] = baseSum;\n        }\n\n        int edgesToKeep = numChildren - edgesToRemove;\n\n        if (edgesToKeep > 0) {\n            // Use a min-heap to find the `edgesToKeep` largest diffs, which is more\n            // efficient than sorting all diffs.\n            PriorityQueue<Long> minHeap = new PriorityQueue<>();\n            for (long diff : diffs) {\n                if (minHeap.size() < edgesToKeep) {\n                    minHeap.add(diff);\n                } else if (diff > minHeap.peek()) {\n                    minHeap.poll();\n                    minHeap.add(diff);\n                }\n            }\n\n            for (long diffInHeap : minHeap) {\n                if (diffInHeap > 0) {\n                    baseSum += diffInHeap;\n                }\n            }\n        }\n\n        return dp[node][isParEdgeRemoved] = baseSum;"
+  }
+]
+```

@@ -1,0 +1,9 @@
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int minimumLevels(int[] possible) {\n        int n=possible.length;\n        int[] alice=new int[n];\n        int[] bob=new int[n];\n        alice[0]=possible[0]==1?1:-1;\n        bob[n-1]=possible[n-1]==1?1:-1;\n        for(int i=1;i<n;i++){\n            if(possible[i]==0){alice[i]=alice[i-1]-1;}\n            else{alice[i]=alice[i-1]+1;}\n        }\n        for(int i=n-2;i>=0;i--){\n            if(possible[i]==0){bob[i]=bob[i+1]-1;}\n            else{bob[i]=bob[i+1]+1;}\n        }\n        for(int i=0;i<n-1;i++){\n            if(alice[i]>bob[i+1]){return i+1;}\n        }\n        return -1;\n    }\n}",
+    "replace": "class Solution {\n    public int minimumLevels(int[] possible) {\n        int n = possible.length;\n        int total = 0;\n        for (int p : possible) {\n            total += (p == 1) ? 1 : -1;\n        }\n        int alice = 0;\n        for (int i = 0; i < n - 1; i++) {\n            alice += (possible[i] == 1) ? 1 : -1;\n            int bob = total - alice;\n            if (alice > bob) {\n                return i + 1;\n            }\n        }\n        return -1;\n    }\n}"
+  }
+]
+```

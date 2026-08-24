@@ -1,0 +1,15 @@
+## Improvement Intent
+
+The original solution uses O(n²) time by checking all substrings from each starting position. We can optimize by using a prefix sum approach with a hashmap to track the difference between vowel and consonant counts, similar to the "contiguous subarray with equal 0s and 1s" problem. This reduces the time complexity from O(n²) to O(n).
+
+The key insight: when `vowelCount - consonantCount` is the same at two positions i and j, the substring between them has equal vowels and consonants. We need to track these differences along with the product condition modulo k.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int beautifulSubstrings(String s, int k) {\n        int n = s.length();\n        int count = 0;\n        String vowels = \"aeiou\";\n\n        for(int i = 0; i < n; i++){\n            int vowelCount = 0;\n            int consonantCount = 0;\n            \n            for(int j = i; j < n; j++){\n                char c = s.charAt(j);\n\n                if(vowels.indexOf(c) != -1){\n                    vowelCount++;\n                } else{\n                    consonantCount++;\n                }\n                if(vowelCount == consonantCount && ( vowelCount * consonantCount) % k == 0){\n                        count++;\n                    }\n                }\n            }\n            return count;\n        }   \n}",
+    "replace": "class Solution {\n    public int beautifulSubstrings(String s, int k) {\n        int n = s.length();\n        int count = 0;\n        String vowels = \"aeiou\";\n        \n        // Map from (difference, vowelCount % k) to frequency\n        // difference = vowelCount - consonantCount\n        Map<String, Integer> map = new HashMap<>();\n        map.put(\"0_0\", 1);\n        \n        int vowelCount = 0;\n        int consonantCount = 0;\n        \n        for(int i = 0; i < n; i++){\n            char c = s.charAt(i);\n            \n            if(vowels.indexOf(c) != -1){\n                vowelCount++;\n            } else {\n                consonantCount++;\n            }\n            \n            int diff = vowelCount - consonantCount;\n            int vowelMod = vowelCount % k;\n            String key = diff + \"_\" + vowelMod;\n            \n            count += map.getOrDefault(key, 0);\n            map.put(key, map.getOrDefault(key, 0) + 1);\n        }\n        \n        return count;\n    }\n}"
+  }
+]
+```

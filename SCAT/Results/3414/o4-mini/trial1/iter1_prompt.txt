@@ -1,0 +1,82 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 21: [RUNTIME TIMEOUT]
+>>>> Your previous output was:
+I refactored the recursion to use a fixed‐size primitive 3D array for memoization instead of creating many Move objects and Map lookups, eliminating boxing/unboxing overhead and improving speed.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    private int helper(Move move, int k, Map<Move,Integer> cache) { \n        if(move.currentStair - k > 1)\n            return 0;\n\n        if(cache.containsKey(move))\n            return cache.get(move);\n\n        var res = move.currentStair == k? 1: 0;    \n\n        if(move.lastDirection == Direction.UP && move.currentStair > 0) {\n            res += helper(move.down(), k, cache);\n        }\n\n        res += helper(move.up(), k, cache);\n\n        cache.put(move, res);\n\n        return res;\n    }",
+    "replace": "    private int helper(int stair, int jump, int dir, int k, int maxJump, int[][][] dp) {\n        if (stair - k > 1) return 0;\n        if (stair >= 0 && stair <= k + 1 && jump <= maxJump && dp[dir][stair][jump] != -1) {\n            return dp[dir][stair][jump];\n        }\n        int res = (stair == k) ? 1 : 0;\n        if (dir == 1 && stair > 0) {\n            res += helper(stair - 1, jump, 0, k, maxJump, dp);\n        }\n        if (jump < maxJump) {\n            int nextStair = stair + (1 << jump);\n            res += helper(nextStair, jump + 1, 1, k, maxJump, dp);\n        }\n        if (stair >= 0 && stair <= k + 1 && jump <= maxJump) {\n            dp[dir][stair][jump] = res;\n        }\n        return res;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public int waysToReachStair(int k) {\n        return helper(new Move(Direction.UP, 1, 0), k, new HashMap<>());\n    }",
+    "replace": "    public int waysToReachStair(int k) {\n        int maxJump = 0;\n        while ((1 << maxJump) < k + 2) maxJump++;\n        int[][][] dp = new int[2][k + 2][maxJump + 1];\n        for (int dir = 0; dir < 2; dir++) {\n            for (int stair = 0; stair < k + 2; stair++) {\n                for (int j = 0; j <= maxJump; j++) {\n                    dp[dir][stair][j] = -1;\n                }\n            }\n        }\n        return helper(1, 0, 1, k, maxJump, dp);\n    }"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    private enum Direction {
+        UP,
+        DOWN;
+    };
+
+    private record Move(Direction lastDirection, int currentStair, int currentJump) {
+
+        public Move down() {
+            return new Move(Direction.DOWN, currentStair - 1, currentJump);
+        }
+
+        public Move up() {
+            return new Move(Direction.UP, currentStair + (1 << currentJump), currentJump + 1);
+        }
+    }
+
+
+    private int helper(Move move, int k, Map<Move,Integer> cache) { 
+        if(move.currentStair - k > 1)
+            return 0;
+
+        if(cache.containsKey(move))
+            return cache.get(move);
+
+        var res = move.currentStair == k? 1: 0;    
+
+        if(move.lastDirection == Direction.UP && move.currentStair > 0) {
+            res += helper(move.down(), k, cache);
+        }
+
+        res += helper(move.up(), k, cache);
+
+        cache.put(move, res);
+
+        return res;
+    }
+
+    public int waysToReachStair(int k) {
+        return helper(new Move(Direction.UP, 1, 0), k, new HashMap<>());
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 0
+  expected output: 2
+Example 2:
+  input: 1
+  expected output: 4
+Example 3:
+  input: 2
+  expected output: 4
+Example 4:
+  input: 3
+  expected output: 3
+Example 5:
+  input: 4
+  expected output: 2
+

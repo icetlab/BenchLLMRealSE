@@ -1,0 +1,91 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 20: expected='145208004' got='146038751'
+>>>> Your previous output was:
+We can improve performance by replacing the `TreeSet` and `HashMap` with more efficient data structures. The key insight is that we only need the min and max values of `a` and `b` after removing each point. Instead of using `TreeSet` (O(log n) for add/remove/first/last), we can precompute the top two smallest and largest values for each coordinate, allowing O(1) lookups during the removal loop.
+
+Here’s the optimized version:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n\n    class Point {\n        int i;\n        int val;\n        Point(int i, int val) {\n            this.i = i;\n            this.val = val;\n        }\n    }\n\n    public int minimumDistance(int[][] points) {\n        int n = points.length;\n\n        HashMap<Integer, Integer> count1 = new HashMap<>();\n        TreeSet<Integer> set1 = new TreeSet<>();\n        HashMap<Integer, Integer> count2 = new HashMap<>();\n        TreeSet<Integer> set2 = new TreeSet<>();\n\n        int idx = 0;\n        for (int[] p : points) {\n            int a = p[0] + p[1];\n            int b = p[0] - p[1];\n            set1.add(a);\n            set2.add(b);\n            count1.put(a, count1.getOrDefault(a, 0) + 1);\n            count2.put(b, count2.getOrDefault(b, 0) + 1);\n        }\n\n        int res = Integer.MAX_VALUE;\n        for (int[] p : points) {\n            int a = p[0] + p[1];\n            int b = p[0] - p[1];\n\n            count1.put(a, count1.getOrDefault(a, 0) - 1);\n            count2.put(b, count2.getOrDefault(b, 0) - 1);\n            if (count1.get(a) == 0) {\n                set1.remove(a);\n            }\n            if (count2.get(b) == 0) {\n                set2.remove(b);\n            }\n\n            res = Math.min(res, Math.max(set1.last() - set1.first(), set2.last() - set2.first()));\n\n            set1.add(a);\n            set2.add(b);\n            count1.put(a, count1.getOrDefault(a, 0) + 1);\n            count2.put(b, count2.getOrDefault(b, 0) + 1);\n        }\n        \n        return res;\n    }\n}",
+    "replace": "class Solution {\n\n    public int minimumDistance(int[][] points) {\n        int n = points.length;\n        if (n <= 1) return 0;\n\n        // Precompute transformed coordinates\n        int[] a = new int[n];\n        int[] b = new int[n];\n        for (int i = 0; i < n; i++) {\n            a[i] = points[i][0] + points[i][1];\n            b[i] = points[i][0] - points[i][1];\n        }\n\n        // Find the two smallest and two largest values for a and b\n        int[] minA = new int[2], maxA = new int[2];\n        int[] minB = new int[2], maxB = new int[2];\n        findTwoExtremes(a, minA, maxA);\n        findTwoExtremes(b, minB, maxB);\n\n        int res = Integer.MAX_VALUE;\n        for (int i = 0; i < n; i++) {\n            // Compute min/max excluding index i\n            int curMinA = (a[i] == minA[0]) ? minA[1] : minA[0];\n            int curMaxA = (a[i] == maxA[0]) ? maxA[1] : maxA[0];\n            int curMinB = (b[i] == minB[0]) ? minB[1] : minB[0];\n            int curMaxB = (b[i] == maxB[0]) ? maxB[1] : maxB[0];\n\n            int dist = Math.max(curMaxA - curMinA, curMaxB - curMinB);\n            res = Math.min(res, dist);\n        }\n        return res;\n    }\n\n    private void findTwoExtremes(int[] arr, int[] min, int[] max) {\n        // Initialize with first element\n        min[0] = min[1] = max[0] = max[1] = arr[0];\n        for (int v : arr) {\n            if (v < min[0]) {\n                min[1] = min[0];\n                min[0] = v;\n            } else if (v < min[1] && v != min[0]) {\n                min[1] = v;\n            }\n            if (v > max[0]) {\n                max[1] = max[0];\n                max[0] = v;\n            } else if (v > max[1] && v != max[0]) {\n                max[1] = v;\n            }\n        }\n    }\n}"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+
+    class Point {
+        int i;
+        int val;
+        Point(int i, int val) {
+            this.i = i;
+            this.val = val;
+        }
+    }
+
+    public int minimumDistance(int[][] points) {
+        int n = points.length;
+
+        HashMap<Integer, Integer> count1 = new HashMap<>();
+        TreeSet<Integer> set1 = new TreeSet<>();
+        HashMap<Integer, Integer> count2 = new HashMap<>();
+        TreeSet<Integer> set2 = new TreeSet<>();
+
+        int idx = 0;
+        for (int[] p : points) {
+            int a = p[0] + p[1];
+            int b = p[0] - p[1];
+            set1.add(a);
+            set2.add(b);
+            count1.put(a, count1.getOrDefault(a, 0) + 1);
+            count2.put(b, count2.getOrDefault(b, 0) + 1);
+        }
+
+        int res = Integer.MAX_VALUE;
+        for (int[] p : points) {
+            int a = p[0] + p[1];
+            int b = p[0] - p[1];
+
+            count1.put(a, count1.getOrDefault(a, 0) - 1);
+            count2.put(b, count2.getOrDefault(b, 0) - 1);
+            if (count1.get(a) == 0) {
+                set1.remove(a);
+            }
+            if (count2.get(b) == 0) {
+                set2.remove(b);
+            }
+
+            res = Math.min(res, Math.max(set1.last() - set1.first(), set2.last() - set2.first()));
+
+            set1.add(a);
+            set2.add(b);
+            count1.put(a, count1.getOrDefault(a, 0) + 1);
+            count2.put(b, count2.getOrDefault(b, 0) + 1);
+        }
+        
+        return res;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,1;1,1;1,1
+  expected output: 0
+Example 2:
+  input: 1,2;2,3;3,4
+  expected output: 2
+Example 3:
+  input: 82,15;4,95;36,32;29,18;95,14
+  expected output: 77
+Example 4:
+  input: 1,50;2,50;3,50;4,50;5,50;6,50;7,50;8,50;9,50;10,50
+  expected output: 8
+Example 5:
+  input: 50,1;50,2;50,3;50,4;50,5;50,6;50,7;50,8;50,9;50,10
+  expected output: 8
+

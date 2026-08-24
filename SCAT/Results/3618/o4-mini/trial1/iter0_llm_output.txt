@@ -1,0 +1,21 @@
+I’ve replaced the boxed `ArrayList<Integer>` and `toCharArray` usage with a primitive `int[]` segments array, and switched all list-based loops to index-based loops over that array to eliminate boxing/unboxing and improve memory locality.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "ArrayList<Integer> list = new ArrayList<Integer>();\n\n// !!!!\n// !!!!!! set to the first char\n        char curr = word.charAt(0);\n        int count = 0;\n        for (char c: word.toCharArray()) {\n            if (c == curr) count++;\n            else {\n                list.add(count);\n                curr = c;\n                count = 1;\n            }\n        }\n        list.add(count);",
+    "replace": "int[] segments = new int[len];\n        int segCount = 0;\n// !!!!\n// !!!!!! set to the first char\n        char curr = word.charAt(0);\n        int count = 1;\n        for (int i = 1; i < len; i++) {\n            char c = word.charAt(i);\n            if (c == curr) count++;\n            else {\n                segments[segCount++] = count;\n                curr = c;\n                count = 1;\n            }\n        }\n        segments[segCount++] = count;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "if (list.size() >= k) {\n            for (int t: list) {\n                res *= t;\n                res %= mod;\n            }\n            return (int) res;\n        }",
+    "replace": "if (segCount >= k) {\n            for (int i = 0; i < segCount; i++) {\n                res = (res * segments[i]) % mod;\n            }\n            return (int) res;\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "for (int itemCnt: list) {\n            long[] cnt = new long[k+1];",
+    "replace": "for (int idx = 0; idx < segCount; idx++) {\n            int itemCnt = segments[idx];\n            long[] cnt = new long[k+1];"
+  }
+]
+```

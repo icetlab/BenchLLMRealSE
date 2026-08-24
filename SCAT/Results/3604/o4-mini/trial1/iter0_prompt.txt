@@ -1,0 +1,45 @@
+>> The source file (Solution.java) is:
+class Solution {
+
+      
+    private static final long mod = 1000000007;
+    private static long[][] s = new long[1001][1001];
+    
+
+    public int numberOfWays(int n, int x, int y) {
+
+       
+        s[0][0] = 1;
+        for (int i = 1; i <= 1000; i++)
+            for (int j = 1; j <= i; j++)
+                s[i][j] = (s[i - 1][j - 1] + s[i - 1][j] * j) % mod;
+    
+        long res = 0, perm = 1, pow = 1;
+        for (int i = 1; i <= Math.min(n, x); i++) {
+            perm = perm * (x - i + 1) % mod;
+            pow = pow * y % mod;
+            res = (res + perm * s[n][i] % mod * pow) % mod;
+        }
+        return (int) res;
+    }
+}
+
+        
+   
+---------
+>> Example test cases are:
+Example 1:
+  input: 1 2 3
+  expected output: 6
+Example 2:
+  input: 5 2 1
+  expected output: 32
+Example 3:
+  input: 3 3 4
+  expected output: 684
+Example 4:
+  input: 2 48 18
+  expected output: 731808
+Example 5:
+  input: 2 1 5
+  expected output: 5

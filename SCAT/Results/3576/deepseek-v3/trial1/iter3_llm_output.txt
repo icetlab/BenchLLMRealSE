@@ -1,0 +1,11 @@
+Looking at the error, the search text doesn't match because the original code has different formatting and comments. Let me provide a more flexible search pattern that matches the actual source code exactly.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "void dfs(int node, Set<Integer>[] adj, String s, Integer[] closest, int parent, Set<Integer>[] adj2) {\n        int val = s.charAt(node) - 'a';\n\n     //   System.out.println(\"Came to \" + node);\n\n        if (closest[val] != null) {\n            int newParent = closest[val];\n       //     System.out.println(\"Removing from \" + parent + \" adding to \" + newParent);\n            adj2[parent].remove(node);\n            adj2[newParent].add(node);\n        } \n\n        Integer temp = closest[val];\n\n        closest[val] = node;\n\n        //System.out.println(\"Set \" + val + \" for node \" + node);\n\n        for(int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, node, adj2);\n        }\n\n        closest[val] = temp;\n    }",
+    "replace": "void dfs(int node, Set<Integer>[] adj, String s, Integer[] closest, int parent, Set<Integer>[] adj2) {\n        int val = s.charAt(node) - 'a';\n\n        if (closest[val] != null) {\n            int newParent = closest[val];\n            if (parent != -1) {\n                adj2[parent].remove(node);\n            }\n            adj2[newParent].add(node);\n        } \n\n        Integer temp = closest[val];\n\n        closest[val] = node;\n\n        for(int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, node, adj2);\n        }\n\n        closest[val] = temp;\n    }"
+  }
+]
+```

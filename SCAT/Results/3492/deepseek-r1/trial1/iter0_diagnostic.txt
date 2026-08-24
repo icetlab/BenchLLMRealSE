@@ -1,0 +1,107 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search="    public int numberOfSubmatrices(char[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n        List<List<Pair>> prefixSum = new ArrayList<>();\n\n        //int[][] prefixSum = new int[m][n];\n        int count = 0;\n\n        // initializing our prefixSum array \n        for(int i=0; i<m; i++) {\n            List<Pair> temp = new ArrayList<>();\n            for(int j=0; j<n; j++) {\n                if(grid[i][j] == 'X') {\n                    temp.add(new Pair(1,0));\n                }\n                else if(grid[i][j] == 'Y') {\n                    temp.add(new Pair(0,1));\n                }\n                else {\n                    temp.add(new Pair(0,0));\n                }\n\n            }\n            prefixSum.add(temp);\n        }\n\n        // prefixSum of each row\n        for(int i=0; i<m; i++) {\n            for(int j=1; j<n; j++) {\n                Pair p1 = prefixSum.get(i).get(j-1);\n                Pair p2 = prefixSum.get(i).get(j);\n                p2.xCount += p1.xCount;\n                p2.yCount += p1.yCount;\n            }\n        }\n\n        // prefixSum of each col\n        for(int j=0; j<n; j++) {\n            for(int i=1; i<m; i++) {\n                Pair p1 = prefixSum.get(i-1).get(j);\n                Pair p2 = prefixSum.get(i).get(j);\n                p2.xCount += p1.xCount;\n                p2.yCount += p1.yCount;\n            }\n        }\n\n        for(int i=0; i<m; i++) {\n            for(int j=0; j<n; j++) {\n                Pair p = prefixSum.get(i).get(j);\n                if((p.xCount != 0) && (p.xCount == p.yCount)){\n                    count++;\n                }\n            }\n        }\n\n        return count;\n\n    }"
+>>>> Your previous output was:
+Improved by replacing the 2-D `List<Pair>` prefix matrix with a single rolling prefix pass over primitive `int` arrays. This removes per-cell object allocations and reduces memory from `O(m*n)` to `O(n)`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int numberOfSubmatrices(char[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n        List<List<Pair>> prefixSum = new ArrayList<>();\n\n        //int[][] prefixSum = new int[m][n];\n        int count = 0;\n\n        // initializing our prefixSum array \n        for(int i=0; i<m; i++) {\n            List<Pair> temp = new ArrayList<>();\n            for(int j=0; j<n; j++) {\n                if(grid[i][j] == 'X') {\n                    temp.add(new Pair(1,0));\n                }\n                else if(grid[i][j] == 'Y') {\n                    temp.add(new Pair(0,1));\n                }\n                else {\n                    temp.add(new Pair(0,0));\n                }\n\n            }\n            prefixSum.add(temp);\n        }\n\n        // prefixSum of each row\n        for(int i=0; i<m; i++) {\n            for(int j=1; j<n; j++) {\n                Pair p1 = prefixSum.get(i).get(j-1);\n                Pair p2 = prefixSum.get(i).get(j);\n                p2.xCount += p1.xCount;\n                p2.yCount += p1.yCount;\n            }\n        }\n\n        // prefixSum of each col\n        for(int j=0; j<n; j++) {\n            for(int i=1; i<m; i++) {\n                Pair p1 = prefixSum.get(i-1).get(j);\n                Pair p2 = prefixSum.get(i).get(j);\n                p2.xCount += p1.xCount;\n                p2.yCount += p1.yCount;\n            }\n        }\n\n        for(int i=0; i<m; i++) {\n            for(int j=0; j<n; j++) {\n                Pair p = prefixSum.get(i).get(j);\n                if((p.xCount != 0) && (p.xCount == p.yCount)){\n                    count++;\n                }\n            }\n        }\n\n        return count;\n\n    }",
+    "replace": "    public int numberOfSubmatrices(char[][] grid) {\n        int n = grid[0].length;\n        int[] xCount = new int[n];\n        int[] yCount = new int[n];\n        int count = 0;\n\n        for (char[] row : grid) {\n            int rowX = 0;\n            int rowY = 0;\n            for (int j = 0; j < n; j++) {\n                char c = row[j];\n                if (c == 'X') {\n                    rowX++;\n                } else if (c == 'Y') {\n                    rowY++;\n                }\n                xCount[j] += rowX;\n                yCount[j] += rowY;\n                if (xCount[j] != 0 && xCount[j] == yCount[j]) {\n                    count++;\n                }\n            }\n        }\n\n        return count;\n    }"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    class Pair {
+        int xCount;
+        int yCount;
+
+        public Pair(int xCount, int yCount) {
+            this.xCount = xCount;
+            this.yCount = yCount;
+        }
+    }
+
+    public int numberOfSubmatrices(char[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        List<List<Pair>> prefixSum = new ArrayList<>();
+        
+        //int[][] prefixSum = new int[m][n];
+        int count = 0;
+
+        // initializing our prefixSum array 
+        for(int i=0; i<m; i++) {
+            List<Pair> temp = new ArrayList<>();
+            for(int j=0; j<n; j++) {
+                if(grid[i][j] == 'X') {
+                    temp.add(new Pair(1,0));
+                }
+                else if(grid[i][j] == 'Y') {
+                    temp.add(new Pair(0,1));
+                }
+                else {
+                    temp.add(new Pair(0,0));
+                }
+
+            }
+            prefixSum.add(temp);
+        }
+
+        // prefixSum of each row
+        for(int i=0; i<m; i++) {
+            for(int j=1; j<n; j++) {
+                Pair p1 = prefixSum.get(i).get(j-1);
+                Pair p2 = prefixSum.get(i).get(j);
+                p2.xCount += p1.xCount;
+                p2.yCount += p1.yCount;
+            }
+        }
+
+        // prefixSum of each col
+        for(int j=0; j<n; j++) {
+            for(int i=1; i<m; i++) {
+                Pair p1 = prefixSum.get(i-1).get(j);
+                Pair p2 = prefixSum.get(i).get(j);
+                p2.xCount += p1.xCount;
+                p2.yCount += p1.yCount;
+            }
+        }
+
+
+        for(int i=0; i<m; i++) {
+            for(int j=0; j<n; j++) {
+                Pair p = prefixSum.get(i).get(j);
+                if((p.xCount != 0) && (p.xCount == p.yCount)){
+                    count++;
+                }
+            }
+        }
+
+        return count;
+
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,1;X
+  expected output: 0
+Example 2:
+  input: 2,3;X,Y,.;Y,.,.
+  expected output: 3
+Example 3:
+  input: 2,2;X,X;X,Y
+  expected output: 0
+Example 4:
+  input: 2,2;.,.;.,.
+  expected output: 0
+Example 5:
+  input: 1,5;X,Y,X,Y,.
+  expected output: 3
+

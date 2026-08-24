@@ -1,0 +1,18 @@
+## Improvement Intent
+
+The previous patch incorrectly assumed a fixed mathematical pattern, but the actual problem requires computing the number of ways dynamically. The test failure for k=4 (expected 2, got 2) actually passed, but the failure was for k=5 (expected 4, got 2). The correct approach is to fix the original recursive solution by improving its efficiency while maintaining correctness. The key issues are:
+1. The `up()` method uses `1 << currentJump` which grows exponentially - this is correct behavior
+2. The memoization key needs to properly distinguish states
+3. The base case condition `move.currentStair - k > 1` is too restrictive
+
+The fix is to use a more efficient iterative/recursive approach with proper memoization that correctly handles all cases.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    private enum Direction {\n        UP,\n        DOWN;\n    };\n\n    private record Move(Direction lastDirection, int currentStair, int currentJump) {\n\n        public Move down() {\n            return new Move(Direction.DOWN, currentStair - 1, currentJump);\n        }\n\n        public Move up() {\n            return new Move(Direction.UP, currentStair + (1 << currentJump), currentJump + 1);\n        }\n    }\n\n\n    private int helper(Move move, int k, Map<Move,Integer> cache) { \n        if(move.currentStair - k > 1)\n            return 0;\n\n        if(cache.containsKey(move))\n            return cache.get(move);\n\n        var res = move.currentStair == k? 1: 0;    \n\n        if(move.lastDirection == Direction.UP && move.currentStair > 0) {\n            res += helper(move.down(), k, cache);\n        }\n\n        res += helper(move.up(), k, cache);\n\n        cache.put(move, res);\n\n        return res;\n    }\n\n    public int waysToReachStair(int k) {\n        return helper(new Move(Direction.UP, 1, 0), k, new HashMap<>());\n    }\n}",
+    "replace": "class Solution {\n    public int waysToReachStair(int k) {\n        // Use a map to memoize results for (stair, jump, canGoDown) states\n        java.util.Map<String, Integer> memo = new java.util.HashMap<>();\n        return dfs(1, 0, true, k, memo);\n    }\n    \n    private int dfs(int stair, int jump, boolean canGoDown, int k, java.util.Map<String, Integer> memo) {\n        // If we've gone too far past k, no need to continue\n        if (stair > k + 1) {\n            return 0;\n        }\n        \n        String key = stair + \",\" + jump + \",\" + canGoDown;\n        if (memo.containsKey(key)) {\n            return memo.get(key);\n        }\n        \n        int ways = (stair == k) ? 1 : 0;\n        \n        // Option 1: Go down (only if we came from up and stair > 0)\n        if (canGoDown && stair > 0) {\n            ways += dfs(stair - 1, jump, false, k, memo);\n        }\n        \n        // Option 2: Go up\n        ways += dfs(stair + (1 << jump), jump + 1, true, k, memo);\n        \n        memo.put(key, ways);\n        return ways;\n    }\n}"
+  }
+]
+```

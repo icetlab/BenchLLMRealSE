@@ -1,0 +1,54 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search='import java.util.*;\n\nclass Solution {\n    public int maxSelectedElements(int[] nums) {\n         Arrays.sort(nums);\n\n        int n = nums.length;\n        int[] dp = new int[1000002 + 2];  // dp of size 1e6 + 2 (maximum nums[i] is 1e6)\n\n        for (int j = n - 1; j >= 0; j--) {\n            dp[nums[j]] = Math.max(dp[nums[j]], 1 + dp[nums[j] + 1]);\n            dp[nums[j] + 1] = Math.max(dp[nums[j] + 1], 1 + dp[nums[j] + 2]);\n        }\n\n        int ans = 0;\n        for (int val : dp) {\n            ans = Math.max(ans, val);\n        }\n        return ans;\n    \n    }\n}'
+>>>> Your previous output was:
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.util.*;\n\nclass Solution {\n    public int maxSelectedElements(int[] nums) {\n         Arrays.sort(nums);\n\n        int n = nums.length;\n        int[] dp = new int[1000002 + 2];  // dp of size 1e6 + 2 (maximum nums[i] is 1e6)\n\n        for (int j = n - 1; j >= 0; j--) {\n            dp[nums[j]] = Math.max(dp[nums[j]], 1 + dp[nums[j] + 1]);\n            dp[nums[j] + 1] = Math.max(dp[nums[j] + 1], 1 + dp[nums[j] + 2]);\n        }\n\n        int ans = 0;\n        for (int val : dp) {\n            ans = Math.max(ans, val);\n        }\n        return ans;\n    \n    }\n}",
+    "replace": "import java.util.*;\n\nclass Solution {\n    public int maxSelectedElements(int[] nums) {\n        Arrays.sort(nums);\n\n        int n = nums.length;\n        // Use a HashMap to store only the values we actually need,\n        // avoiding the O(1e6) memory and initialization overhead.\n        Map<Integer, Integer> dp = new HashMap<>();\n\n        for (int j = n - 1; j >= 0; j--) {\n            int v = nums[j];\n            // dp[v] = max(dp[v], 1 + dp[v+1])\n            dp.put(v, Math.max(dp.getOrDefault(v, 0), 1 + dp.getOrDefault(v + 1, 0)));\n            // dp[v+1] = max(dp[v+1], 1 + dp[v+2])\n            dp.put(v + 1, Math.max(dp.getOrDefault(v + 1, 0), 1 + dp.getOrDefault(v + 2, 0)));\n        }\n\n        int ans = 0;\n        for (int val : dp.values()) {\n            ans = Math.max(ans, val);\n        }\n        return ans;\n    }\n}"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int maxSelectedElements(int[] nums) {
+         Arrays.sort(nums);
+
+        int n = nums.length;
+        int[] dp = new int[1000002 + 2];  // dp of size 1e6 + 2 (maximum nums[i] is 1e6)
+
+        for (int j = n - 1; j >= 0; j--) {
+            dp[nums[j]] = Math.max(dp[nums[j]], 1 + dp[nums[j] + 1]);
+            dp[nums[j] + 1] = Math.max(dp[nums[j] + 1], 1 + dp[nums[j] + 2]);
+        }
+
+        int ans = 0;
+        for (int val : dp) {
+            ans = Math.max(ans, val);
+        }
+        return ans;
+    
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1
+  expected output: 1
+Example 2:
+  input: 1,2,3,4,5
+  expected output: 5
+Example 3:
+  input: 1,1,1
+  expected output: 2
+Example 4:
+  input: 1,4,7,10
+  expected output: 1
+Example 5:
+  input: 2,1,5,1,1
+  expected output: 3
+

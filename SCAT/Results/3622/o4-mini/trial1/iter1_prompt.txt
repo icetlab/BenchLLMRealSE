@@ -1,0 +1,135 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 1: search text not found in source.
+search='public int maxFrequency(int[] nums, int k, int numOperations) {\\n        if(nums == null || nums.length == 0) return 0;\\n        if(numOperations < 0) return 0;\\n        if(nums.length == 1) return 1;\\n\\n        int res = 0;\\n        TreeMap<Integer, Integer> freq = new TreeMap<>(); // nums[i] -> freq'
+>>>> Your previous output was:
+I have replaced the TreeMap + prefix‐sum approach with a simpler two‐pointer window over sorted (value, frequency) pairs. This reduces the complexity and overhead, using only a sort and a single pass.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public int maxFrequency(int[] nums, int k, int numOperations) {\\n        if(nums == null || nums.length == 0) return 0;\\n        if(numOperations < 0) return 0;\\n        if(nums.length == 1) return 1;\\n\\n        int res = 0;\\n        TreeMap<Integer, Integer> freq = new TreeMap<>(); // nums[i] -> freq",
+    "replace": "public int maxFrequency(int[] nums, int k, int numOperations) {\n        if(nums == null || nums.length == 0) return 0;\n        if(numOperations < 0) return 0;\n        if(nums.length == 1) return 1;\n\n        // count frequencies\n        Map<Integer,Integer> map = new HashMap<>();\n        for(int num: nums) map.put(num, map.getOrDefault(num,0)+1);\n        // build and sort (value, freq) pairs\n        List<int[]> pairs = new ArrayList<>(map.size());\n        for(Map.Entry<Integer,Integer> e: map.entrySet())\n            pairs.add(new int[]{e.getKey(), e.getValue()});\n        Collections.sort(pairs, Comparator.comparingInt(a->a[0]));\n\n        int l = 0, sumFreq = 0, result = 0;\n        for(int r = 0; r < pairs.size(); r++) {\n            int vR = pairs.get(r)[0], fR = pairs.get(r)[1];\n            sumFreq += fR;\n            // shrink until all in window are within k of vR\n            while(vR - pairs.get(l)[0] > k) {\n                sumFreq -= pairs.get(l)[1];\n                l++;\n            }\n            int windowSize = sumFreq;\n            int canConvert = Math.min(numOperations, windowSize - fR);\n            result = Math.max(result, fR + canConvert);\n        }\n        return result;\n    }"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    // https://leetcode.com/problems/frequency-of-the-most-frequent-element/description/
+    // 題目跟上面類似 但做法不一樣 原因是最大freuency現在不一定是 1,4或5了
+    // case1 [1, 4   ,5], k = 1, numOperations = 2
+    // case2 [50, 80] k=20, numOperations = 2, 現在最大frequency為60-70 (50+10, 80-20)...etc
+
+    // {1-> 1, 4->1, 5->1}   建構 treemap 
+    //  0,1,2                建構 val->id map  
+    // [1,2,3]               建構 prefixSum
+    // 最後iterate nums, 假如現在是4   treemap找4+1 floor, 4-1 ceil, 可以用logN 方式找到需要多少operation
+
+   public int maxFrequency(int[] nums, int k, int numOperations) {
+        if(nums == null || nums.length == 0) return 0;
+        if(numOperations < 0) return 0;
+        if(nums.length == 1) return 1;
+
+        int res = 0;
+        TreeMap<Integer, Integer> freq = new TreeMap<>(); // nums[i] -> freq
+        HashMap<Integer, Integer> valToId = new HashMap<>();
+        HashMap<Integer, Integer> idToVal = new HashMap<>();
+
+        for(int i=0; i<nums.length; i++){
+            freq.put(nums[i], freq.getOrDefault(nums[i], 0) + 1);
+            freq.putIfAbsent(nums[i] + k, 0);
+            freq.putIfAbsent(nums[i] - k, 0);
+        }
+
+        int[] prefixSum = new int[freq.size()];
+        int idx = 0;
+        for(int key: freq.keySet()){
+            valToId.put(key, idx);
+            idToVal.put(idx, key);
+            prefixSum[idx] = freq.get(key) + (idx == 0 ? 0: prefixSum[idx-1]);
+            idx++;
+        }
+
+        for(int i=0; i<prefixSum.length; i++){
+            Integer floor = freq.floorKey(idToVal.get(i) + k);
+            Integer ceil = freq.ceilingKey(idToVal.get(i) - k);
+
+            int idx2 = valToId.get(floor);
+            int idx1 = valToId.get(ceil);
+
+            int sum = prefixSum[idx2] - (idx1 == 0 ? 0: prefixSum[idx1-1]);
+            int currOp = Math.min(numOperations, sum - freq.get(idToVal.get(i)));
+
+            res = Math.max(res, freq.get(idToVal.get(i)) + currOp);
+        }
+        return res;
+    }
+
+    /*
+    // 用 range based 來解決 case 2 問題
+    public int maxFrequency(int[] nums, int k, int numOperations) {
+        if(nums == null || nums.length == 0) return 0;
+        if(numOperations < 0) return 0;
+        if(nums.length == 1) return 1;
+
+        int res = 0;
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        TreeMap<Integer, Integer> freq = new TreeMap<>(); // nums[i] -> freq
+        HashMap<Integer, Integer> valToId = new HashMap<>();
+
+        for(int i=0; i<nums.length; i++){
+            freq.put(nums[i], freq.getOrDefault(nums[i], 0) + 1);
+            max = Math.max(max, nums[i]);
+            min = Math.min(min, nums[i]);
+        }
+
+        int[] prefixSum = new int[freq.size()];
+        int idx = 0;
+        for(int key: freq.keySet()){
+            valToId.put(key, idx);
+            prefixSum[idx] = freq.get(key) + (idx == 0 ? 0: prefixSum[idx-1]);
+            idx++;
+        }
+
+        for(int i=min; i<=max; i++){
+            Integer floor = freq.floorKey(i + k);
+            Integer ceil = freq.ceilingKey(i - k);
+
+            int idx2 = valToId.get(floor);
+            int idx1 = valToId.get(ceil);
+
+            int sum = prefixSum[idx2] - (idx1 == 0 ? 0: prefixSum[idx1-1]);
+            int currOp = Math.min(numOperations, sum - freq.getOrDefault(i, 0));
+
+            res = Math.max(res, freq.getOrDefault(i, 0) + currOp);
+        }
+        return res;
+    }
+    */
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 5 0 0
+  expected output: 1
+Example 2:
+  input: 3,3,3,3,3 1 2
+  expected output: 5
+Example 3:
+  input: 1,4,5 1 2
+  expected output: 2
+Example 4:
+  input: 5,11,20,20 5 1
+  expected output: 2
+Example 5:
+  input: 2,8,10,12 100 4
+  expected output: 4
+

@@ -1,0 +1,8 @@
+{
+  "outcome": "implausible",
+  "stage": "format",
+  "message": "Block 1: search text not found in source.\nsearch='for(int i=0; i<=size-s; i++) \\n        {\\n            int sum = 0;\\n            for(int j=i; j<i+s; j++) \\n            {\\n                sum += nums.get(j);\\n            }\\n            if(sum > 0) \\n            {\\n                if(res == -1 || res > sum) res = sum;\\n            }\\n        }'",
+  "iteration": 2,
+  "format_attempts": 2,
+  "verify_attempts": 0
+}

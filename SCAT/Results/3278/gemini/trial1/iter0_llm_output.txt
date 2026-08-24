@@ -1,0 +1,18 @@
+The original solution has a time complexity of O(N^3). It iterates through all pairs of points `(i, j)` and for each pair, it performs a check that involves iterating through all `n` points again. This is inefficient.
+
+My improvement reduces the time complexity to O(N^2). The key ideas are:
+1.  **Change Sorting Strategy:** Instead of sorting by the y-coordinate, I sort the points primarily by their x-coordinate (ascending) and secondarily by their y-coordinate (descending). This ordering is crucial because for any two points `p_i` and `p_j` with `i < j` in the sorted array, we are guaranteed that `p_i.x <= p_j.x`.
+2.  **Simplify Conditions:** With this new sort order, a point `p_i` can only be an "upper-left" point for a subsequent point `p_j` (where `j > i`). The condition for this is `p_i.y >= p_j.y`. Furthermore, any potential "blocking" point `p_k` must lie between `p_i` and `p_j` in the sorted array (`i < k < j`).
+3.  **Efficient Inner Loop:** For a fixed `p_i`, as we iterate through potential `p_j`'s, we can efficiently check for blocking points. Instead of a nested loop, we maintain a running maximum of the y-coordinates of intermediate points that could block the pair. This allows us to check the validity condition in O(1) time, bringing the total complexity down from O(N^3) to O(N^2).
+
+This new approach eliminates the separate `isValidPair` method and replaces the triple-nested loop structure with a more efficient double-nested loop.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int numberOfPairs(int[][] points) {\n        int n = points.length;\n        int count = 0;\n        Arrays.sort(points, (point1, point2) -> point2[1] - point1[1]);\n\n        for (int i = 0; i < n; i++) {\n            for (int j = i + 1; j < n; j++) {\n                if (isValidPair(points, points[i], points[j])) {\n                    count++;\n                }\n                \n                if (isValidPair(points, points[j], points[i])) {\n                    count++;\n                }\n            }\n        }\n\n        return count;\n    }\n\n    private boolean isValidPair(int[][] points, int[] point1, int[] point2) {\n        int upperLeftX = point1[0];\n        int upperLeftY = point1[1];\n        int lowerRightX = point2[0];\n        int lowerRightY = point2[1];\n        \n        if (upperLeftX > lowerRightX || upperLeftY < lowerRightY) return false;\n        for (int[] point : points) {\n            int x = point[0];\n            int y = point[1];\n\t\t\t // for points[0] & points[1] count all such pairs where\n             // no point is present in between them\n\n            if (x >= upperLeftX && x <= lowerRightX && y <= upperLeftY && y >= lowerRightY && !Arrays.equals(point, point1) && !Arrays.equals(point, point2)) {\n                return false;\n            }\n        }\n\n        return true;\n    }",
+    "replace": "    public int numberOfPairs(int[][] points) {\n        Arrays.sort(points, (p1, p2) -> p1[0] != p2[0] ? p1[0] - p2[0] : p2[1] - p1[1]);\n\n        int n = points.length;\n        int count = 0;\n\n        for (int i = 0; i < n; i++) {\n            int yi = points[i][1];\n            int maxYIntermediate = Integer.MIN_VALUE;\n            for (int j = i + 1; j < n; j++) {\n                int yj = points[j][1];\n                if (yj <= yi) {\n                    if (yj > maxYIntermediate) {\n                        count++;\n                    }\n                    maxYIntermediate = Math.max(maxYIntermediate, yj);\n                }\n            }\n        }\n\n        return count;\n    }"
+  }
+]
+```

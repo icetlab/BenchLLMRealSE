@@ -1,0 +1,11 @@
+I replaced the exponential recursive helper with a bitmask DP that runs in O(distinctValues × 2^rows × rows), correctly handling the matching of values to unique rows and scaling much better for small row counts.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int maxScore(List<List<Integer>> grid) {\n        TreeMap<Integer, Set<Integer>> tm = createTreeMap(grid);\n        return maxHelper(tm, tm.lastKey() + 1, new HashSet<>());\n    }",
+    "replace": "    public int maxScore(List<List<Integer>> grid) {\n        TreeMap<Integer, Set<Integer>> tm = createTreeMap(grid);\n        int R = grid.size();\n        List<Integer> keys = new ArrayList<>(tm.descendingKeySet());\n        int K = keys.size();\n        int maxMask = 1 << R;\n        int[] dp = new int[maxMask];\n        // initialize unreachable states to -inf\n        for (int mask = 1; mask < maxMask; mask++) {\n            dp[mask] = Integer.MIN_VALUE;\n        }\n        // for each value (weight) in descending order, try to assign it to any free row\n        for (int i = 0; i < K; i++) {\n            int w = keys.get(i);\n            Set<Integer> rows = tm.get(w);\n            // traverse masks downward to avoid reuse within this iteration\n            for (int mask = maxMask - 1; mask >= 0; mask--) {\n                if (dp[mask] < 0) continue;  // unreachable\n                for (int r : rows) {\n                    if (((mask >> r) & 1) == 0) {\n                        int newMask = mask | (1 << r);\n                        dp[newMask] = Math.max(dp[newMask], dp[mask] + w);\n                    }\n                }\n            }\n        }\n        // answer is the max over all masks\n        int res = 0;\n        for (int v : dp) {\n            res = Math.max(res, v);\n        }\n        return res;\n    }"
+  }
+]
+```

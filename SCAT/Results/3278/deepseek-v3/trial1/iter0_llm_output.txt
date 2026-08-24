@@ -1,0 +1,18 @@
+## Improvement Intent
+
+The original code has O(n³) time complexity due to nested loops and scanning all points for each pair. The main performance bottlenecks are:
+1. The `isValidPair` method iterates through all points for every pair, making it O(n³)
+2. The sorting by y-coordinate is unnecessary for the current algorithm
+3. We can optimize by pre-sorting points and using early termination conditions
+
+The key insight is that for a valid pair (upper-left, lower-right), we need to ensure no other point lies in the rectangle. We can sort points by x-coordinate and use a more efficient checking approach.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int numberOfPairs(int[][] points) {\n        int n = points.length;\n        int count = 0;\n        Arrays.sort(points, (point1, point2) -> point2[1] - point1[1]);\n\n        for (int i = 0; i < n; i++) {\n            for (int j = i + 1; j < n; j++) {\n                if (isValidPair(points, points[i], points[j])) {\n                    count++;\n                }\n                \n                if (isValidPair(points, points[j], points[i])) {\n                    count++;\n                }\n            }\n        }\n\n        return count;\n    }\n\n    private boolean isValidPair(int[][] points, int[] point1, int[] point2) {\n        int upperLeftX = point1[0];\n        int upperLeftY = point1[1];\n        int lowerRightX = point2[0];\n        int lowerRightY = point2[1];\n        \n        if (upperLeftX > lowerRightX || upperLeftY < lowerRightY) return false;\n        for (int[] point : points) {\n            int x = point[0];\n            int y = point[1];\n\t\t\t // for points[0] & points[1] count all such pairs where\n             // no point is present in between them\n\n            if (x >= upperLeftX && x <= lowerRightX && y <= upperLeftY && y >= lowerRightY && !Arrays.equals(point, point1) && !Arrays.equals(point, point2)) {\n                return false;\n            }\n        }\n\n        return true;\n    }\n}",
+    "replace": "class Solution {\n    public int numberOfPairs(int[][] points) {\n        int n = points.length;\n        int count = 0;\n        \n        // Sort by x ascending, then y descending for consistent ordering\n        Arrays.sort(points, (a, b) -> a[0] != b[0] ? a[0] - b[0] : b[1] - a[1]);\n        \n        for (int i = 0; i < n; i++) {\n            int[] upperLeft = points[i];\n            int maxY = Integer.MIN_VALUE;\n            \n            for (int j = i + 1; j < n; j++) {\n                int[] lowerRight = points[j];\n                \n                // Check if lowerRight is actually to the right and below upperLeft\n                if (lowerRight[0] > upperLeft[0] && lowerRight[1] <= upperLeft[1]) {\n                    // Check if there's no point in between with y in (lowerRight[1], upperLeft[1]]\n                    if (lowerRight[1] > maxY) {\n                        count++;\n                        maxY = lowerRight[1];\n                    }\n                }\n            }\n        }\n        \n        return count;\n    }\n}"
+  }
+]
+```

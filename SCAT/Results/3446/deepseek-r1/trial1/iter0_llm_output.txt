@@ -1,0 +1,11 @@
+Improved by replacing the synchronized `Hashtable` and nested scan with frequency maps plus divisor enumeration. This avoids counting duplicate `nums2` products repeatedly and reduces the number of divisibility checks.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int count=0;\n\n       Hashtable<Integer,Integer> ht = new Hashtable<>();\n\n       for(int i=0;i<nums2.length;i++)\n       {\n            int product=nums2[i]*k;\n            ht.put(i,product);\n       }\n\n       for(int nums:nums1)\n       {\n            for(Integer value:ht.values())\n            {\n                if(nums%value==0)\n                {\n                    count++;\n                }\n            }\n       }\n        return count;",
+    "replace": "        java.util.Map<Integer, Integer> nums1Freq = new java.util.HashMap<>();\n        int max = 0;\n        for (int x : nums1) {\n            nums1Freq.merge(x, 1, Integer::sum);\n            if (x > max) max = x;\n        }\n\n        java.util.Map<Integer, Integer> productFreq = new java.util.HashMap<>();\n        for (int b : nums2) {\n            long p = (long) b * k;\n            if (p > 0 && p <= max) {\n                productFreq.merge((int) p, 1, Integer::sum);\n            }\n        }\n\n        int count = 0;\n        for (java.util.Map.Entry<Integer, Integer> e : nums1Freq.entrySet()) {\n            int x = e.getKey();\n            int times = e.getValue();\n            for (int d = 1; d <= x / d; d++) {\n                if (x % d == 0) {\n                    count += times * productFreq.getOrDefault(d, 0);\n                    int other = x / d;\n                    if (other != d) {\n                        count += times * productFreq.getOrDefault(other, 0);\n                    }\n                }\n            }\n        }\n        return count;"
+  }
+]
+```

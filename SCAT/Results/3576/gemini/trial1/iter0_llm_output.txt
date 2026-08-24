@@ -1,0 +1,29 @@
+The provided Java code calculates subtree sizes in a tree that is dynamically modified based on character labels of its nodes. The original implementation has several areas for performance improvement. It uses `HashSet` for adjacency lists which is not optimal for simple traversal, performs costly `remove` and `add` operations during a recursive DFS, and uses `Integer` objects where primitives would be more efficient, causing unnecessary boxing/unboxing.
+
+My improvement strategy refactors the core algorithm and data structures for better performance:
+
+1.  **Efficient Tree Modification**: The logic is changed to avoid modifying the tree structure during the initial DFS traversal. Instead of manipulating a `HashSet`-based adjacency list, the first DFS pass now simply determines the new parent for each node and records it in a primitive `int[]` array. This replaces expensive `HashSet` operations with highly efficient array writes.
+2.  **Optimized Data Structures**: `HashSet` is replaced with `ArrayList` for representing the tree's adjacency lists. For the purpose of building a tree and then traversing it, `ArrayList` is generally faster and more memory-efficient than `HashSet`.
+3.  **Primitive Type Usage**: The `Integer[]` array used to track the nearest ancestor for each character is replaced with an `int[]` array, using a sentinel value (`-1`). This eliminates the overhead of `Integer` object creation and boxing/unboxing within the recursive `dfs` function.
+
+After the initial DFS computes the final tree structure in the `newParents` array, a new, optimized adjacency list is built from it in a single, efficient pass. The final subtree size calculation is then performed on this new structure. This approach maintains the overall O(N) time complexity but significantly improves the constant factors, leading to a faster and more memory-efficient solution.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int n = parent.length;\n\n        Set<Integer>[] adj = new Set[n];\n        Set<Integer>[] adj2 = new Set[n];\n\n        for(int i = 0; i < n; i++) {\n            adj[i] = new HashSet();\n            adj2[i] = new HashSet();\n        }\n\n        for(int i = 1; i < n; i++) {\n            adj[parent[i]].add(i);\n            adj2[parent[i]].add(i);\n        }\n\n       // System.out.println(adj2[1].toString());\n\n        dfs(0, adj, s, new Integer[27], -1, adj2);\n    \n        int[] sizes = new int[n];\n\n\n\n        findSize(0, adj2, sizes);\n\n      //  System.out.println(adj2[1].toString());\n\n        return sizes;",
+    "replace": "int n = parent.length;\n\n        java.util.List<Integer>[] adj = new java.util.ArrayList[n];\n        for (int i = 0; i < n; i++) {\n            adj[i] = new java.util.ArrayList<>();\n        }\n        for (int i = 1; i < n; i++) {\n            adj[parent[i]].add(i);\n        }\n\n        int[] newParents = parent.clone();\n\n        int[] closest = new int[26];\n        java.util.Arrays.fill(closest, -1);\n\n        dfs(0, adj, s, closest, newParents);\n\n        java.util.List<Integer>[] modifiedAdj = new java.util.ArrayList[n];\n        for (int i = 0; i < n; i++) {\n            modifiedAdj[i] = new java.util.ArrayList<>();\n        }\n        for (int i = 1; i < n; i++) {\n            if (newParents[i] != -1) {\n                modifiedAdj[newParents[i]].add(i);\n            }\n        }\n\n        int[] sizes = new int[n];\n        findSize(0, modifiedAdj, sizes);\n        return sizes;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int findSize(int node, Set<Integer>[] adj, int[] sizes) {\n        int ans = 1;\n\n        for(int neigh : adj[node]) {\n            ans += findSize(neigh, adj, sizes);\n        }\n\n        return sizes[node] = ans;\n    }",
+    "replace": "int findSize(int node, java.util.List<Integer>[] adj, int[] sizes) {\n        int ans = 1;\n\n        for(int neigh : adj[node]) {\n            ans += findSize(neigh, adj, sizes);\n        }\n\n        return sizes[node] = ans;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "void dfs(int node, Set<Integer>[] adj, String s, Integer[] closest, int parent, Set<Integer>[] adj2) {\n        int val = s.charAt(node) - 'a';\n\n     //   System.out.println(\"Came to \" + node);\n\n        if (closest[val] != null) {\n            int newParent = closest[val];\n       //     System.out.println(\"Removing from \" + parent + \" adding to \" + newParent);\n            adj2[parent].remove(node);\n            adj2[newParent].add(node);\n        } \n\n        Integer temp = closest[val];\n\n        closest[val] = node;\n\n        //System.out.println(\"Set \" + val + \" for node \" + node);\n\n        for(int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, node, adj2);\n        }\n\n        closest[val] = temp;\n    }",
+    "replace": "void dfs(int node, java.util.List<Integer>[] adj, String s, int[] closest, int[] newParents) {\n        int val = s.charAt(node) - 'a';\n\n        if (closest[val] != -1) {\n            newParents[node] = closest[val];\n        }\n\n        int temp = closest[val];\n        closest[val] = node;\n\n        for (int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, newParents);\n        }\n\n        closest[val] = temp;\n    }"
+  }
+]
+```

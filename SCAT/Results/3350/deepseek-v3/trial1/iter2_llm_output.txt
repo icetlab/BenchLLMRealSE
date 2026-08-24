@@ -1,0 +1,27 @@
+**Improvement Intent:**  
+The original code uses `Double` for the sorted lists and adds `0.5` to values for binary search to handle duplicates. This causes unnecessary boxing/unboxing overhead and uses floating-point arithmetic. The improvement replaces `Double` with `Integer` and uses `v + 1` for binary search to maintain the same ordering behavior (placing equal values after existing ones), while being more efficient.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "var os1 = new ArrayList<Double>();\nn1.add(nums[0]);\nos1.add(nums[0] - 0.0);\nvar n2 = new ArrayList<Integer>();\nvar os2 = new ArrayList<Double>();\nn2.add(nums[1]);\nos2.add(nums[1] - 0.0);",
+    "replace": "var os1 = new ArrayList<Integer>();\nn1.add(nums[0]);\nos1.add(nums[0]);\nvar n2 = new ArrayList<Integer>();\nvar os2 = new ArrayList<Integer>();\nn2.add(nums[1]);\nos2.add(nums[1]);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int j1 = Collections.binarySearch(os1, v + 0.5);\nint j2 = Collections.binarySearch(os2, v + 0.5);",
+    "replace": "int j1 = Collections.binarySearch(os1, v + 1);\nint j2 = Collections.binarySearch(os2, v + 1);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "os1.add(j1, .0 + v);\n            } else {\n                n2.add(nums[i]);\n                os2.add(j2, .0 + v);",
+    "replace": "os1.add(j1, v);\n            } else {\n                n2.add(nums[i]);\n                os2.add(j2, v);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "private void println(TreeSet<int[]> os) {\n        for (var e: os) System.out.printf(\"[%d, %d] \", e[0], e[1]);\n        System.out.println();\n    }",
+    "replace": ""
+  }
+]
+```

@@ -1,0 +1,26 @@
+I replaced the string‐keyed HashMap memoization with fixed‐size DP arrays (`dp` and `seen`) to eliminate string creation and hash overhead, speeding up lookups and storage.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    HashMap<String, DpAns> map;",
+    "replace": "    DpAns[][] dp;\n    boolean[][] seen;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int n = intervals.size();\n        map = new HashMap<>();",
+    "replace": "int n = intervals.size();\n        dp = new DpAns[n+1][5];\n        seen = new boolean[n+1][5];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "String key = i + \"*\" + k;\n\n        if (map.containsKey(key)) {\n            return map.get(key);\n        }",
+    "replace": "if (seen[i][k]) {\n            return dp[i][k];\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "map.put(key, ans);\n        return ans;",
+    "replace": "dp[i][k] = ans;\n        seen[i][k] = true;\n        return ans;"
+  }
+]
+```

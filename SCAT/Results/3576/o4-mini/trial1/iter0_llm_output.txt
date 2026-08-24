@@ -1,0 +1,41 @@
+I replaced the boxed `Integer[]` tracking and generic `Set` iteration with primitive `int[]` and `List` where only iteration is needed. This avoids boxing/unboxing, reduces GC churn, and speeds up neighbor iteration. I also added the necessary `java.util` imports.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Set<Integer>[] adj = new Set[n];",
+    "replace": "List<Integer>[] adj = new List[n];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "adj[i] = new HashSet();",
+    "replace": "adj[i] = new ArrayList<>();"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "dfs(0, adj, s, new Integer[27], -1, adj2);",
+    "replace": "int[] closest = new int[26];\n        java.util.Arrays.fill(closest, -1);\n        dfs(0, adj, s, closest, -1, adj2);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "void dfs(int node, Set<Integer>[] adj, String s, Integer[] closest, int parent, Set<Integer>[] adj2) {",
+    "replace": "void dfs(int node, List<Integer>[] adj, String s, int[] closest, int parent, Set<Integer>[] adj2) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "if (closest[val] != null) {",
+    "replace": "if (closest[val] != -1) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Integer temp = closest[val];",
+    "replace": "int temp = closest[val];"
+  }
+]
+```

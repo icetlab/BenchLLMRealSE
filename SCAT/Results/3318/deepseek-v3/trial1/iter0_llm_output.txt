@@ -1,0 +1,23 @@
+## Improvement Intent
+
+The original code uses string concatenation for memoization keys, which is inefficient. I'll replace it with integer encoding using bit shifting, which is faster and reduces memory overhead. This change preserves all functionality while improving performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "  private String hash(int i, int j, int score) {\n    return i + \",\" + j + \",\" + score;\n  }",
+    "replace": "  private int hash(int i, int j, int score) {\n    return (i << 20) | (j << 10) | score;\n  }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    final String key = hash(i, j, score);",
+    "replace": "    final int key = hash(i, j, score);"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    Map<String, Integer> mem = new HashMap<>();",
+    "replace": "    Map<Integer, Integer> mem = new HashMap<>();"
+  }
+]
+```

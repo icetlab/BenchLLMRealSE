@@ -1,0 +1,11 @@
+I replaced the iterative counting in distributeCandies with a constant-time arithmetic solution that computes the same sum via closed-form formulas for the three count regions, reducing the complexity from O(limit) to O(1).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public long distributeCandies(int n, int limit) {\n        long res = 0;\n        for (int i = 0; i <= limit; i++) {\n            res += cnt(n - i, limit);\n          //  System.out.println(i + \" \" + res);\n        }\n        return res;\n    }",
+    "replace": "public long distributeCandies(int n, int limit) {\n        long nn = n;\n        long L = limit;\n        // Region where n-i > 2L contributes zero\n        long start2 = Math.max(0L, nn - 2 * L);\n        long end2 = Math.min(L, nn - L - 1);\n        long sum2 = 0;\n        if (start2 <= end2) {\n            long m2 = end2 - start2 + 1;\n            long v0 = 2 * L - nn + start2 + 1;\n            // sum of arithmetic sequence v0, v0+1, ..., v0+m2-1\n            sum2 = m2 * (2 * v0 + (m2 - 1)) / 2;\n        }\n        // Region where n-i <= L\n        long start3 = Math.max(0L, nn - L);\n        long end3 = L;\n        long sum3 = 0;\n        if (start3 <= end3) {\n            long m3 = end3 - start3 + 1;\n            // sum of (n+1-i) for i = start3..end3\n            sum3 = m3 * (nn + 1) - (start3 + end3) * m3 / 2;\n        }\n        return sum2 + sum3;\n    }"
+  }
+]
+```

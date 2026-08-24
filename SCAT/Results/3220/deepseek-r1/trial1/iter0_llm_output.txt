@@ -1,0 +1,11 @@
+The original two-loop simulation and debug printing can be replaced with a single pass. The result only depends on how many devices have already been tested, so the current value of `ans` is sufficient to decide whether each device would be tested.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int prev = 0;\n        int curr = 0;\n        int ans = 0;\n        for (int i=0;i<arr.length;++i) {\n            curr = arr[i]; \n            arr[i] = Math.max(0, arr[i]-prev);\n            if (arr[i] <= 0) continue;\n            prev += curr > 0 ? 1 : 0;\n            ans += 1;\n        }\n        for (int i=0;i<arr.length;++i) {\n            System.out.print(arr[i]+\" \");\n        }\n        return ans;",
+    "replace": "        int ans = 0;\n        for (int i = 0; i < arr.length; ++i) {\n            if (arr[i] > ans) {\n                arr[i] -= ans;\n                ++ans;\n            } else {\n                arr[i] = 0;\n            }\n        }\n        return ans;"
+  }
+]
+```

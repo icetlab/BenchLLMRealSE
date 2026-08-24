@@ -1,0 +1,26 @@
+I refactored the suffix‐extraction to use a primitive int[] slice instead of a boxed List, removed unnecessary reverse/boxing overhead, and swapped to an array‐based upperBound. This reduces memory churn and improves speed.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<Integer> lastInc = new ArrayList<>();\n        lastInc.add(nums[nums.length - 1]);\n        for (int i = nums.length - 2; i >= 0; --i) {  // find the increasing sequence from the right most side\n            if (nums[i] >= nums[i + 1]) break;\n            lastInc.add(nums[i]);\n        }\n        Collections.reverse(lastInc);  // reverse it to set it to ascending order\n        if (nums.length == lastInc.size()) return ((long) nums.length * (nums.length + 1) / 2);  // If the complete array is in increasing then total no of way we can remove = total number of subarray possible = (n*(n+1))/2\n\n        long ans = 1 + lastInc.size();\n        int n = nums.length - lastInc.size();",
+    "replace": "        int n = nums.length;\n        int suffixStart = n - 1;\n        while (suffixStart > 0 && nums[suffixStart - 1] < nums[suffixStart]) {\n            suffixStart--;\n        }\n        int suffixLen = n - suffixStart;\n        if (suffixStart == 0) return ((long) n * (n + 1) / 2);\n        int[] suffix = new int[suffixLen];\n        System.arraycopy(nums, suffixStart, suffix, 0, suffixLen);\n        long ans = 1 + suffixLen;\n        int prefixLen = suffixStart;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for (int i = 0; i < n; ++i) {",
+    "replace": "        for (int i = 0; i < prefixLen; ++i) {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            ans += lastInc.size() - upperBoundII2972(lastInc, nums[i]) + 1;",
+    "replace": "            ans += suffixLen - upperBoundInt(suffix, nums[i]) + 1;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private int upperBoundII2972(List<Integer> list, int target) {\n        int left = 0, right = list.size();\n        while (left < right) {\n            int mid = left + (right - left) / 2;\n            if (list.get(mid) > target) {\n                right = mid;\n            } else {\n                left = mid + 1;\n            }\n        }\n        return left;\n    }",
+    "replace": "    private int upperBoundInt(int[] arr, int target) {\n        int left = 0, right = arr.length;\n        while (left < right) {\n            int mid = left + (right - left) / 2;\n            if (arr[mid] > target) {\n                right = mid;\n            } else {\n                left = mid + 1;\n            }\n        }\n        return left;\n    }"
+  }
+]
+```

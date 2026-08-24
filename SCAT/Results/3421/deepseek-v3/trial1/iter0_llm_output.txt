@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "Replace the HashMap-based counting with an integer array of size 24 for faster constant-time access and simpler update logic. This preserves the same pairing logic while reducing overhead.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "class Solution {\n    public int countCompleteDayPairs(int[] hours) {\n        HashMap<Integer, Integer> remainder_count = new HashMap<>();\n        int count = 0;\n        for(int h: hours){\n            int remainder = h%24;\n            if(remainder == 0){\n                if(remainder_count.containsKey(0)){count += remainder_count.get(0);}\n            }else{\n                int cur = 24-remainder;\n                if(remainder_count.containsKey(cur)){\n                    count += remainder_count.get(cur);\n                }\n            }\n            remainder_count.putIfAbsent(remainder, 0);\n            remainder_count.put(remainder, remainder_count.get(remainder)+1);\n        }\n        return count;\n    }\n}",
+      "replace": "class Solution {\n    public int countCompleteDayPairs(int[] hours) {\n        int[] remainderCount = new int[24];\n        int count = 0;\n        for (int h : hours) {\n            int remainder = h % 24;\n            int complement = (24 - remainder) % 24;\n            count += remainderCount[complement];\n            remainderCount[remainder]++;\n        }\n        return count;\n    }\n}"
+    }
+  ]
+}

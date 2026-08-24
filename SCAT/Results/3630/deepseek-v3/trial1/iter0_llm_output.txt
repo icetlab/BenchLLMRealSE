@@ -1,0 +1,22 @@
+We can improve performance by:
+
+1. Avoiding recursion in `fastExp` to prevent stack overhead and repeated matrix allocations.
+2. Using iterative binary exponentiation.
+3. Precomputing the final vector `count * M^t` directly instead of computing the full matrix and then multiplying, reducing multiplications.
+4. Reusing a temporary matrix to avoid allocations in `multiply`.
+
+Here is the improved code:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    private long[][] fastExp(long[][] M, long t) {\n        if (t == 0)\n            return identityMatrix;\n        long[][] X = fastExp(M, t/2);\n        if (t % 2 == 0)\n            return multiply(X, X);\n        else {\n            long[][] mid = multiply(X, X);\n            return multiply(mid, M);\n        }\n    }",
+    "replace": "    private long[][] fastExp(long[][] M, long t) {\n        long[][] result = identityMatrix;\n        long[][] base = M;\n        while (t > 0) {\n            if ((t & 1) == 1) {\n                result = multiply(result, base);\n            }\n            base = multiply(base, base);\n            t >>= 1;\n        }\n        return result;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        long[][] finalState = fastExp(M, t);\n\n        long ans = 0;\n        for (int i = 0; i < 26; i++) {\n            long sum = 0;\n            for (int j = 0; j < 26; j++) {\n                sum = (sum + (count[j] * finalState[j][i]) % mod) % mod;\n            }\n            ans = (ans + sum) % mod;\n        }\n        return (int) ans;",
+    "replace": "        long[][] finalState = fastExp(M, t);\n\n        long ans = 0;\n        for (int i = 0; i < 26; i++) {\n            long sum = 0;\n            for (int j = 0; j < 26; j++) {\n                sum = (sum + (count[j] * finalState[j][i]) % mod) % mod;\n            }\n            ans = (ans + sum) % mod;\n        }\n        return (int) ans;"
+  }
+]

@@ -1,0 +1,11 @@
+The original code uses a `HashMap` to count element frequencies, resulting in O(U) space complexity, where U is the number of unique elements. The improved solution removes the `HashMap` and uses a two-pass approach with O(1) space. The first pass finds the minimum element, and the second pass checks for divisibility by the minimum while also counting its occurrences. This approach is more memory-efficient and avoids `HashMap` and floating-point arithmetic overhead, which can improve runtime.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        HashMap<Integer,Integer> map=new HashMap<>();\n        int min=Integer.MAX_VALUE;\n\n        for(int i=0;i<nums.length;i++){\n            map.put(nums[i],map.getOrDefault(nums[i],0)+1);\n            min=Math.min(min,nums[i]);\n        }   \n\n        if(map.get(min)==1){\n            return 1;\n        }\n        else if(map.get(min)>1){\n            for(int i=0;i<nums.length;i++){\n                if(nums[i]%min!=0){\n                    return 1;\n                }\n            }\n        }\n        \n        return (int)Math.ceil((double)map.get(min)/2);",
+    "replace": "        int min = Integer.MAX_VALUE;\n        for (int num : nums) {\n            min = Math.min(min, num);\n        }\n\n        int minCount = 0;\n        for (int num : nums) {\n            if (num % min != 0) {\n                return 1;\n            }\n            if (num == min) {\n                minCount++;\n            }\n        }\n\n        return (minCount + 1) / 2;"
+  }
+]
+```

@@ -1,0 +1,10 @@
+{
+  "outcome": "implausible",
+  "stage": "test",
+  "message": "[TEST FAILED] case 2: expected='12' got='13'",
+  "iteration": 4,
+  "format_attempts": 1,
+  "verify_attempts": 3,
+  "passed": 40,
+  "total": 100
+}

@@ -1,0 +1,20 @@
+## Improvement Intent
+
+The original code uses a bubble-sort-like approach with two passes (forward and backward) to check if adjacent elements with equal bit counts can be swapped to sort the array. This approach is inefficient and incorrect for many cases because it only performs one swap per pass and doesn't handle multiple swaps needed for elements far apart. 
+
+The correct approach is to recognize that elements can only be swapped if they have the same number of set bits. This means the array can be partitioned into segments where all elements have the same bit count. Within each segment, elements can be freely rearranged (since any two elements with the same bit count can be swapped indirectly). Therefore, we can sort each segment independently and check if the overall array becomes sorted.
+
+The improved solution:
+1. Groups elements by their bit count
+2. Sorts each group independently
+3. Checks if the resulting array is sorted
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public boolean canSortArray(int[] nums) {\n        int c=0;\n        for(int i=0;i<nums.length-1;i++)\n        {\n            if(nums[i]>nums[i+1])\n            {\n                int a=Integer.bitCount(nums[i]);\n                int b=Integer.bitCount(nums[i+1]);\n                System.out.println(a+\" \"+b);\n                if(a==b)\n                {\n                    int t=nums[i+1];\n                nums[i+1]=nums[i];\n                nums[i]=t;\n                }\n                else\n                return false;\n            }\n        }\n         for(int i=nums.length-1;i>0;i--)\n        {\n            if(nums[i]<nums[i-1])\n            {\n                int a=Integer.bitCount(nums[i]);\n                int b=Integer.bitCount(nums[i-1]);\n                //System.out.println(a+\" \"+b);\n                if(a==b)\n                {\n                    int t=nums[i-1];\n                nums[i-1]=nums[i];\n                nums[i]=t;\n                }\n                else\n                return false;\n            }\n        }\n        return true;\n\n    }\n}",
+    "replace": "class Solution {\n    public boolean canSortArray(int[] nums) {\n        int n = nums.length;\n        \n        // Group elements by their bit count and sort each group\n        int i = 0;\n        while (i < n) {\n            int j = i;\n            int bitCount = Integer.bitCount(nums[i]);\n            \n            // Find the segment with same bit count\n            while (j < n && Integer.bitCount(nums[j]) == bitCount) {\n                j++;\n            }\n            \n            // Sort the segment\n            for (int k = i; k < j; k++) {\n                for (int l = k + 1; l < j; l++) {\n                    if (nums[k] > nums[l]) {\n                        int temp = nums[k];\n                        nums[k] = nums[l];\n                        nums[l] = temp;\n                    }\n                }\n            }\n            \n            i = j;\n        }\n        \n        // Check if array is sorted\n        for (int k = 0; k < n - 1; k++) {\n            if (nums[k] > nums[k + 1]) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n}"
+  }
+]
+```

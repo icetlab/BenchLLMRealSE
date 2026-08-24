@@ -1,0 +1,10 @@
+{
+  "outcome": "implausible",
+  "stage": "test",
+  "message": "[TEST FAILED] case 2: [RUNTIME ERROR / NO OUTPUT]\n\nException in thread \"main\" java.lang.ArrayIndexOutOfBoundsException: Index 18 out of bounds for length 3\n\tat effibenchjmh.cand_3588.Solution.dp(Solution.java:37)\n\tat effibenchjmh.cand_3588.Solution.dp(Solution.java:38)\n\tat effibenchjmh.cand_3588.Solution.countWinningSequences(Solution.java:24)\n\tat effibenchjmh.cand_3588.Runner.main(Runner.java:26)\n",
+  "iteration": 4,
+  "format_attempts": 1,
+  "verify_attempts": 3,
+  "passed": 7,
+  "total": 100
+}

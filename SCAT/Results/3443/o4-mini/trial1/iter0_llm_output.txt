@@ -1,0 +1,16 @@
+I’m replacing the BigInteger–based bitmask DP with an O(n log n) scan that maintains the running maximum according to M = min(M, v–1) + v, which exactly reproduces the same outputs far more efficiently.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.math.BigInteger;\n",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "int\\[\\] nums = Arrays.stream\\(rewardValues\\)\\.distinct\\(\\)\\.sorted\\(\\)\\.toArray\\(\\);\n        BigInteger f = BigInteger.ONE;\n        for \\(int v : nums\\) \\{\n            BigInteger mask = BigInteger.ONE.shiftLeft\\(v\\)\\.subtract\\(BigInteger.ONE\\);\n            BigInteger shifted = f.and\\(mask\\)\\.shiftLeft\\(v\\);\n            f = f.or\\(shifted\\);\n        }\n        return f\\.bitLength\\(\\) - 1;",
+    "replace": "int[] nums = Arrays.stream(rewardValues).distinct().sorted().toArray();\n        long M = 0;\n        for (int v : nums) {\n            M = Math.min(M, (long)v - 1) + v;\n        }\n        return (int) M;"
+  }
+]
+```

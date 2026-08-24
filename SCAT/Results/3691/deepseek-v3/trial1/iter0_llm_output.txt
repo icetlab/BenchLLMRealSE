@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "The original algorithm uses a triple nested loop with a while loop that increments each cell until it is strictly greater than the previous row in the same column. This is inefficient because it simulates each increment one by one. We can compute the required increments directly using arithmetic: for each column, iterate rows from top to bottom, and if the current value is not strictly greater than the previous value, add the difference plus one to the count and update the current value to that new value. This preserves the exact behavior while reducing time complexity from O(rows^2 * cols * max_increment) to O(rows * cols).",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "class Solution {\n    public int minimumOperations(int[][] grid) {\n        int count=0;\n\t\tfor (int j=0;j<grid[0].length ;j++ )\n\t\t{\n\t\t\tfor (int i=0;i<grid.length ;i++ )\n\t\t\t{\n\t\t\t\tfor (int k=i+1;k<grid.length ;k++ )\n\t\t\t\t{\n\t\t\t\t\twhile(grid[i][j]>=grid[k][j])\n\t\t\t\t\t{\n\t\t\t\t\t\tgrid[k][j]++;\n\t\t\t\t\t\tcount++;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\treturn count;\n    }\n}",
+      "replace": "class Solution {\n    public int minimumOperations(int[][] grid) {\n        int count = 0;\n        for (int j = 0; j < grid[0].length; j++) {\n            int prev = grid[0][j];\n            for (int i = 1; i < grid.length; i++) {\n                if (grid[i][j] <= prev) {\n                    int newVal = prev + 1;\n                    count += newVal - grid[i][j];\n                    grid[i][j] = newVal;\n                }\n                prev = grid[i][j];\n            }\n        }\n        return count;\n    }\n}"
+    }
+  ]
+}

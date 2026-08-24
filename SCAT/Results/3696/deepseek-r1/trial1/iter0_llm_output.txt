@@ -1,0 +1,11 @@
+Overall improvement: replace the recursive memoized DP with an iterative bottom-up rolling DP. This preserves the original recurrence while eliminating recursion overhead and reducing memory usage from `O(n * 10 * 11)` to `O(1)` per divisor.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public long countSubstrings(String s) {\n        this.s = s;\n        this.n = s.length();\n        digit = new int[n];\n        for (int i = 0; i < n; i++) digit[i] = s.charAt(i) - '0';\n        dp = new long[n + 1][10][11];\n        for (long[][] layer : dp)\n            for (long[] row : layer)\n                Arrays.fill(row, -1);\n        long total = 0;\n        for (int last = 1; last <= 9; last++) {\n            for (int start = 0; start < n; start++) {\n                total += solve(start, last, 10);\n            }\n        }\n        return total;\n    }",
+    "replace": "    public long countSubstrings(String s) {\n        int len = s.length();\n        long total = 0;\n\n        for (int last = 1; last <= 9; last++) {\n            long[] next = new long[last + 1];\n            long[] cur = new long[last + 1];\n\n            for (int i = len - 1; i >= 0; i--) {\n                int d = s.charAt(i) - '0';\n\n                for (int prod = 0; prod < last; prod++) {\n                    int p2 = (prod * 10 + d) % last;\n                    cur[prod] = ((d == last && p2 == 0) ? 1L : 0L) + next[p2];\n                }\n\n                int p2 = d % last;\n                cur[last] = ((d == last && p2 == 0) ? 1L : 0L) + next[p2];\n\n                total += cur[last];\n\n                long[] tmp = cur;\n                cur = next;\n                next = tmp;\n            }\n        }\n\n        return total;\n    }"
+  }
+]
+```

@@ -1,0 +1,76 @@
+>> The source file (Solution.java) is:
+class Solution {
+    record Rectangle(int x1, int y1, int x2, int y2) {}
+
+    public long largestSquareArea(int[][] bottomLeft, int[][] topRight) {
+
+        ArrayList<Rectangle> rectangles = new ArrayList<>();
+        for (int i = 0; i < bottomLeft.length; i++) {
+            rectangles.add(new Rectangle(
+                bottomLeft[i][0],
+                bottomLeft[i][1],
+                topRight[i][0],
+                topRight[i][1]));
+        }
+
+        long max = 0;
+
+        for (int i = 0; i < rectangles.size(); i++) {
+            for (int j = i + 1; j < rectangles.size(); j++) {
+                long size = maxSquare(rectangles.get(i), rectangles.get(j));
+                if (size > max) {
+                    max = size;
+                }
+            }
+        }
+
+        return max * max;
+    }
+
+    long maxSquare(Rectangle r1, Rectangle r2) {
+        if (!(r1.x1 < r2.x1 && r1.y1 < r2.y1)) {
+            // Swap
+            Rectangle r3 = r1;
+            r1 = r2;
+            r2 = r3;
+        }
+
+        // Find overlap
+        int x1 = Math.max(r1.x1, r2.x1);
+        int x2 = Math.min(r1.x2, r2.x2);
+        int y1 = Math.max(r1.y1, r2.y1);
+        int y2 = Math.min(r1.y2, r2.y2);
+
+        int xDim = x2 - x1;
+        int yDim = y2 - y1;
+        // System.out.printf("xDim: %d, yDim: %d%n", xDim, yDim);
+
+        if (xDim > 0 && yDim > 0) {
+            return Math.min(xDim, yDim);
+        }
+
+        return 0;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1,1;2,2;3,1
+3,3;4,4;6,6
+  expected output: 1
+Example 2:
+  input: 1,1;1,3;1,5
+5,5;5,7;5,9
+  expected output: 4
+Example 3:
+  input: 1,1;2,2;1,2
+3,3;4,4;3,4
+  expected output: 1
+Example 4:
+  input: 1,1;3,3;3,1
+2,2;4,4;4,2
+  expected output: 0
+Example 5:
+  input: 4,95;29,18;87,95
+22,111;77,25;122,101
+  expected output: 0

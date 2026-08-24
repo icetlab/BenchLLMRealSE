@@ -1,0 +1,2 @@
+NeighborSum,adjacentSum,adjacentSum,adjacentSum,adjacentSum,adjacentSum,adjacentSum,adjacentSum,diagonalSum
+63,16,40,42,35,29,25,59;0,23,43,58,3,49,11,15;47,44,30,45,5,34,62,48;55,6,36,50,10,1,54,27;31,7,38,52,32,26,4,22;24,19,61,28,57,20,12,9;8,39,2,21,13,53,51,37;18,46,41,56,60,33,14,17 | 5 | 28 | 29 | 54 | 40 | 31 | 0 | 55

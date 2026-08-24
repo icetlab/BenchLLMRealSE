@@ -1,0 +1,40 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int findMinimumOperations(String s1, String s2, String s3) {
+        int count=0;
+       while(!(s1.equals(s2)&&s2.equals(s3))){
+        if (s1.isEmpty() || s2.isEmpty() || s3.isEmpty()) {
+                return -1;
+            }
+            if(s1.length()>=s2.length() && s1.length()>=s3.length())
+            s1=s1.substring(0,s1.length()-1);
+            else if(s2.length()>=s1.length() && s2.length()>=s3.length())
+            s2=s2.substring(0,s2.length()-1);
+          else{
+       s3=s3.substring(0,s3.length()-1);
+        }
+            
+         count++;  
+
+        
+       }
+        return count;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: a,a,a
+  expected output: 0
+Example 2:
+  input: a,b,a
+  expected output: -1
+Example 3:
+  input: abc,abb,ab
+  expected output: 2
+Example 4:
+  input: abcdef,abcxyz,abcuvw
+  expected output: 9
+Example 5:
+  input: abc,ax,aqqq
+  expected output: 6

@@ -1,0 +1,10 @@
+{
+  "improvement_intent": "Replace the recursive memoized DP with an iterative DP over subsets and sums, using a 2D array instead of a 3D array. This reduces memory and avoids recursion overhead while preserving the exact result.",
+  "changes": [
+    {
+      "filepath": "Solution.java",
+      "search": "class Solution {\n    public int mod = (int) 1e9+7;\n    public int f(int i,int[] nums,int k,int ele,int[] cnt,int[][][] dp) {\n        if(i == nums.length) {\n            if(k == 0) {\n                return cnt[nums.length - ele]; \n            }\n            return 0; \n        }\n        if(k < 0) return 0;\n        if (dp[i][k][ele] != -1) return dp[i][k][ele];\n        int pick = f(i+1,nums,k-nums[i],ele+1,cnt,dp);\n        int not = f(i+1,nums,k,ele,cnt,dp);\n        return dp[i][k][ele] = (pick + not) % mod;\n    }\n    public int sumOfPower(int[] nums, int k) {\n        int[] cnt = new int[102];\n        cnt[0] = 1;\n        for (int i = 1; i <= 100; i++) {\n            cnt[i] = (2 * cnt[i-1]) % mod;\n        }\n        int[][][] dp = new int[101][101][101];\n        for(int i=0;i<dp.length;i++) {\n            for(int j=0;j<dp[0].length;j++) {\n                Arrays.fill(dp[i][j],-1);\n            }\n        }\n        return f(0,nums,k,0,cnt,dp);\n    }\n}",
+      "replace": "class Solution {\n    public int mod = (int) 1e9+7;\n    public int sumOfPower(int[] nums, int k) {\n        int n = nums.length;\n        int[] cnt = new int[n + 1];\n        cnt[0] = 1;\n        for (int i = 1; i <= n; i++) {\n            cnt[i] = (2 * cnt[i-1]) % mod;\n        }\n        int[][] dp = new int[k + 1][n + 1];\n        dp[0][0] = 1;\n        for (int num : nums) {\n            for (int s = k; s >= num; s--) {\n                for (int c = n; c >= 1; c--) {\n                    dp[s][c] = (dp[s][c] + dp[s - num][c - 1]) % mod;\n                }\n            }\n        }\n        int ans = 0;\n        for (int c = 1; c <= n; c++) {\n            ans = (ans + (int)((long)dp[k][c] * cnt[n - c] % mod)) % mod;\n        }\n        return ans;\n    }\n}"
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search='public long[] lineAndCycle(int n, int lineLen, int cycleLen) {\n    long[] res = new long[n];\n\n    for (int d = 1; d <= lineLen; d++) {\n        int mn = d + 1;\n        int mx = d + (cycleLen / 2);\n        res[mn - 1] += 2;\n        res[mx - 1] -= 2;\n    }\n\n    int mn = cycleLen / 2 + 1;\n    int mx = cycleLen / 2 + lineLen;\n\n    int add = (cycleLen % 2 == 1 ? 2 : 1);\n    res[mn - 1] += add;\n    if (mx < n) res[mx] -= add;\n\n    // Prefix sum to compute final values\n    for (int i = 1; i < n; i++) {\n        res[i] += res[i - 1];\n    }\n\n    // Account for distances of `1` from the line to the center\n    for (int len = 1; len <= lineLen; len++) {\n        res[len - 1]++;\n    }\n\n    return res;\n}'
+>>>> Your previous output was:
+The provided Java code calculates the number of pairs of nodes with a specific shortest distance in a graph. The graph is a line of `n` nodes with an additional "shortcut" edge. The current implementation is already efficient with a time complexity of O(N), using a combinatorial approach instead of brute-force pathfinding.
+
+However, its performance can be improved by reducing memory allocations and improving data locality. The original code creates six separate `long[]` arrays of size `n` to hold intermediate results for different sub-problems, and then combines them in a final loop.
+
+My improvement strategy is to refactor the helper methods to directly contribute to a single result array. This avoids the overhead of creating, populating, and then iterating over multiple large temporary arrays.
+1.  The helper methods `lineAnswer` and `cycleAnswer`, which perform simple calculations, will be modified to directly add their results to the main result array.
+2.  The helper methods `lineAndCycle` and `twoLineAnswer`, which use a difference array and prefix sums, will be modified to use a single, shared temporary array for their calculations. This temporary array will be created once in the main method and reused, reducing allocations from four `long[n]` arrays to just one.
+3.  All helper methods will be made `private` as they are internal implementation details.
+
+This approach reduces memory usage significantly and can lead to better performance due to fewer cache misses and reduced garbage collection pressure, especially for large values of `n`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public long[] lineAndCycle(int n, int lineLen, int cycleLen) {\n    long[] res = new long[n];\n\n    for (int d = 1; d <= lineLen; d++) {\n        int mn = d + 1;\n        int mx = d + (cycleLen / 2);\n        res[mn - 1] += 2;\n        res[mx - 1] -= 2;\n    }\n\n    int mn = cycleLen / 2 + 1;\n    int mx = cycleLen / 2 + lineLen;\n\n    int add = (cycleLen % 2 == 1 ? 2 : 1);\n    res[mn - 1] += add;\n    if (mx < n) res[mx] -= add;\n\n    // Prefix sum to compute final values\n    for (int i = 1; i < n; i++) {\n        res[i] += res[i - 1];\n    }\n\n    // Account for distances of `1` from the line to the center\n    for (int len = 1; len <= lineLen; len++) {\n        res[len - 1]++;\n    }\n\n    return res;\n}",
+    "replace": "private void lineAndCycle(long[] res, long[] diff, int n, int lineLen, int cycleLen) {\n    for (int d = 1; d <= lineLen; d++) {\n        int mn = d + 1;\n        int mx = d + (cycleLen / 2);\n        diff[mn - 1] += 2;\n        diff[mx - 1] -= 2;\n    }\n\n    int mn = cycleLen / 2 + 1;\n    int mx = cycleLen / 2 + lineLen;\n\n    int add = (cycleLen % 2 == 1 ? 2 : 1);\n    diff[mn - 1] += add;\n    if (mx < n) diff[mx] -= add;\n\n    // Prefix sum on diff array and add to final result\n    long current = 0;\n    for (int i = 0; i < n; i++) {\n        current += diff[i];\n        res[i] += current;\n    }\n\n    // Account for distances from line nodes to the cycle attachment point\n    for (int len = 1; len <= lineLen; len++) {\n        res[len - 1]++;\n    }\n}"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public long[] lineAnswer(int n, int lineLen) {\n    long[] res = new long[n];\n\n    for (int len = 1, add = lineLen - 1; len < lineLen; len++, add--) {\n        res[len - 1] += add;\n    }\n\n    return res;\n}",
+    "replace": "private void lineAnswer(long[] res, int lineLen) {\n    for (int len = 1, add = lineLen - 1; len < lineLen; len++, add--) {\n        res[len - 1] += add;\n    }\n}"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public long[] cycleAnswer(int n, int cycleLen) {\n    long[] res = new long[n];\n\n    for (int len = 1; len < cycleLen / 2; len++) {\n        res[len - 1] += cycleLen;\n    }\n\n    if (cycleLen % 2 == 1) {\n        int len = cycleLen / 2;\n        if (len - 1 >= 0) res[len - 1] += cycleLen;\n    } else {\n        int len = cycleLen / 2;\n        if (len - 1 >= 0) res[len - 1] += (cycleLen / 2);\n    }\n\n    return res;\n}",
+    "replace": "private void cycleAnswer(long[] res, int cycleLen) {\n    for (int len = 1; len < cycleLen / 2; len++) {\n        res[len - 1] += cycleLen;\n    }\n\n    if (cycleLen % 2 == 1) {\n        int len = cycleLen / 2;\n        if (len > 0) res[len - 1] += cycleLen;\n    } else {\n        int len = cycleLen / 2;\n        if (len > 0) res[len - 1] += (cycleLen / 2);\n    }\n}"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public long[] twoLineAnswer(int n, int lineLen1, int lineLen2, int x, int y) {\n    long[] res = new long[n];\n\n    // Ensure lineLen1 is the shorter or equal line\n    if (lineLen1 > lineLen2) {\n        int temp = lineLen1;\n        lineLen1 = lineLen2;\n        lineLen2 = temp;\n    }\n\n    int plus = (x != y ? 1 : 0);\n\n    for (int i = 0; i < lineLen1; i++) {\n        int mn = i + plus + 2;\n        int mx = i + plus + 1 + lineLen2;\n\n        res[mn - 1]++;\n        if (mx < n) res[mx]--;\n    }\n\n    // Prefix sum\n    for (int i = 1; i < n; i++) {\n        res[i] += res[i - 1];\n    }\n\n    return res;\n}",
+    "replace": "private void twoLineAnswer(long[] res, long[] diff, int n, int lineLen1, int lineLen2, int x, int y) {\n    // Ensure lineLen1 is the shorter or equal line\n    if (lineLen1 > lineLen2) {\n        int temp = lineLen1;\n        lineLen1 = lineLen2;\n        lineLen2 = temp;\n    }\n\n    int plus = (x != y ? 1 : 0);\n\n    for (int i = 0; i < lineLen1; i++) {\n        int mn = i + plus + 2;\n        int mx = i + plus + 1 + lineLen2;\n\n        diff[mn - 1]++;\n        if (mx < n) diff[mx]--;\n    }\n\n    // Prefix sum on diff and add to res\n    long current = 0;\n    for (int i = 0; i < n; i++) {\n        current += diff[i];\n        res[i] += current;\n    }\n}"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public long[] countOfPairs(int n, int x, int y) {\n    long[] res = new long[n];\n\n    if (x > y) {\n        int temp = x;\n        x = y;\n        y = temp;\n    }\n\n    int lineLen1 = x - 1;\n    int lineLen2 = n - y;\n    int cycleLen = y - x + 1;\n    int finalLen = lineLen1 + lineLen2 + 2;\n\n    long[] line1ans = lineAnswer(n, lineLen1);\n    long[] line2ans = lineAnswer(n, lineLen2);\n    long[] cycleAns = cycleAnswer(n, cycleLen);\n    long[] l1c = lineAndCycle(n, lineLen1, cycleLen);\n    long[] l2c = lineAndCycle(n, lineLen2, cycleLen);\n    long[] l1l2 = twoLineAnswer(n, lineLen1, lineLen2, x, y);\n\n    for (int i = 0; i < n; i++) {\n        res[i] += line1ans[i];\n        res[i] += line2ans[i];\n        res[i] += cycleAns[i];\n        res[i] += l1c[i];\n        res[i] += l2c[i];\n        res[i] += l1l2[i];\n        res[i] *= 2; // Multiply since counting unordered pairs\n    }\n\n    return res;\n}",
+    "replace": "public long[] countOfPairs(int n, int x, int y) {\n    long[] res = new long[n];\n\n    if (x > y) {\n        int temp = x;\n        x = y;\n        y = temp;\n    }\n\n    int lineLen1 = x - 1;\n    int lineLen2 = n - y;\n    int cycleLen = y - x + 1;\n\n    // Contributions from pairs within each of the 3 segments\n    lineAnswer(res, lineLen1);\n    lineAnswer(res, lineLen2);\n    cycleAnswer(res, cycleLen);\n\n    // Contributions from pairs across different segments, using a shared diff array\n    long[] diff = new long[n];\n    lineAndCycle(res, diff, n, lineLen1, cycleLen);\n    java.util.Arrays.fill(diff, 0L);\n    lineAndCycle(res, diff, n, lineLen2, cycleLen);\n    java.util.Arrays.fill(diff, 0L);\n    twoLineAnswer(res, diff, n, lineLen1, lineLen2, x, y);\n\n    for (int i = 0; i < n; i++) {\n        res[i] *= 2; // The problem asks for ordered pairs (i, j), i != j\n    }\n\n    return res;\n}"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+public class Solution {
+
+    // Combines a line and a cycle and counts pair distances
+    public long[] lineAndCycle(int n, int lineLen, int cycleLen) {
+        long[] res = new long[n];
+
+        for (int d = 1; d <= lineLen; d++) {
+            int mn = d + 1;
+            int mx = d + (cycleLen / 2);
+            res[mn - 1] += 2;
+            res[mx - 1] -= 2;
+        }
+
+        int mn = cycleLen / 2 + 1;
+        int mx = cycleLen / 2 + lineLen;
+
+        int add = (cycleLen % 2 == 1 ? 2 : 1);
+        res[mn - 1] += add;
+        if (mx < n) res[mx] -= add;
+
+        // Prefix sum to compute final values
+        for (int i = 1; i < n; i++) {
+            res[i] += res[i - 1];
+        }
+
+        // Account for distances of `1` from the line to the center
+        for (int len = 1; len <= lineLen; len++) {
+            res[len - 1]++;
+        }
+
+        return res;
+    }
+
+    // Computes distances in a single line/tree
+    public long[] lineAnswer(int n, int lineLen) {
+        long[] res = new long[n];
+
+        for (int len = 1, add = lineLen - 1; len < lineLen; len++, add--) {
+            res[len - 1] += add;
+        }
+
+        return res;
+    }
+
+    // Computes distances in a cycle
+    public long[] cycleAnswer(int n, int cycleLen) {
+        long[] res = new long[n];
+
+        for (int len = 1; len < cycleLen / 2; len++) {
+            res[len - 1] += cycleLen;
+        }
+
+        if (cycleLen % 2 == 1) {
+            int len = cycleLen / 2;
+            if (len - 1 >= 0) res[len - 1] += cycleLen;
+        } else {
+            int len = cycleLen / 2;
+            if (len - 1 >= 0) res[len - 1] += (cycleLen / 2);
+        }
+
+        return res;
+    }
+
+    // Computes distances when two lines are connected via a central node or path
+    public long[] twoLineAnswer(int n, int lineLen1, int lineLen2, int x, int y) {
+        long[] res = new long[n];
+
+        // Ensure lineLen1 is the shorter or equal line
+        if (lineLen1 > lineLen2) {
+            int temp = lineLen1;
+            lineLen1 = lineLen2;
+            lineLen2 = temp;
+        }
+
+        int plus = (x != y ? 1 : 0);
+
+        for (int i = 0; i < lineLen1; i++) {
+            int mn = i + plus + 2;
+            int mx = i + plus + 1 + lineLen2;
+
+            res[mn - 1]++;
+            if (mx < n) res[mx]--;
+        }
+
+        // Prefix sum
+        for (int i = 1; i < n; i++) {
+            res[i] += res[i - 1];
+        }
+
+        return res;
+    }
+
+    // Main method to calculate number of pairs with a given distance
+    public long[] countOfPairs(int n, int x, int y) {
+        long[] res = new long[n];
+
+        if (x > y) {
+            int temp = x;
+            x = y;
+            y = temp;
+        }
+
+        int lineLen1 = x - 1;
+        int lineLen2 = n - y;
+        int cycleLen = y - x + 1;
+        int finalLen = lineLen1 + lineLen2 + 2;
+
+        long[] line1ans = lineAnswer(n, lineLen1);
+        long[] line2ans = lineAnswer(n, lineLen2);
+        long[] cycleAns = cycleAnswer(n, cycleLen);
+        long[] l1c = lineAndCycle(n, lineLen1, cycleLen);
+        long[] l2c = lineAndCycle(n, lineLen2, cycleLen);
+        long[] l1l2 = twoLineAnswer(n, lineLen1, lineLen2, x, y);
+
+        for (int i = 0; i < n; i++) {
+            res[i] += line1ans[i];
+            res[i] += line2ans[i];
+            res[i] += cycleAns[i];
+            res[i] += l1c[i];
+            res[i] += l2c[i];
+            res[i] += l1l2[i];
+            res[i] *= 2; // Multiply since counting unordered pairs
+        }
+
+        return res;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 2,1,1
+  expected output: 2,0
+Example 2:
+  input: 3,1,3
+  expected output: 6,0,0
+Example 3:
+  input: 5,2,4
+  expected output: 10,8,2,0,0
+Example 4:
+  input: 4,1,1
+  expected output: 6,4,2,0
+Example 5:
+  input: 6,3,5
+  expected output: 12,10,6,2,0,0
+

@@ -1,0 +1,77 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[COMPILE FAILED]
+
+/var/folders/jl/3v_mw88j759b_y_sgq555by00000gn/T/verify_3570__zid980g/src/effibenchjmh/cand_3570/Solution.java:74: error: illegal start of type
+        return res;
+        ^
+/var/folders/jl/3v_mw88j759b_y_sgq555by00000gn/T/verify_3570__zid980g/src/effibenchjmh/cand_3570/Solution.java:74: error: <identifier> expected
+        return res;
+                  ^
+/var/folders/jl/3v_mw88j759b_y_sgq555by00000gn/T/verify_3570__zid980g/src/effibenchjmh/cand_3570/Solution.java:76: error: class, interface, enum, or record expected
+}
+^
+3 errors
+
+>>>> Your previous output was:
+I replaced the brute‐force triple loops with an O(n) algorithm that uses next‐occurrence arrays for vowels and a list of consonant positions to efficiently count substrings with exactly k consonants and all five vowels.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public int countOfSubstrings(String word, int k) {\n        int minlen=5+k;\n        int n=word.length();\n        int substrs=n-minlen+1;\n        int res=0;\n        while(substrs>0){",
+    "replace": "public int countOfSubstrings(String word, int k) {\n        int n = word.length();\n        // preprocess next occurrence of each vowel\n        int[] nextA = new int[n+1], nextE = new int[n+1], nextI = new int[n+1], nextO = new int[n+1], nextU = new int[n+1];\n        int INF = n;\n        nextA[n] = nextE[n] = nextI[n] = nextO[n] = nextU[n] = INF;\n        for (int i = n - 1; i >= 0; i--) {\n            char c = word.charAt(i);\n            nextA[i] = (c == 'a' ? i : nextA[i + 1]);\n            nextE[i] = (c == 'e' ? i : nextE[i + 1]);\n            nextI[i] = (c == 'i' ? i : nextI[i + 1]);\n            nextO[i] = (c == 'o' ? i : nextO[i + 1]);\n            nextU[i] = (c == 'u' ? i : nextU[i + 1]);\n        }\n        // collect consonant positions\n        java.util.List<Integer> consList = new java.util.ArrayList<>();\n        for (int i = 0; i < n; i++) {\n            char c = word.charAt(i);\n            if (c!='a' && c!='e' && c!='i' && c!='o' && c!='u') {\n                consList.add(i);\n            }\n        }\n        int consSize = consList.size();\n        int idx = 0;\n        long sumK = 0, sumK1 = 0;\n        // for each start i, compute earliest end to cover vowels and limits for <=k and <=k-1 consonants\n        for (int i = 0; i < n; i++) {\n            while (idx < consSize && consList.get(idx) < i) idx++;\n            int jV = nextA[i]; jV = Math.max(jV, nextE[i]); jV = Math.max(jV, nextI[i]); jV = Math.max(jV, nextO[i]); jV = Math.max(jV, nextU[i]);\n            if (jV == INF) continue;\n            // at most k consonants: can end before the (k+1)th consonant\n            int boundK = (idx + k < consSize) ? consList.get(idx + k) - 1 : n - 1;\n            int cntK = boundK - jV + 1;\n            if (cntK > 0) sumK += cntK;\n            if (k > 0) {\n                // at most k-1 consonants: end before the k-th consonant\n                int boundK1 = (idx + k - 1 < consSize) ? consList.get(idx + k - 1) - 1 : n - 1;\n                int cntK1 = boundK1 - jV + 1;\n                if (cntK1 > 0) sumK1 += cntK1;\n            }\n        }\n        long result = (k > 0 ? sumK - sumK1 : sumK);\n        return (int) result;"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int countOfSubstrings(String word, int k) {
+        int minlen=5+k;
+        int n=word.length();
+        int substrs=n-minlen+1;
+        int res=0;
+        while(substrs>0){
+            int l=0,r=0;
+            while(l<=(n-minlen)){
+                int temp=k;
+                HashSet<Character> set=new HashSet<>(Set.of('a','e','i','o','u'));
+                while(r-l<minlen){
+                    char c=word.charAt(r);
+                    if(set.contains(c)|| (c=='a' || c=='e' || c=='i' || c=='o' || c=='u') ){
+                        if(!set.isEmpty())
+                        set.remove(word.charAt(r));
+                    }
+                    else temp--;
+                    r++;
+                }
+                if(set.isEmpty() && temp==0) res++;
+                l++;
+                r=l;
+            }
+            minlen++;
+            substrs=n-minlen+1;
+        }
+        return res;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: aeioqq 1
+  expected output: 0
+Example 2:
+  input: aeiou 0
+  expected output: 1
+Example 3:
+  input: ieaouqqieaouqq 1
+  expected output: 3
+Example 4:
+  input: aeioua 0
+  expected output: 3
+Example 5:
+  input: aeeiou 0
+  expected output: 1
+

@@ -1,0 +1,16 @@
+Here’s an optimization that pulls the costly Stirling‐table build out of every call and into a one‐time static initializer:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "private static long[][] s = new long[1001][1001];",
+    "replace": "private static long[][] s = new long[1001][1001];\n\n    static {\n        s[0][0] = 1;\n        for (int i = 1; i <= 1000; i++)\n            for (int j = 1; j <= i; j++)\n                s[i][j] = (s[i - 1][j - 1] + s[i - 1][j] * j) % mod;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        s[0][0] = 1;\n        for (int i = 1; i <= 1000; i++)\n            for (int j = 1; j <= i; j++)\n                s[i][j] = (s[i - 1][j - 1] + s[i - 1][j] * j) % mod;\n",
+    "replace": ""
+  }
+]
+```

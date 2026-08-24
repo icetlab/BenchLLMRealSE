@@ -1,0 +1,11 @@
+I’ve replaced the repeated string concatenation with a single StringBuilder (O(n) instead of O(n²)) and applied k %= n up front to avoid unnecessary large shifts.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int n=s.length();\n        String str=\"\";\n        for(int i=0;i<n;i++){\n            str+=s.charAt((i+k)%n);\n        }\n        return str;",
+    "replace": "int n = s.length();\n        k %= n;\n        StringBuilder sb = new StringBuilder(n);\n        for (int i = 0; i < n; i++) {\n            sb.append(s.charAt((i + k) % n));\n        }\n        return sb.toString();"
+  }
+]
+```

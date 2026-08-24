@@ -1,0 +1,11 @@
+I’ve replaced the flawed “highest/remainder” logic with a direct computation of the trailing‐ones block and flip of the appropriate bit (or handle the all‐ones case), exactly matching the original behavior and fixing the 13→12 mapping.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "public static int[] minBitwiseArray(List<Integer> nums) {\n        int n = nums.size();\n        int[] ans = new int[n];\n        for (int i = 0; i < n; i++) {\n            int x = nums.get(i);\n            if (x == 1 || x == 2) {\n                ans[i] = -1;\n                continue;\n            }\n            // highest one-bit",
+    "replace": "public static int[] minBitwiseArray(List<Integer> nums) {\n        int n = nums.size();\n        int[] ans = new int[n];\n        for (int i = 0; i < n; i++) {\n            int x = nums.get(i);\n            if (x == 1 || x == 2) {\n                ans[i] = -1;\n                continue;\n            }\n            // compute bit-length\n            int L = 32 - Integer.numberOfLeadingZeros(x);\n            // all-ones? e.g. 7(111), 3(11)\n            if (x == (1 << L) - 1) {\n                ans[i] = x - (1 << (L - 1));\n            } else {\n                // count trailing ones (bits = 1 from LSB upward)\n                int r = Integer.numberOfTrailingZeros(~x);\n                if (r > 0) {\n                    // flip the highest bit within that trailing-ones block\n                    ans[i] = x - (1 << (r - 1));\n                } else {\n                    // no trailing ones (pure power of two > 2)\n                    ans[i] = x;\n                }\n            }\n        }\n        return ans;\n    }"
+  }
+]
+```

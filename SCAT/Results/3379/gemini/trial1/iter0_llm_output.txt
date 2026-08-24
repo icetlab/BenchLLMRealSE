@@ -1,0 +1,13 @@
+My proposed improvement focuses on reducing memory usage and simplifying the computation. The original code creates two intermediate arrays: one for the string's characters and another to hold the calculated differences. It then streams over the second array to compute the sum. This is inefficient as it requires O(N) extra space and involves multiple passes over the data.
+
+My optimized solution calculates the score in a single pass. It iterates through the string, computes the absolute difference between adjacent characters, and adds it directly to a running total. This eliminates the need for any intermediate arrays, reducing the space complexity from O(N) to O(1) and improving performance by avoiding unnecessary memory allocations and data traversals.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "char[] newarray=s.toCharArray();\n        int[] holdval=new int[s.length()-1];\n        for(int i=0;i<newarray.length-1;i++){\n            //System.out.println(i+\" \"+(int)newarray[i]+\" \"+(int)newarray[i+1]);\n            var val=(int)newarray[i]-(int)newarray[i+1];\n            holdval[i]=Math.abs(val);\n        }\n        var sums=Arrays.stream(holdval).sum();\n        return sums;",
+    "replace": "int score = 0;\n        for (int i = 0; i < s.length() - 1; i++) {\n            score += Math.abs(s.charAt(i) - s.charAt(i + 1));\n        }\n        return score;"
+  }
+]
+```

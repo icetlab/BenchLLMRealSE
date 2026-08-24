@@ -1,0 +1,38 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int maxDistinctElements(int[] nums, int k) {
+        List<int[]> ranges = new ArrayList<>();
+        for (int num : nums) {
+            ranges.add(new int[]{num - k, num + k});
+        }
+        ranges.sort(Comparator.comparingInt(a -> a[0]));
+        Set<Integer> selected = new HashSet<>();
+        int cnt = Integer.MIN_VALUE; 
+        for (int[] range : ranges) {
+            int start = range[0], end = range[1];
+            int val = Math.max(cnt, start);
+            if (val <= end && (selected.isEmpty() || !selected.contains(val))) {
+                selected.add(val);
+                cnt = val + 1; 
+            }
+        }
+        return selected.size();
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 1 0
+  expected output: 1
+Example 2:
+  input: 1,2,2,3,3,4 2
+  expected output: 6
+Example 3:
+  input: 4,4,4,4 1
+  expected output: 3
+Example 4:
+  input: 1,2,3,4 0
+  expected output: 4
+Example 5:
+  input: 5,5,5,5,6,6,7 3
+  expected output: 7

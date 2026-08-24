@@ -1,0 +1,26 @@
+I’ve optimized character lookups by precomputing target character positions and replaced repeated full-string scans with direct index lists. This reduces word skip checks and the per-word per-index loops.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        }\n        \n        // Process each word.",
+    "replace": "        }\n        \n        // Precompute positions of each character in target for fast lookup.\n        List<Integer>[] charIndices = new ArrayList[26];\n        for (int i = 0; i < 26; i++) charIndices[i] = new ArrayList<>();\n        for (int i = 0; i < n; i++) charIndices[target.charAt(i)-'a'].add(i);\n        \n        // Process each word."
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            // Skip if the first character of word is not in target.\n            if (target.indexOf(word.charAt(0)) == -1) continue;",
+    "replace": "            // Skip if the first character of word is not in target.\n            int c = word.charAt(0) - 'a';\n            if (charIndices[c].isEmpty()) continue;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            for (int i = 0; i < n; i++) {\n                if (target.charAt(i) != word.charAt(0)) continue;",
+    "replace": "            for (int i : charIndices[c]) {"
+  }
+]
+```

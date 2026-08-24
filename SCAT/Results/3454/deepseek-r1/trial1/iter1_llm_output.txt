@@ -1,0 +1,26 @@
+The previous change failed because the search block included whitespace-sensitive blank lines. I split the transformation into smaller, non-overlapping hunks and avoided blank lines inside the search strings, while preserving the same optimized logic.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<Integer> a = Arrays.stream(nums).boxed().collect(Collectors.toList());\n        List<Integer> b = Arrays.stream(target).boxed().collect(Collectors.toList());",
+    "replace": "        long add = 0;\n        int prevNum = 0;\n        int prevTarget = 0;\n        int len = nums.length;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int n = a.size() + 1;\n        a.add(0);\n        b.add(0);",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        long add = 0, sub = 0;",
+    "replace": ""
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        for (int i = 0; i < n; i++) {\n            int diff1 = a.get(i);\n            int diff2 = b.get(i);\n            if (i > 0) {\n                diff1 -= a.get(i - 1);\n                diff2 -= b.get(i - 1);\n            }\n            if (diff1 < diff2) {\n                add += (diff2 - diff1);\n            } else {\n                sub += (diff1 - diff2);\n            }\n        }\n        return add;",
+    "replace": "        for (int i = 0; i < len; i++) {\n            int diffNum = nums[i] - prevNum;\n            int diffTarget = target[i] - prevTarget;\n            if (diffNum < diffTarget) {\n                add += diffTarget - diffNum;\n            }\n            prevNum = nums[i];\n            prevTarget = target[i];\n        }\n        int lastDiffNum = -prevNum;\n        int lastDiffTarget = -prevTarget;\n        if (lastDiffNum < lastDiffTarget) {\n            add += lastDiffTarget - lastDiffNum;\n        }\n        return add;"
+  }
+]
+```

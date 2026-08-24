@@ -1,0 +1,26 @@
+Overall intent: Replace costly string-based digit processing with numeric loops and precompute powers of ten for rang to improve performance while preserving functionality.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "long x = Long.valueOf(s);\n        int nOfSuffixDigits = s.length();\n        long rang = Long.valueOf(\"1\" + \"0\".repeat(nOfSuffixDigits));",
+    "replace": "long x = Long.parseLong(s);\n        int nOfSuffixDigits = s.length();\n        long rang = 1;\n        for (int i = 0; i < nOfSuffixDigits; i++) rang *= 10;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "private long getCalc(long finish, int limit, long rang) {\n\n        if (finish / rang == 0) return 0;\n\n        String str = String.valueOf(finish / rang);\n\n        String d = str.substring(str.length() - 1, str.length());\n        int digit = Integer.valueOf(d);\n\n        long sum = digit + 1;\n        long register = limit + 1;\n\n        for (int i = str.length() - 2; i >= 0; i--) {\n            d = str.substring(i, i + 1);\n            digit = Integer.valueOf(d);\n\n            sum = sum + digit * register;\n      \n            register = register * (limit + 1);\n        }\n    \n        return sum;\n    }",
+    "replace": "private long getCalc(long finish, int limit, long rang) {\n        long m = finish / rang;\n        if (m == 0) return 0;\n        long sum = (m % 10) + 1;\n        long register = limit + 1;\n        m /= 10;\n        while (m > 0) {\n            int digit = (int)(m % 10);\n            sum += digit * register;\n            register *= (limit + 1);\n            m /= 10;\n        }\n        return sum;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "private String getResForFinish(long finish, int limit, long rang) {\n        String str = String.valueOf(finish / rang);\n        String lim = String.valueOf(limit);\n        String res = \"\";\n        boolean flag = false;\n        for (int i = 0; i < str.length(); i++) {\n            String d = str.substring(i, i + 1);\n            int digit = Integer.valueOf(d);\n            if (digit <= limit) {\n                res = flag == false ? res + d : res + lim;\n            } else {\n                res = res + lim;\n                flag = true;\n            }\n        }\n\n        return res;\n    }",
+    "replace": "private String getResForFinish(long finish, int limit, long rang) {\n        String str = String.valueOf(finish / rang);\n        StringBuilder sb = new StringBuilder(str.length());\n        boolean capped = false;\n        for (int i = 0; i < str.length(); i++) {\n            int d = str.charAt(i) - '0';\n            if (!capped && d > limit) capped = true;\n            sb.append(capped ? limit : d);\n        }\n        return sb.toString();\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "private String getResForStart(long start, int limit, long rang) {\n        String str = String.valueOf(start / rang);\n        String lim = String.valueOf(limit);\n        String res = \"\";\n        int shift = 0;\n\n        for (int i = str.length() - 1; i >= 0; i--) {\n            String d = str.substring(i, i + 1);\n            int digit = Integer.valueOf(d) + shift;\n            if (digit > limit) {\n                shift = 1;\n                digit = 0;\n                res = digit + \"0\".repeat(res.length());\n            } else {\n                shift = 0;\n                res = digit + res;\n            }\n            \n        }\n\n        return shift == 1 ? \"1\" + res : res;\n    }",
+    "replace": "private String getResForStart(long start, int limit, long rang) {\n        char[] chars = String.valueOf(start / rang).toCharArray();\n        int n = chars.length;\n        // find first digit > limit\n        int pos = -1;\n        for (int i = 0; i < n; i++) {\n            if (chars[i] - '0' > limit) { pos = i; break; }\n        }\n        if (pos < 0) return new String(chars);\n        // carry back to adjust\n        int j = pos - 1;\n        while (j >= 0 && chars[j] - '0' == limit) j--;\n        if (j < 0) {\n            // overflow: produce 1 followed by zeros\n            StringBuilder sb = new StringBuilder(n + 1).append('1');\n            for (int k = 0; k < n; k++) sb.append('0');\n            return sb.toString();\n        }\n        chars[j] = (char)(chars[j] + 1);\n        for (int k = j + 1; k < n; k++) chars[k] = '0';\n        return new String(chars);\n    }"
+  }
+]
+```

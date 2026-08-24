@@ -1,0 +1,11 @@
+Changed the DP from a `BigInteger` matrix to two rolling `long` arrays, preserving the same recurrence while reducing object allocation and memory from O(k·n) to O(n).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.math.BigInteger;\n\nclass Solution {\n    public long maximumStrength(int[] nums, int k) {\n        BigInteger[][] dp = new BigInteger[k + 1][nums.length + 1];\n        for (int i = 0; i <= k; i++) {\n            for (int j = 0; j <= nums.length; j++) {\n                dp[i][j] = BigInteger.ZERO;\n            }\n        }\n\n        for (int i = 1; i <= k; i++) {\n            BigInteger maxsum = BigInteger.valueOf(Long.MIN_VALUE);\n            BigInteger curr = BigInteger.valueOf(Long.MIN_VALUE);\n            int multiplier = (i % 2 == 1) ? k + 1 - i : i - 1 - k;\n            for (int j = i - 1; j < nums.length; j++) {\n                curr = curr.add(BigInteger.valueOf(nums[j]).multiply(BigInteger.valueOf(multiplier)));\n                curr = curr.max(dp[i - 1][j].add(BigInteger.valueOf(nums[j]).multiply(BigInteger.valueOf(multiplier))));\n                maxsum = maxsum.max(curr);\n                dp[i][j + 1] = maxsum;\n            }\n        }\n\n        return dp[k][nums.length].longValue();\n    }\n}",
+    "replace": "class Solution {\n    public long maximumStrength(int[] nums, int k) {\n        int n = nums.length;\n        long[] prev = new long[n + 1];\n        long[] cur = new long[n + 1];\n\n        for (int i = 1; i <= k; i++) {\n            int multiplier = (i % 2 == 1) ? k + 1 - i : i - 1 - k;\n            int first = i - 1;\n\n            long val = (long) nums[first] * multiplier;\n            long curr = prev[first] + val;\n            long maxsum = curr;\n            cur[first + 1] = maxsum;\n\n            for (int j = i; j < n; j++) {\n                val = (long) nums[j] * multiplier;\n                long start = prev[j] + val;\n                curr = Math.max(curr + val, start);\n                if (curr > maxsum) {\n                    maxsum = curr;\n                }\n                cur[j + 1] = maxsum;\n            }\n\n            long[] tmp = prev;\n            prev = cur;\n            cur = tmp;\n        }\n\n        return prev[n];\n    }\n}"
+  }
+]
+```

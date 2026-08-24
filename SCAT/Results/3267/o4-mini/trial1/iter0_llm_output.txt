@@ -1,0 +1,16 @@
+I’ve replaced the brute-force substring enumeration with an O(n + σ·log n) solution that groups same‐character runs, then for each character uses binary search to find the maximum valid substring length whose total overlapping occurrences ≥ 3. I also added the necessary import for List/ArrayList.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {",
+    "replace": "import java.util.*;\n\nclass Solution {"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        int maxLength = -1;\n        for (int i = 0; i < s.length(); i++) {\n            for (int j = i + 1; j <= s.length(); j++) {\n                String sub = s.substring(i, j);\n                if (isSpecial(sub)) {\n                    int occurrences = countOverlappingOccurrences(s, sub);\n                    if (occurrences >= 3) {\n                        maxLength = Math.max(maxLength, sub.length());\n                    }\n                }\n            }\n        }\n        return maxLength;",
+    "replace": "        int result = -1;\n        int n = s.length();\n        List<Integer>[] runs = new List[26];\n        for (int idx = 0; idx < 26; idx++) runs[idx] = new ArrayList<>();\n        int i = 0;\n        while (i < n) {\n            char c = s.charAt(i);\n            int j = i + 1;\n            while (j < n && s.charAt(j) == c) j++;\n            runs[c - 'a'].add(j - i);\n            i = j;\n        }\n        for (int k = 0; k < 26; k++) {\n            List<Integer> list = runs[k];\n            if (list.isEmpty()) continue;\n            int maxRun = 0;\n            long total = 0;\n            for (int len : list) {\n                maxRun = Math.max(maxRun, len);\n                total += len;\n            }\n            if (total < 3) continue;\n            int low = 1, high = maxRun, best = 0;\n            while (low <= high) {\n                int mid = (low + high) / 2;\n                long occ = 0;\n                for (int len : list) {\n                    if (len >= mid) {\n                        occ += len - mid + 1;\n                    }\n                    if (occ >= 3) break;\n                }\n                if (occ >= 3) {\n                    best = mid;\n                    low = mid + 1;\n                } else {\n                    high = mid - 1;\n                }\n            }\n            if (best > 0) result = Math.max(result, best);\n        }\n        return result;"
+  }
+]
+```

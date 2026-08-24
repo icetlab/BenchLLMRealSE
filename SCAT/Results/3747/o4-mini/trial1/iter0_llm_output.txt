@@ -1,0 +1,11 @@
+I replaced the list+sort approach with a single-pass max tracking, reducing time to O(n) and space to O(1).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "List<Integer> l=new ArrayList<>();\n\t\tfor(i=0;i<nums.length;i++) {\n\t\t\tint j = (i + 1) % nums.length;\n\t\t\tint r= Math.abs(nums[i]-nums[j]) ;\n\t\t\tl.add(r);\n\t\t}\n\t\tint cir=nums[0]-nums[nums.length-1];\n\t\tl.add(cir);\n\t\tint[] array = new int[l.size()];\n\t\tfor (int k = 0; k < l.size(); k++) {\n\t\t\tarray[k] = l.get(k);\n\t\t}\n\t\tArrays.sort(array);\n\t\treturn array[array.length-1];",
+    "replace": "int n = nums.length;\n        if (n < 2) return 0;\n        int max = 0;\n        for (int i = 0; i < n - 1; i++) {\n            max = Math.max(max, Math.abs(nums[i] - nums[i + 1]));\n        }\n        max = Math.max(max, Math.abs(nums[n - 1] - nums[0]));\n        return max;"
+  }
+]
+```

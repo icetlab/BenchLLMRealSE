@@ -1,0 +1,17 @@
+The performance of the provided code is primarily limited by the `check` method, which determines how many numbers up to a given value `v` are divisible by at least one of the `coins`. The original implementation calculates this using the principle of inclusion-exclusion by iterating through all `2^n - 1` non-empty subsets of coins. For each subset, it computes the least common multiple (LCM) from scratch, leading to an overall time complexity of `O(n * 2^n)` for the `check` method.
+
+My improvement focuses on optimizing this `check` method. I will replace the nested loops with an iterative, dynamic programming-style approach. This new approach builds the LCMs for all subsets incrementally. It starts with an empty set and, for each coin, generates new subsets by combining the coin with all previously generated subsets. This avoids recalculating LCMs and reduces the time complexity of the `check` method to `O(2^n)`.
+
+Additionally, the new implementation includes two important micro-optimizations:
+1.  It uses a safer calculation for LCM (`(a/gcd(a,b))*b`) to prevent potential intermediate `long` overflows.
+2.  It prunes the computation by skipping the generation of new subset LCMs if they are guaranteed to exceed the target value `v`, which can provide a significant speedup when `v` is relatively small during the binary search.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    boolean check(int[] coins, long k, long v) {\n        int n=coins.length;\n        long total =0;\n        for(int i=1;i<(1<<n);i++) {\n            long lcm=0;int count=0;\n            for(int j=0;j<n;j++) {\n                if((i&(1<<j))>0){\n                    count++;\n                    if(lcm==0) lcm=coins[j];\n                    else {\n                        lcm=lcm*coins[j]/gcd(lcm,(long)coins[j]);\n                    }\n                }\n            }\n            if(count%2==0) total-=v/lcm;\n            else total+=v/lcm;\n        }\n        return (total>=k);\n    }",
+    "replace": "    boolean check(int[] coins, long k, long v) {\n        long total = 0;\n        java.util.List<long[]> subsets = new java.util.ArrayList<>();\n        subsets.add(new long[]{1, 0}); // {lcm, size}\n\n        for (int coin : coins) {\n            int currentSize = subsets.size();\n            for (int i = 0; i < currentSize; i++) {\n                long[] s = subsets.get(i);\n                long currentLcm = s[0];\n                \n                long g = gcd(currentLcm, coin);\n                // Check for overflow and if new lcm will exceed v. This prunes the search.\n                if (currentLcm / g > v / coin) {\n                    continue;\n                }\n                long nextLcm = currentLcm / g * coin;\n                \n                subsets.add(new long[]{nextLcm, s[1] + 1});\n            }\n        }\n        \n        // Calculate total using inclusion-exclusion principle, skipping the empty set\n        for (int i = 1; i < subsets.size(); i++) {\n            long lcm = subsets.get(i)[0];\n            long count = subsets.get(i)[1];\n            \n            if (count % 2 == 1) {\n                total += v / lcm;\n            } else {\n                total -= v / lcm;\n            }\n        }\n        \n        return total >= k;\n    }"
+  }
+]
+```

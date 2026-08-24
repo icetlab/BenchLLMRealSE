@@ -1,0 +1,11 @@
+The original logic is preserved, but `HashSet` operations are replaced with integer bit masks for lowercase-seen, uppercase-seen, and invalidated letters. This avoids heap allocations and reduces each character check to constant-time bit operations.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int numberOfSpecialChars(String word) {\n        int count = 0;\n        Set<Character> set = new HashSet<>();\n        Set<Character> alreadyCounted = new HashSet<>();\n\n        for (char c : word.toCharArray()) {\n            if (set.contains(Character.toUpperCase(c))) {\n                if(alreadyCounted.contains(c)){\n                    count--;\n                    alreadyCounted.remove(Character.toUpperCase(c));\n                    alreadyCounted.remove(Character.toLowerCase(c));\n                }else\n                continue;\n            }\n            if (Character.toUpperCase(c) == c && set.contains(Character.toLowerCase(c))) {\n                alreadyCounted.add(c);\n                alreadyCounted.add(Character.toLowerCase(c));\n                count++;\n            }\n\n            set.add(c);\n        }\n\n        return count;\n    }",
+    "replace": "    public int numberOfSpecialChars(String word) {\n        int lowerSeen = 0;\n        int upperSeen = 0;\n        int invalid = 0;\n\n        for (int i = 0; i < word.length(); i++) {\n            char c = word.charAt(i);\n            if (c >= 'a' && c <= 'z') {\n                int bit = 1 << (c - 'a');\n                if ((upperSeen & bit) != 0) {\n                    invalid |= bit;\n                } else {\n                    lowerSeen |= bit;\n                }\n            } else if (c >= 'A' && c <= 'Z') {\n                upperSeen |= 1 << (c - 'A');\n            }\n        }\n\n        return Integer.bitCount(lowerSeen & upperSeen & ~invalid);\n    }"
+  }
+]
+```

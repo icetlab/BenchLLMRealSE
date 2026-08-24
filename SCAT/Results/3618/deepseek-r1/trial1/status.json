@@ -1,0 +1,6 @@
+{
+  "outcome": "error",
+  "stage": "llm_call",
+  "message": "deepseek-r1 call exceeded the 300s hard timeout (no response and no error from the API).",
+  "iteration": 0
+}

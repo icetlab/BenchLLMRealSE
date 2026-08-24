@@ -1,0 +1,11 @@
+The improvement replaces the expensive and error-prone Math.pow/recursive logic with a concise iterative bit‐operation approach, using Long.highestOneBit and Long.numberOfTrailingZeros to directly peel off the highest power-of-two chunk each step.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    private int findit(long k, int[] operations){\n        if(k == 1){\n            return 0;\n        }\n        int x = 1;\n        while((long)Math.pow(2,x) < k){\n            x++;\n        }\n        x--;\n        int a = 0;\n        if(operations[x] == 1){\n            k -= Math.pow(2,x);\n            return 1 + findit(k,operations);\n        }\n        else{\n            k -= Math.pow(2,x);\n            return findit(k,operations);\n        }\n       \n    }",
+    "replace": "    private int findit(long k, int[] operations) {\n        int count = 0;\n        while (k != 1) {\n            long p = Long.highestOneBit(k - 1);\n            int x = Long.numberOfTrailingZeros(p);\n            if (operations[x] == 1) count++;\n            k -= p;\n        }\n        return count;\n    }"
+  }
+]
+```

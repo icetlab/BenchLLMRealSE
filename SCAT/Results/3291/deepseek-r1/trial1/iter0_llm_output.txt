@@ -1,0 +1,11 @@
+The original code uses an incomplete bubble-sort-like approach with print statements and fails for some cases. The new implementation correctly groups elements by the number of set bits, sorts each group internally (since swapping is allowed within same popcount), and then checks if the whole array is sorted. This is both functionally correct and more efficient (O(n log n) vs potentially O(n²)).
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public boolean canSortArray(int[] nums) {\n        int c=0;\n        for(int i=0;i<nums.length-1;i++)\n        {\n            if(nums[i]>nums[i+1])\n            {\n                int a=Integer.bitCount(nums[i]);\n                int b=Integer.bitCount(nums[i+1]);\n                System.out.println(a+\" \"+b);\n                if(a==b)\n                {\n                    int t=nums[i+1];\n                nums[i+1]=nums[i];\n                nums[i]=t;\n                }\n                else\n                return false;\n            }\n        }\n         for(int i=nums.length-1;i>0;i--)\n        {\n            if(nums[i]<nums[i-1])\n            {\n                int a=Integer.bitCount(nums[i]);\n                int b=Integer.bitCount(nums[i-1]);\n                //System.out.println(a+\" \"+b);\n                if(a==b)\n                {\n                    int t=nums[i-1];\n                nums[i-1]=nums[i];\n                nums[i]=t;\n                }\n                else\n                return false;\n            }\n        }\n        return true;\n\n    }\n}",
+    "replace": "import java.util.Arrays;\n\nclass Solution {\n    public boolean canSortArray(int[] nums) {\n        int n = nums.length;\n        int i = 0;\n        while (i < n) {\n            int j = i;\n            int pop = Integer.bitCount(nums[j]);\n            while (j < n && Integer.bitCount(nums[j]) == pop) {\n                j++;\n            }\n            Arrays.sort(nums, i, j);\n            i = j;\n        }\n        for (int k = 1; k < n; k++) {\n            if (nums[k] < nums[k-1]) return false;\n        }\n        return true;\n    }\n}"
+  }
+]
+```

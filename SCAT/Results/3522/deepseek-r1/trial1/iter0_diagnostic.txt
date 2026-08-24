@@ -1,0 +1,92 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search='    public int[] resultsArray(int[] nums, int k) {\n\n        int res[]=new int[nums.length-k+1];\n        if(k==1)\n        {\n            return nums;\n        }\n        for(int i=0;i<res.length;i++)\n        {\n            int num=0;\n            int temp[]=new int[k];\n            int ind=0;\n\n            boolean diff=false;\n\n            for(int j=i;j<i+k;j++)\n            {\n                temp[ind++]=nums[j];\n\n                if((j+1)<i+k && (nums[j]-nums[j+1]!=-1))    \n                {\n                    diff=true;\n                }\n\n\n            }\n\n            Arrays.sort(temp);\n            ind=0;\n\n            boolean flag=true;\n            for(int j=i;j<i+k;j++)\n            {\n                if(nums[j]!=temp[ind++])\n                {\n                    flag=false;\n                    break;\n                }\n\n\n            }\n\n            if(flag && !diff)\n            {\n                res[i]=temp[k-1];\n            }\n            else\n                res[i]=-1;\n\n        }\n\n\n        return res;\n    }'
+>>>> Your previous output was:
+The original implementation repeatedly copies and sorts each \(k\)-sized subarray, making it \(O(n \cdot k \log k)\). I replaced it with a single left-to-right scan that tracks the current streak of consecutive \(+1` differences, reducing the complexity to \(O(n)\) time and \(O(1)\) extra space.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int[] resultsArray(int[] nums, int k) {\n\n        int res[]=new int[nums.length-k+1];\n        if(k==1)\n        {\n            return nums;\n        }\n        for(int i=0;i<res.length;i++)\n        {\n            int num=0;\n            int temp[]=new int[k];\n            int ind=0;\n\n            boolean diff=false;\n\n            for(int j=i;j<i+k;j++)\n            {\n                temp[ind++]=nums[j];\n\n                if((j+1)<i+k && (nums[j]-nums[j+1]!=-1))    \n                {\n                    diff=true;\n                }\n\n\n            }\n\n            Arrays.sort(temp);\n            ind=0;\n\n            boolean flag=true;\n            for(int j=i;j<i+k;j++)\n            {\n                if(nums[j]!=temp[ind++])\n                {\n                    flag=false;\n                    break;\n                }\n\n\n            }\n\n            if(flag && !diff)\n            {\n                res[i]=temp[k-1];\n            }\n            else\n                res[i]=-1;\n\n        }\n\n\n        return res;\n    }",
+    "replace": "    public int[] resultsArray(int[] nums, int k) {\n        if (k == 1) {\n            return nums;\n        }\n\n        int n = nums.length;\n        int[] res = new int[n - k + 1];\n        int run = 0;\n\n        for (int i = 0; i < n; i++) {\n            if (i > 0) {\n                if ((long) nums[i] - nums[i - 1] == 1) {\n                    run++;\n                } else {\n                    run = 0;\n                }\n            }\n\n            if (i >= k - 1) {\n                res[i - k + 1] = (run >= k - 1) ? nums[i] : -1;\n            }\n        }\n\n        return res;\n    }"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int[] resultsArray(int[] nums, int k) {
+        
+        int res[]=new int[nums.length-k+1];
+        if(k==1)
+        {
+            return nums;
+        }
+        for(int i=0;i<res.length;i++)
+        {
+            int num=0;
+            int temp[]=new int[k];
+            int ind=0;
+            
+            boolean diff=false;
+            
+            for(int j=i;j<i+k;j++)
+            {
+                temp[ind++]=nums[j];
+            
+                if((j+1)<i+k && (nums[j]-nums[j+1]!=-1))    
+                {
+                    diff=true;
+                }
+                
+                
+            }
+            
+            Arrays.sort(temp);
+            ind=0;
+            
+            boolean flag=true;
+            for(int j=i;j<i+k;j++)
+            {
+                if(nums[j]!=temp[ind++])
+                {
+                    flag=false;
+                    break;
+                }
+
+                
+            }
+            
+            if(flag && !diff)
+            {
+                res[i]=temp[k-1];
+            }
+            else
+                res[i]=-1;
+            
+        }
+
+        
+        return res;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 7 1
+  expected output: 7
+Example 2:
+  input: 1,2,3,4,5 3
+  expected output: 3,4,5
+Example 3:
+  input: 4,2,8,3 2
+  expected output: -1,-1,-1
+Example 4:
+  input: 1,2,3,4,3,2,5 3
+  expected output: 3,4,-1,-1,-1
+Example 5:
+  input: 2,2,2,2,2 4
+  expected output: -1,-1
+

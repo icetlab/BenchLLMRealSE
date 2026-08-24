@@ -1,0 +1,23 @@
+Looking at the code, I can see several performance and correctness issues:
+
+1. The counting logic for equal sides is flawed - it counts pairs but doesn't correctly determine triangle type
+2. `Arrays.sort()` is called multiple times unnecessarily
+3. There's a `System.out.println` that shouldn't be there
+4. The `count` variable doesn't correctly identify triangle types (e.g., for 3,3,3 it counts 3 pairs, but for 2,2,3 it counts 1 pair)
+5. Missing import for `Arrays`
+
+The improvement will:
+- Simplify the logic by sorting once and using direct comparisons
+- Remove unnecessary print statements
+- Fix the triangle type detection logic
+- Add proper import
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public String triangleType(int[] nums) {\n            int count=0;\n        for(int i=0;i<nums.length-1;i++){\n            for(int j=i+1;j<nums.length;j++){\n                if(nums[i]==nums[j]){\n                    count++;\n                    System.out.println(count);\n                }\n            }\n        }\n        if(count==0) {\n//            return \"scalene\";\n            Arrays.sort(nums);\n            if(nums[0]+nums[1]<=nums[2])\n                return \"none\";\n            else return \"scalene\";\n        }\n        else if(count==1){\n            Arrays.sort(nums);\n        if(nums[0]+nums[1]<=nums[2])\n            return \"none\";\n        else return \"isosceles\";\n        }\n        else if(count==3)\n            return \"equilateral\";\n        return null;\n    }\n}",
+    "replace": "import java.util.Arrays;\n\nclass Solution {\n    public String triangleType(int[] nums) {\n        Arrays.sort(nums);\n        \n        // Check if triangle is possible\n        if (nums[0] + nums[1] <= nums[2]) {\n            return \"none\";\n        }\n        \n        // Check for equilateral (all sides equal)\n        if (nums[0] == nums[1] && nums[1] == nums[2]) {\n            return \"equilateral\";\n        }\n        \n        // Check for isosceles (at least two sides equal)\n        if (nums[0] == nums[1] || nums[1] == nums[2]) {\n            return \"isosceles\";\n        }\n        \n        // Otherwise it's scalene\n        return \"scalene\";\n    }\n}"
+  }
+]
+```

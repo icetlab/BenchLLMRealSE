@@ -1,0 +1,13 @@
+We can improve performance by avoiding substring creation and repeated scanning. Instead, we can directly count the maximum length of a substring that appears at least 3 times by scanning consecutive equal characters and using frequency counting per character.
+
+Here’s the improved approach:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int maximumLength(String s) {\n        int maxLength = -1;\n        for (int i = 0; i < s.length(); i++) {\n            for (int j = i + 1; j <= s.length(); j++) {\n                String sub = s.substring(i, j);\n                if (isSpecial(sub)) {\n                    int occurrences = countOverlappingOccurrences(s, sub);\n                    if (occurrences >= 3) {\n                        maxLength = Math.max(maxLength, sub.length());\n                    }\n                }\n            }\n        }\n        return maxLength;\n    }\n\n    private boolean isSpecial(String str) {\n        char firstChar = str.charAt(0);\n        for (char c : str.toCharArray()) {\n            if (c != firstChar) {\n                return false;\n            }\n        }\n        return true;\n    }\n\n    private int countOverlappingOccurrences(String s, String sub) {\n        int count = 0;\n        for (int i = 0; i <= s.length() - sub.length(); i++) {\n            if (s.substring(i, i + sub.length()).equals(sub)) {\n                count++;\n            }\n        }\n        return count;\n    }\n}",
+    "replace": "class Solution {\n    public int maximumLength(String s) {\n        int n = s.length();\n        int[][] freq = new int[26][n + 1];\n        int maxLen = -1;\n        \n        for (int i = 0; i < n; i++) {\n            char c = s.charAt(i);\n            int idx = c - 'a';\n            int len = 1;\n            while (i + len < n && s.charAt(i + len) == c) {\n                len++;\n            }\n            for (int l = 1; l <= len; l++) {\n                freq[idx][l] += len - l + 1;\n                if (freq[idx][l] >= 3) {\n                    maxLen = Math.max(maxLen, l);\n                }\n            }\n            i += len - 1;\n        }\n        return maxLen;\n    }\n}"
+  }
+]
+```

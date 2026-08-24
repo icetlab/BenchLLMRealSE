@@ -1,0 +1,11 @@
+I replaced the two-pass counting‐array approach with a single-pass scan that tracks the minimum of each input array. This reduces memory use and constant‐factor overhead, keeping O(n) time with minimal space.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        int freq1[] = new int[1001];\n        int freq2[] = new int[1001];\n\n        for(int i = 0; i< nums1.length; i++){\n            freq1[nums1[i]]++;\n            freq2[nums2[i]]++;\n        }\n\n        int num1 = -1;\n        int num2 = -1;\n\n        for(int i = 0; i< 1001; i++){\n            if(num1 == -1 && freq1[i] != 0) num1 = i;\n            if(num2 == -1 && freq2[i] != 0) num2 = i;\n        }\n    return num2 - num1;",
+    "replace": "        int min1 = Integer.MAX_VALUE;\n        for (int num : nums1) {\n            if (num < min1) min1 = num;\n        }\n        int min2 = Integer.MAX_VALUE;\n        for (int num : nums2) {\n            if (num < min2) min2 = num;\n        }\n        return min2 - min1;"
+  }
+]
+```

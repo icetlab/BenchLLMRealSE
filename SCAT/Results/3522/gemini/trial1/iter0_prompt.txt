@@ -1,0 +1,74 @@
+>> The source file (Solution.java) is:
+class Solution {
+    public int[] resultsArray(int[] nums, int k) {
+        
+        int res[]=new int[nums.length-k+1];
+        if(k==1)
+        {
+            return nums;
+        }
+        for(int i=0;i<res.length;i++)
+        {
+            int num=0;
+            int temp[]=new int[k];
+            int ind=0;
+            
+            boolean diff=false;
+            
+            for(int j=i;j<i+k;j++)
+            {
+                temp[ind++]=nums[j];
+            
+                if((j+1)<i+k && (nums[j]-nums[j+1]!=-1))    
+                {
+                    diff=true;
+                }
+                
+                
+            }
+            
+            Arrays.sort(temp);
+            ind=0;
+            
+            boolean flag=true;
+            for(int j=i;j<i+k;j++)
+            {
+                if(nums[j]!=temp[ind++])
+                {
+                    flag=false;
+                    break;
+                }
+
+                
+            }
+            
+            if(flag && !diff)
+            {
+                res[i]=temp[k-1];
+            }
+            else
+                res[i]=-1;
+            
+        }
+
+        
+        return res;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 7 1
+  expected output: 7
+Example 2:
+  input: 1,2,3,4,5 3
+  expected output: 3,4,5
+Example 3:
+  input: 4,2,8,3 2
+  expected output: -1,-1,-1
+Example 4:
+  input: 1,2,3,4,3,2,5 3
+  expected output: 3,4,-1,-1,-1
+Example 5:
+  input: 2,2,2,2,2 4
+  expected output: -1,-1

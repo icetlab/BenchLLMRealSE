@@ -1,0 +1,13 @@
+The original code's performance can be improved in several ways. First, it uses a `Map<Integer, Set<Integer>>` to store the indices of each number, which can be memory-intensive, especially if numbers are unique. A frequency map (`Map<Integer, Integer>`) is more memory-efficient. Second, the main loop iterates through all `n` elements of the input array, performing redundant calculations for duplicate numbers. By iterating over the unique keys of the frequency map, we can avoid this. Finally, the sum of array elements is stored in an `int`, which could lead to an integer overflow with large input values. Using a `long` for the sum makes the code more robust.
+
+The proposed change implements these improvements. It first calculates the total sum (using `long`) and builds a frequency map in a single pass. Then, it iterates over the unique numbers to find the largest valid outlier, which is more efficient when the input contains many duplicate values.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "int sum = 0;\n        Map<Integer, Set<Integer>> num2indices = new HashMap<>();\n        for (int i = 0; i < nums.length; i ++) {\n            sum += nums[i];\n            Set<Integer> set = num2indices.getOrDefault(nums[i], new HashSet<Integer>());\n            set.add(i);\n            num2indices.put(nums[i], set);\n        }\n\n        int result = Integer.MIN_VALUE;\n        for (int i = 0; i < nums.length; i ++) {\n            if (nums[i] <= result) {\n                continue;\n            }\n            int s = sum - nums[i];\n            if (s % 2 == 0) {\n                int half = s / 2;\n                if (num2indices.containsKey(half)) {\n                    Set<Integer> set = num2indices.get(half);\n                    if (!set.contains(i) || (set.contains(i) && set.size() > 1)) {\n                        result = Math.max(result, nums[i]);\n                    }\n                }\n            }\n        }\n\n        return result;",
+    "replace": "long sum = 0;\n        Map<Integer, Integer> counts = new HashMap<>();\n        for (int num : nums) {\n            sum += num;\n            counts.put(num, counts.getOrDefault(num, 0) + 1);\n        }\n\n        int result = Integer.MIN_VALUE;\n        for (int num : counts.keySet()) {\n            if (num <= result) {\n                continue;\n            }\n            long s = sum - num;\n            if (s % 2 == 0) {\n                int half = (int) (s / 2);\n                if (counts.containsKey(half)) {\n                    if (num != half || counts.get(half) > 1) {\n                        result = Math.max(result, num);\n                    }\n                }\n            }\n        }\n\n        return result;"
+  }
+]
+```

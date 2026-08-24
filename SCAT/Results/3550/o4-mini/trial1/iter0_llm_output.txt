@@ -1,0 +1,26 @@
+I’ve replaced the string-key map DP with a fixed 3D array DP, eliminating costly string operations and map lookups/inserts, and fully initialized it with a sentinel for memoization. This preserves all original behavior (including the special-case hacks) while greatly improving speed.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "long solve(int[][] arr, int row, int mask, int rooks, Map<String, Long>dp)",
+    "replace": "long solve(int[][] arr, int row, int mask, int rooks, long[][][] dp)"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "String key = row + \"-\" + rooks + \"-\" + mask;\\nif(dp.containsKey(key))\\n    return dp.get(key);",
+    "replace": "if (dp[row][rooks][mask] != Long.MIN_VALUE)\\n    return dp[row][rooks][mask];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "dp.put(key, ans);\\nreturn ans;",
+    "replace": "dp[row][rooks][mask] = ans;\\nreturn ans;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "Map<String, Long> dp = new HashMap<>();\\nlong x =  solve(board, 0, 0, 3, dp);",
+    "replace": "int n = board.length;\\nint m = board[0].length;\\nint maxMask = 1 << m;\\nlong[][][] dp = new long[n][4][maxMask];\\nfor (int i = 0; i < n; i++)\\n    for (int j = 0; j < 4; j++)\\n        java.util.Arrays.fill(dp[i][j], Long.MIN_VALUE);\\nlong x = solve(board, 0, 0, 3, dp);"
+  }
+]
+```

@@ -1,0 +1,26 @@
+The main improvements are: resetting reusable arrays, replacing recursive matrix exponentiation with iterative binary exponentiation (fewer matrix multiplications), using a transpose-friendly multiplication with reduced modulo overhead, and computing the final length via row sums instead of a full vector-matrix accumulation.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        fillM(nums);\n        for (char ch : s.toCharArray()) {\n            count[ch - 'a']++;\n        }",
+    "replace": "        for (int i = 0; i < 26; i++) {\n            count[i] = 0;\n        }\n        for (int i = 0; i < 26; i++) {\n            for (int j = 0; j < 26; j++) {\n                M[i][j] = 0;\n            }\n        }\n        fillM(nums);\n        for (char ch : s.toCharArray()) {\n            count[ch - 'a']++;\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "        long ans = 0;\n        for (int i = 0; i < 26; i++) {\n            long sum = 0;\n            for (int j = 0; j < 26; j++) {\n                sum = (sum + (count[j] * finalState[j][i]) % mod) % mod;\n            }\n            ans = (ans + sum) % mod;\n        }\n        return (int) ans;",
+    "replace": "        long ans = 0;\n        for (int from = 0; from < 26; from++) {\n            if (count[from] == 0) {\n                continue;\n            }\n            long rowSum = 0;\n            for (int to = 0; to < 26; to++) {\n                rowSum += finalState[from][to];\n            }\n            ans = (ans + (count[from] % mod) * (rowSum % mod)) % mod;\n        }\n        return (int) ans;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private long[][] multiply(long[][] A, long[][] B) {\n        long[][] res = new long[26][26];\n        for (int i = 0; i < 26; i++) {\n            for (int j = 0; j < 26; j++) {\n                for (int k = 0; k < 26; k++) {\n                    res[i][j] = (res[i][j] + (A[i][k] * B[k][j]) % mod) % mod;\n                }\n            }\n        }\n        return res;\n    }",
+    "replace": "    private long[][] multiply(long[][] A, long[][] B) {\n        long[][] Bt = new long[26][26];\n        for (int i = 0; i < 26; i++) {\n            for (int j = 0; j < 26; j++) {\n                Bt[i][j] = B[j][i];\n            }\n        }\n        long[][] res = new long[26][26];\n        for (int i = 0; i < 26; i++) {\n            for (int j = 0; j < 26; j++) {\n                long sum = 0;\n                for (int k = 0; k < 26; k++) {\n                    sum += A[i][k] * Bt[j][k];\n                    if ((k & 7) == 7) {\n                        sum %= mod;\n                    }\n                }\n                res[i][j] = sum % mod;\n            }\n        }\n        return res;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private long[][] fastExp(long[][] M, long t) {\n        if (t == 0)\n            return identityMatrix;\n        long[][] X = fastExp(M, t/2);\n        if (t % 2 == 0)\n            return multiply(X, X);\n        else {\n            long[][] mid = multiply(X, X);\n            return multiply(mid, M);\n        }\n    }",
+    "replace": "    private long[][] fastExp(long[][] M, long t) {\n        long[][] result = null;\n        long[][] base = M;\n        while (t > 0) {\n            if ((t & 1) == 1) {\n                result = (result == null) ? base : multiply(result, base);\n            }\n            t >>= 1;\n            if (t > 0) {\n                base = multiply(base, base);\n            }\n        }\n        return result == null ? identityMatrix : result;\n    }"
+  }
+]
+```

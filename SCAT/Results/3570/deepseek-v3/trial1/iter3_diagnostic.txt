@@ -1,0 +1,67 @@
+>>>> Your previous patch did not pass verification, with the following feedback:
+[TEST FAILED] case 1: expected='1' got='5'
+>>>> Your previous output was:
+Looking at the test failure, my sliding window approach has a bug in how I handle the `firstConsonant` tracking. The issue is that when I shrink the window and remove a consonant, I need to properly update `firstConsonant` to point to the next consonant in the window, but my current logic doesn't handle all cases correctly.
+
+The correct approach is to use a different strategy: track the position of the last consonant in the window, and count valid starting positions between `left` and the position after the last consonant. Let me fix this:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    public int countOfSubstrings(String word, int k) {\n        int minlen=5+k;\n        int n=word.length();\n        int substrs=n-minlen+1;\n        int res=0;\n        while(substrs>0){\n            int l=0,r=0;\n            while(l<=(n-minlen)){\n                int temp=k;\n                HashSet<Character> set=new HashSet<>(Set.of('a','e','i','o','u'));\n                while(r-l<minlen){\n                    char c=word.charAt(r);\n                    if(set.contains(c)|| (c=='a' || c=='e' || c=='i' || c=='o' || c=='u') ){\n                        if(!set.isEmpty())\n                        set.remove(word.charAt(r));\n                    }\n                    else temp--;\n                    r++;\n                }\n                if(set.isEmpty() && temp==0) res++;\n                l++;\n                r=l;\n            }\n            minlen++;\n            substrs=n-minlen+1;\n        }\n        return res;\n    }\n}",
+    "replace": "class Solution {\n    public int countOfSubstrings(String word, int k) {\n        int n = word.length();\n        int[] vowelCount = new int[5]; // a, e, i, o, u\n        int consonantCount = 0;\n        int distinctVowels = 0;\n        int res = 0;\n        int left = 0;\n        int lastConsonant = -1; // position of last consonant in current window\n        \n        for (int right = 0; right < n; right++) {\n            char c = word.charAt(right);\n            int idx = vowelIndex(c);\n            if (idx >= 0) {\n                if (vowelCount[idx] == 0) distinctVowels++;\n                vowelCount[idx]++;\n            } else {\n                consonantCount++;\n                lastConsonant = right;\n            }\n            \n            // Shrink window while it has too many consonants\n            while (consonantCount > k) {\n                char leftChar = word.charAt(left);\n                int leftIdx = vowelIndex(leftChar);\n                if (leftIdx >= 0) {\n                    vowelCount[leftIdx]--;\n                    if (vowelCount[leftIdx] == 0) distinctVowels--;\n                } else {\n                    consonantCount--;\n                }\n                left++;\n            }\n            \n            if (distinctVowels == 5 && consonantCount == k) {\n                // Count valid starting positions from left to (lastConsonant+1)\n                // All positions from left to lastConsonant are valid starts\n                int validStarts = (lastConsonant == -1) ? (right - left + 1) : (lastConsonant - left + 1);\n                res += validStarts;\n            }\n        }\n        \n        return res;\n    }\n    \n    private int vowelIndex(char c) {\n        switch (c) {\n            case 'a': return 0;\n            case 'e': return 1;\n            case 'i': return 2;\n            case 'o': return 3;\n            case 'u': return 4;\n            default: return -1;\n        }\n    }\n}"
+  }
+]
+```
+>>>> Analyze the error and produce a corrected patch. Maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int countOfSubstrings(String word, int k) {
+        int minlen=5+k;
+        int n=word.length();
+        int substrs=n-minlen+1;
+        int res=0;
+        while(substrs>0){
+            int l=0,r=0;
+            while(l<=(n-minlen)){
+                int temp=k;
+                HashSet<Character> set=new HashSet<>(Set.of('a','e','i','o','u'));
+                while(r-l<minlen){
+                    char c=word.charAt(r);
+                    if(set.contains(c)|| (c=='a' || c=='e' || c=='i' || c=='o' || c=='u') ){
+                        if(!set.isEmpty())
+                        set.remove(word.charAt(r));
+                    }
+                    else temp--;
+                    r++;
+                }
+                if(set.isEmpty() && temp==0) res++;
+                l++;
+                r=l;
+            }
+            minlen++;
+            substrs=n-minlen+1;
+        }
+        return res;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: aeioqq 1
+  expected output: 0
+Example 2:
+  input: aeiou 0
+  expected output: 1
+Example 3:
+  input: ieaouqqieaouqq 1
+  expected output: 3
+Example 4:
+  input: aeioua 0
+  expected output: 3
+Example 5:
+  input: aeeiou 0
+  expected output: 1
+

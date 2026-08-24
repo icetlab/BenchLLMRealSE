@@ -1,0 +1,27 @@
+The provided Java code implements a dynamic programming solution with memoization to solve a variation of the weighted interval scheduling problem. The goal is to select up to 4 non-overlapping intervals to maximize the sum of weights, with lexicographical order of indices as a tie-breaker.
+
+My main improvement focuses on optimizing the memoization strategy. The original code uses a `HashMap<String, DpAns>`, which incurs overhead from string concatenation, hashing, and potential hash collisions. I've replaced this with a 2D array `DpAns[][]`, which offers significantly faster, constant-time access to memoized results.
+
+Additionally, I've refactored the recursive `solve` method to reduce object allocations. The original implementation created new `DpAns` objects and lists in every case. The improved version reuses existing `DpAns` objects from recursive calls when possible (e.g., when skipping an interval is the better or equal choice), avoiding unnecessary copying and reducing pressure on the garbage collector. The base case is also changed to use the immutable `Collections.emptyList()` to prevent creating numerous empty list instances.
+
+Finally, a minor improvement is made to the `Pair.compareTo` method to use `Integer.compare`, which is safer against potential integer overflows than direct subtraction.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    HashMap<String, DpAns> map;\n\n    public int[] maximumWeight(List<List<Integer>> intervals) {\n        int n = intervals.size();\n        map = new HashMap<>();",
+    "replace": "class Solution {\n    DpAns[][] memo;\n\n    public int[] maximumWeight(List<List<Integer>> intervals) {\n        int n = intervals.size();\n        memo = new DpAns[n + 1][5];"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public DpAns solve(List<Pair> intervals, int i, int k) {\n        if (k == 0 || i >= intervals.size()) {\n            return new DpAns(0, new ArrayList<>());\n        }\n\n        String key = i + \"*\" + k;\n\n        if (map.containsKey(key)) {\n            return map.get(key);\n        }\n        DpAns ans1 = solve(intervals, i + 1, k);\n        int nextIdx = findNextIndex(intervals, intervals.get(i).interval.get(1), i + 1, intervals.size() - 1);\n        DpAns ans2 = solve(intervals, nextIdx, k - 1);\n        DpAns ans;\n        if (intervals.get(i).interval.get(2) + ans2.score > ans1.score) {\n            long score = intervals.get(i).interval.get(2) + ans2.score;\n            List<Integer> list = new ArrayList<>(ans2.list);\n            list.add(intervals.get(i).idx);\n            Collections.sort(list);\n            ans = new DpAns(score, list);\n        } else if (intervals.get(i).interval.get(2) + ans2.score < ans1.score) {\n            long score = ans1.score;\n            List<Integer> list = new ArrayList<>(ans1.list);\n            ans = new DpAns(score, list);\n        } else {\n            long score = ans1.score;\n            List<Integer> list1 = new ArrayList<>(ans1.list);\n            List<Integer> list2 = new ArrayList<>(ans2.list);\n            list2.add(intervals.get(i).idx);\n            Collections.sort(list2);\n            List<Integer> list = lexiSmallerList(list1, list2);\n            ans = new DpAns(score, list);\n        }\n        map.put(key, ans);\n        return ans;\n    }",
+    "replace": "public DpAns solve(List<Pair> intervals, int i, int k) {\n        if (k == 0 || i >= intervals.size()) {\n            return new DpAns(0, Collections.emptyList());\n        }\n\n        if (memo[i][k] != null) {\n            return memo[i][k];\n        }\n\n        // Option 1: Skip interval i\n        DpAns ans1 = solve(intervals, i + 1, k);\n\n        // Option 2: Take interval i\n        int nextIdx = findNextIndex(intervals, intervals.get(i).interval.get(1), i + 1, intervals.size() - 1);\n        DpAns ans2 = solve(intervals, nextIdx, k - 1);\n        long scoreTake = intervals.get(i).interval.get(2) + ans2.score;\n\n        DpAns ans;\n        if (scoreTake < ans1.score) {\n            ans = ans1;\n        } else {\n            List<Integer> listTake = new ArrayList<>(ans2.list);\n            listTake.add(intervals.get(i).idx);\n            Collections.sort(listTake);\n\n            if (scoreTake > ans1.score) {\n                ans = new DpAns(scoreTake, listTake);\n            } else { // Tie in score, decide by lexicographically smaller index list\n                if (lexiSmallerList(ans1.list, listTake) == listTake) {\n                    ans = new DpAns(scoreTake, listTake);\n                } else {\n                    ans = ans1;\n                }\n            }\n        }\n\n        memo[i][k] = ans;\n        return ans;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "public int compareTo(Pair p) {\n        return this.interval.get(0) - p.interval.get(0);\n    }",
+    "replace": "public int compareTo(Pair p) {\n        return Integer.compare(this.interval.get(0), p.interval.get(0));\n    }"
+  }
+]
+```

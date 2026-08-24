@@ -1,0 +1,11 @@
+I replaced the HashMap-based remainder counting with a fixed-size int[24] array to eliminate boxing/unboxing and HashMap overhead, yielding faster and more memory-efficient code.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        HashMap<Integer, Integer> remainder_count = new HashMap<>();\n        int count = 0;\n        for(int h: hours){\n            int remainder = h%24;\n            if(remainder == 0){\n                if(remainder_count.containsKey(0)){count += remainder_count.get(0);}\n            }else{\n                int cur = 24-remainder;\n                if(remainder_count.containsKey(cur)){\n                    count += remainder_count.get(cur);\n                }\n            }\n            remainder_count.putIfAbsent(remainder, 0);\n            remainder_count.put(remainder, remainder_count.get(remainder)+1);\n        }\n        return count;",
+    "replace": "        int[] cnt = new int[24];\n        int count = 0;\n        for (int h : hours) {\n            int r = h % 24;\n            int complement = (24 - r) % 24;\n            count += cnt[complement];\n            cnt[r]++;\n        }\n        return count;"
+  }
+]
+```

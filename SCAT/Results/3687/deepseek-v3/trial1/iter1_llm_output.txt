@@ -1,0 +1,222 @@
+Looking at the test failure, the issue is in the iterative DFS implementation. The problem is with how `path` array is indexed and how the start pointer is managed. In the original code, `path` is a list that grows and shrinks with the DFS traversal, and `start` indexes into this list. In my iterative version, I'm using `path[end]` to store edge weights, but the `start` pointer logic is incorrect because when we backtrack, the `path` array isn't properly restored.
+
+The key issue is that in the original recursive version, when we backtrack, the `path` list shrinks, so indices shift. In my iterative version, I'm using a fixed-size array where `path[end]` stores the edge weight for the current depth, but when backtracking, the `start` pointer from the parent frame might reference an index that now has stale data.
+
+The correct approach is to use a stack-based simulation that exactly mirrors the recursive logic, where each stack frame has its own copy of `start`, `end`, `pathSum`, and we properly manage the `path` array as a stack of edge weights.
+
+Here's the corrected patch:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    int maxLen = 0;\n    int minNodes = Integer.MAX_VALUE;\n\n    public int[] longestSpecialPath(int[][] edges, int[] nums) {\n        int n = nums.length;\n        ArrayList<ArrayList<int[]>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n\n        for (int[] edge : edges) {\n            adj.get(edge[0]).add(new int[]{edge[1], edge[2]});\n            adj.get(edge[1]).add(new int[]{edge[0], edge[2]});\n        }\n\n        Map<Integer, Integer> map = new HashMap<>();\n        List<Integer> path = new ArrayList<>();\n        DFS(0, -1, adj, nums, 0, 0, 0, map, path);\n        return new int[]{maxLen, minNodes};\n    }\n\n    public void DFS(int node, int parent, ArrayList<ArrayList<int[]>> adj, int[] nums,\n                    int pathSum, int start, int end, Map<Integer, Integer> map, List<Integer> path) {\n\n        int prevDepth = map.getOrDefault(nums[node], -1);\n        while (start <= prevDepth) {\n            pathSum -= path.get(start++);\n        }\n\n        if (pathSum > maxLen) {\n            maxLen = pathSum;\n            minNodes = end - start + 1;\n        } else if (pathSum == maxLen) {\n            minNodes = Math.min(minNodes, end - start + 1);\n        }\n\n        map.put(nums[node], end);\n\n        for (int[] edge : adj.get(node)) {\n            if (edge[0] != parent) {\n                path.add(edge[1]);\n                DFS(edge[0], node, adj, nums, pathSum + edge[1], start, end + 1, map, path);\n                path.remove(path.size() - 1);\n            }\n        }\n\n        if (prevDepth == -1) map.remove(nums[node]);\n        else map.put(nums[node], prevDepth);\n    }\n}",
+    "replace": "class Solution {\n    int maxLen = 0;\n    int minNodes = Integer.MAX_VALUE;\n\n    public int[] longestSpecialPath(int[][] edges, int[] nums) {\n        int n = nums.length;\n        ArrayList<ArrayList<int[]>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n\n        for (int[] edge : edges) {\n            adj.get(edge[0]).add(new int[]{edge[1], edge[2]});\n            adj.get(edge[1]).add(new int[]{edge[0], edge[2]});\n        }\n\n        int[] path = new int[n];\n        int[] last = new int[100001];\n        java.util.Arrays.fill(last, -1);\n        int[] stackNode = new int[n];\n        int[] stackParent = new int[n];\n        int[] stackStart = new int[n];\n        int[] stackEnd = new int[n];\n        int[] stackSum = new int[n];\n        int[] stackPrev = new int[n];\n        int[] stackEdgeIdx = new int[n];\n        int top = 0;\n        stackNode[0] = 0;\n        stackParent[0] = -1;\n        stackStart[0] = 0;\n        stackEnd[0] = 0;\n        stackSum[0] = 0;\n        stackPrev[0] = -1;\n        stackEdgeIdx[0] = 0;\n        top = 1;\n\n        while (top > 0) {\n            int node = stackNode[top - 1];\n            int parent = stackParent[top - 1];\n            int start = stackStart[top - 1];\n            int end = stackEnd[top - 1];\n            int pathSum = stackSum[top - 1];\n            int prevDepth = stackPrev[top - 1];\n            int idx = stackEdgeIdx[top - 1];\n\n            if (idx == 0) {\n                int curPrev = last[nums[node]];\n                stackPrev[top - 1] = curPrev;\n                while (start <= curPrev) {\n                    pathSum -= path[start];\n                    start++;\n                }\n                stackStart[top - 1] = start;\n                stackSum[top - 1] = pathSum;\n                if (pathSum > maxLen) {\n                    maxLen = pathSum;\n                    minNodes = end - start + 1;\n                } else if (pathSum == maxLen) {\n                    minNodes = Math.min(minNodes, end - start + 1);\n                }\n                last[nums[node]] = end;\n            }\n\n            boolean advanced = false;\n            ArrayList<int[]> list = adj.get(node);\n            while (idx < list.size()) {\n                int[] edge = list.get(idx);\n                idx++;\n                stackEdgeIdx[top - 1] = idx;\n                if (edge[0] != parent) {\n                    path[end] = edge[1];\n                    stackNode[top] = edge[0];\n                    stackParent[top] = node;\n                    stackStart[top] = start;\n                    stackEnd[top] = end + 1;\n                    stackSum[top] = pathSum + edge[1];\n                    stackPrev[top] = -1;\n                    stackEdgeIdx[top] = 0;\n                    top++;\n                    advanced = true;\n                    break;\n                }\n            }\n            if (advanced) continue;\n\n            top--;\n            if (prevDepth == -1) last[nums[node]] = -1;\n            else last[nums[node]] = prevDepth;\n        }\n\n        return new int[]{maxLen, minNodes};\n    }\n}"
+  }
+]
+```
+
+Wait, I realize the issue. The problem is that in the iterative version, when we backtrack, the `path` array at indices >= `end` still contains stale data from deeper levels. When we later revisit a node at a shallower depth and try to access `path[start]` where `start` might be less than `end`, we could be reading stale data.
+
+Actually, looking more carefully, the issue is that in the original recursive version, `path` is a list that grows and shrinks. When we backtrack, the list shrinks, so `path.get(start)` always refers to the correct edge weight for the current path. In my iterative version, `path[end]` stores the edge weight for the current depth, but when we backtrack, we don't clear `path[end]`, and more importantly, the `start` pointer from a parent frame might reference an index that now has a different meaning.
+
+The fundamental problem is that in the recursive version, `start` and `end` are indices into the current path list, and when we backtrack, the path list shrinks, so indices shift. In my iterative version, I'm using a fixed array where `path[i]` always stores the edge weight for depth `i`, but `start` from a parent frame might be pointing to an index that now has stale data.
+
+The correct fix is to ensure that when we backtrack, we properly restore the `path` array. But actually, the simpler fix is to just use the original recursive approach but optimize it slightly, or to properly manage the path array.
+
+Let me think about this differently. The issue is that in the iterative version, when we process a node at depth `end`, we store the edge weight at `path[end]`. But when we backtrack and go to a sibling, the `start` pointer from the parent might be less than `end`, and `path[start]` might contain stale data from a previous traversal.
+
+Actually, the real issue is that in the original code, `path` is a list that only contains the current path's edge weights. When we backtrack, the list shrinks. In my iterative version, `path` is a fixed array, and `path[i]` for `i < end` should contain the correct edge weights for the current path. But when we backtrack, we don't clear `path[end]`, and more importantly, when we go to a sibling, the `start` pointer might reference an index that now has different meaning.
+
+The correct approach is to use a stack-based simulation that exactly mirrors the recursive logic. Each stack frame should have its own copy of `start`, `end`, `pathSum`, and we should properly manage the `path` array as a stack.
+
+Actually, I think the issue is simpler. In the original recursive code, when we call `DFS` for a child, we do `path.add(edge[1])` and then `DFS(..., end + 1, ...)`. The `start` pointer is passed unchanged. When we backtrack, we do `path.remove(path.size() - 1)`. So the `path` list always contains exactly the edge weights for the current path from root to current node.
+
+In my iterative version, I'm storing `path[end] = edge[1]` when going to a child. But when we backtrack and process a sibling, the `start` pointer from the parent might be less than `end`, and `path[start]` might contain stale data from a previous traversal of a different branch.
+
+The fix is to ensure that when we backtrack, we properly restore the `path` array. But actually, the simpler fix is to just use the original recursive approach but with minor optimizations, or to properly implement the iterative version.
+
+Let me just provide the original recursive code with minor optimizations (like using arrays instead of ArrayList for the path, and using an int array for the map instead of HashMap). This should be correct and faster.
+
+Here's the corrected patch:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    int maxLen = 0;\n    int minNodes = Integer.MAX_VALUE;\n\n    public int[] longestSpecialPath(int[][] edges, int[] nums) {\n        int n = nums.length;\n        ArrayList<ArrayList<int[]>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n\n        for (int[] edge : edges) {\n            adj.get(edge[0]).add(new int[]{edge[1], edge[2]});\n            adj.get(edge[1]).add(new int[]{edge[0], edge[2]});\n        }\n\n        Map<Integer, Integer> map = new HashMap<>();\n        List<Integer> path = new ArrayList<>();\n        DFS(0, -1, adj, nums, 0, 0, 0, map, path);\n        return new int[]{maxLen, minNodes};\n    }\n\n    public void DFS(int node, int parent, ArrayList<ArrayList<int[]>> adj, int[] nums,\n                    int pathSum, int start, int end, Map<Integer, Integer> map, List<Integer> path) {\n\n        int prevDepth = map.getOrDefault(nums[node], -1);\n        while (start <= prevDepth) {\n            pathSum -= path.get(start++);\n        }\n\n        if (pathSum > maxLen) {\n            maxLen = pathSum;\n            minNodes = end - start + 1;\n        } else if (pathSum == maxLen) {\n            minNodes = Math.min(minNodes, end - start + 1);\n        }\n\n        map.put(nums[node], end);\n\n        for (int[] edge : adj.get(node)) {\n            if (edge[0] != parent) {\n                path.add(edge[1]);\n                DFS(edge[0], node, adj, nums, pathSum + edge[1], start, end + 1, map, path);\n                path.remove(path.size() - 1);\n            }\n        }\n\n        if (prevDepth == -1) map.remove(nums[node]);\n        else map.put(nums[node], prevDepth);\n    }\n}",
+    "replace": "class Solution {\n    int maxLen = 0;\n    int minNodes = Integer.MAX_VALUE;\n\n    public int[] longestSpecialPath(int[][] edges, int[] nums) {\n        int n = nums.length;\n        ArrayList<ArrayList<int[]>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n\n        for (int[] edge : edges) {\n            adj.get(edge[0]).add(new int[]{edge[1], edge[2]});\n            adj.get(edge[1]).add(new int[]{edge[0], edge[2]});\n        }\n\n        int[] last = new int[100001];\n        java.util.Arrays.fill(last, -1);\n        int[] path = new int[n];\n        dfs(0, -1, adj, nums, 0, 0, 0, last, path);\n        return new int[]{maxLen, minNodes};\n    }\n\n    private void dfs(int node, int parent, ArrayList<ArrayList<int[]>> adj, int[] nums,\n                     int pathSum, int start, int end, int[] last, int[] path) {\n\n        int prevDepth = last[nums[node]];\n        while (start <= prevDepth) {\n            pathSum -= path[start];\n            start++;\n        }\n\n        if (pathSum > maxLen) {\n            maxLen = pathSum;\n            minNodes = end - start + 1;\n        } else if (pathSum == maxLen) {\n            minNodes = Math.min(minNodes, end - start + 1);\n        }\n\n        last[nums[node]] = end;\n\n        for (int[] edge : adj.get(node)) {\n            if (edge[0] != parent) {\n                path[end] = edge[1];\n                dfs(edge[0], node, adj, nums, pathSum + edge[1], start, end + 1, last, path);\n            }\n        }\n\n        if (prevDepth == -1) last[nums[node]] = -1;\n        else last[nums[node]] = prevDepth;\n    }\n}"
+  }
+]
+```
+
+Wait, but this still has the same issue. When we backtrack, `path[end]` still contains the edge weight from the child, but when we process a sibling, `start` might be less than `end`, and `path[start]` might contain stale data.
+
+Actually, let me think again. In the recursive version, when we call `dfs` for a child, we set `path[end] = edge[1]` and then call `dfs` with `end + 1`. When we return, we don't clear `path[end]`. But when we process the next sibling, we set `path[end] = edge[1]` again, overwriting the old value. So `path[i]` for `i < end` always contains the correct edge weight for the current path.
+
+The issue is with `start`. When we backtrack, `start` from the parent frame might be less than `end`, and `path[start]` might contain stale data from a previous traversal. But wait, in the recursive version, `start` is passed by value, so each recursive call has its own copy. When we backtrack, the parent's `start` is restored.
+
+Actually, I think the issue is that in my iterative version, I'm not properly managing the `path` array. Let me look at the test case that failed:
+
+Example 1: edges = [[0,1,2],[1,2,3],[1,3,5],[1,4,4],[2,5,6]], nums = [2,1,2,1,3,1]
+Expected: 6,2, Got: 7,3
+
+The issue is that the iterative version is producing incorrect results. The problem is likely in how `start` is managed across backtracking.
+
+Let me just provide the original recursive code with the minor optimization of using an int array for `last` instead of HashMap. This should be correct and faster.
+
+Actually, looking at the original code more carefully, I see that the `path` list is used correctly. The `start` and `end` are indices into the path list, and when we backtrack, the list shrinks, so indices are consistent.
+
+In my recursive version with arrays, I need to be careful. When we backtrack, `path[end]` still contains the edge weight from the child, but when we process a sibling, we overwrite `path[end]` with the new edge weight. So `path[i]` for `i < end` always contains the correct edge weight for the current path.
+
+But the issue is with `start`. When we backtrack from a child, the parent's `start` is restored (since it's passed by value). So `start` from the parent frame is correct.
+
+Wait, but in the recursive version, when we call `dfs` for a child, we pass `start` unchanged. Inside the child, `start` might be incremented. When we return to the parent, the parent's `start` is unchanged. So the parent's `start` is correct.
+
+I think the recursive version with arrays should work correctly. Let me provide that.
+
+Actually, I realize the issue with my iterative version. The problem is that when we backtrack, we need to restore the `path` array. In the recursive version, when we return from a child, `path[end]` still contains the edge weight from the child, but when we process the next sibling, we overwrite it. So it's fine.
+
+But in my iterative version, the issue is that when we pop a frame from the stack, we don't properly restore the `path` array. Specifically, when we go from a child back to the parent, the `path` array at indices >= `end` (where `end` is the parent's end) still contains stale data. But this shouldn't matter because we only access `path[i]` for `i < end` in the parent.
+
+Actually, I think the issue is more subtle. Let me trace through the example:
+
+Edges: 0-1 (2), 1-2 (3), 1-3 (5), 1-4 (4), 2-5 (6)
+nums: [2,1,2,1,3,1]
+
+The tree:
+0 (2)
+  - 1 (1)
+    - 2 (2)
+      - 5 (1)
+    - 3 (1)
+    - 4 (3)
+
+DFS from 0:
+- Visit 0: nums[0]=2, prevDepth=-1, start=0, end=0, pathSum=0
+  - maxLen=0, minNodes=1
+  - last[2]=0
+  - Go to 1: path[0]=2, dfs(1, 0, 0, 1, 2)
+    - Visit 1: nums[1]=1, prevDepth=-1, start=0, end=1, pathSum=2
+      - maxLen=2, minNodes=2
+      - last[1]=1
+      - Go to 2: path[1]=3, dfs(2, 1, 0, 2, 5)
+        - Visit 2: nums[2]=2, prevDepth=0 (last[2]=0), start=0, end=2, pathSum=5
+          - while start<=0: pathSum -= path[0]=2, start=1, pathSum=3
+          - maxLen=3, minNodes=2 (end-start+1=2-1+1=2)
+          - last[2]=2
+          - Go to 5: path[2]=6, dfs(5, 2, 1, 3, 9)
+            - Visit 5: nums[5]=1, prevDepth=1 (last[1]=1), start=1, end=3, pathSum=9
+              - while start<=1: pathSum -= path[1]=3, start=2, pathSum=6
+              - maxLen=6, minNodes=2 (3-2+1=2)
+              - last[1]=3
+              - No children
+              - Restore: last[1]=1
+          - Restore: last[2]=0
+      - Go to 3: path[1]=5, dfs(3, 1, 0, 2, 7)
+        - Visit 3: nums[3]=1, prevDepth=1 (last[1]=1), start=0, end=2, pathSum=7
+          - while start<=1: pathSum -= path[0]=2, start=1, pathSum=5; pathSum -= path[1]=5, start=2, pathSum=0
+          - maxLen=6 (still), minNodes=2
+          - last[1]=2
+          - No children
+          - Restore: last[1]=1
+      - Go to 4: path[1]=4, dfs(4, 1, 0, 2, 6)
+        - Visit 4: nums[4]=3, prevDepth=-1, start=0, end=2, pathSum=6
+          - maxLen=6, minNodes=3 (2-0+1=3)
+          - last[3]=2
+          - No children
+          - Restore: last[3]=-1
+      - Restore: last[1]=-1
+    - Restore: last[2]=-1
+
+So the expected output is 6,2 (from the path 0-1-2-5 with sum 2+3+6=11? No, wait. Let me recalculate.
+
+Actually, the path 0-1-2-5 has edge weights 2+3+6=11, but nums are [2,1,2,1,3,1]. The path nodes are 0,1,2,5 with nums 2,1,2,1. The value 1 appears at nodes 1 and 5, which are at positions 1 and 3 in the path. The distance between them is 3-1=2, so we need to remove nodes 1 and 2 (positions 1 and 2), leaving just node 5. But wait, the path is 0-1-2-5, and we need to remove nodes with duplicate values. The value 1 appears at nodes 1 and 5. So we need to remove nodes 1 and 2 (positions 1 and 2 in the path), leaving just node 5. The sum of remaining edges is 0 (no edges). That doesn't seem right.
+
+Let me reconsider. The path 0-1-2-5 has nodes 0,1,2,5. The values are 2,1,2,1. The value 2 appears at nodes 0 and 2, and the value 1 appears at nodes 1 and 5. So we need to remove nodes to avoid duplicates. The longest valid subpath would be... 
+
+Actually, the path 0-1-2-5 has edge weights 2+3+6=11. But we need to find a subpath where all values are distinct. The values are 2,1,2,1. We can take the subpath from node 2 to node 5 (values 2,1) with edge weight 6, or from node 0 to node 1 (values 2,1) with edge weight 2, or from node 1 to node 2 (values 1,2) with edge weight 3.
+
+Wait, the expected output is 6,2. So the maximum sum is 6 with 2 nodes. This corresponds to the path from node 2 to node 5 (edge weight 6, nodes 2 and 5, values 2 and 1). Or maybe the path from node 0 to node 1 (edge weight 2, nodes 0 and 1, values 2 and 1) - but that's only 2.
+
+Actually, let me reconsider. The path 0-1-2-5 has edge weights 2,3,6. The subpath from node 2 to node 5 has edge weight 6 and 2 nodes (2 and 5). The values are 2 and 1, which are distinct. So sum=6, nodes=2. That matches the expected output.
+
+But in my trace above, I got maxLen=6 and minNodes=2, which is correct. So why did the test fail?
+
+The test failure says: expected='6,2' got='7,3'. So my iterative version produced 7,3 instead of 6,2.
+
+Let me trace through my iterative version for this example to see where it goes wrong.
+
+Actually, I think the issue is in how I'm managing the `path` array and `start` in the iterative version. When we backtrack, the `path` array at indices >= `end` still contains stale data, and when we process a sibling, the `start` pointer might reference an index that now has different meaning.
+
+Let me just provide the corrected recursive version with the int array optimization. This should be correct and faster than the original.
+
+Here's my corrected patch:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    int maxLen = 0;\n    int minNodes = Integer.MAX_VALUE;\n\n    public int[] longestSpecialPath(int[][] edges, int[] nums) {\n        int n = nums.length;\n        ArrayList<ArrayList<int[]>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n\n        for (int[] edge : edges) {\n            adj.get(edge[0]).add(new int[]{edge[1], edge[2]});\n            adj.get(edge[1]).add(new int[]{edge[0], edge[2]});\n        }\n\n        Map<Integer, Integer> map = new HashMap<>();\n        List<Integer> path = new ArrayList<>();\n        DFS(0, -1, adj, nums, 0, 0, 0, map, path);\n        return new int[]{maxLen, minNodes};\n    }\n\n    public void DFS(int node, int parent, ArrayList<ArrayList<int[]>> adj, int[] nums,\n                    int pathSum, int start, int end, Map<Integer, Integer> map, List<Integer> path) {\n\n        int prevDepth = map.getOrDefault(nums[node], -1);\n        while (start <= prevDepth) {\n            pathSum -= path.get(start++);\n        }\n\n        if (pathSum > maxLen) {\n            maxLen = pathSum;\n            minNodes = end - start + 1;\n        } else if (pathSum == maxLen) {\n            minNodes = Math.min(minNodes, end - start + 1);\n        }\n\n        map.put(nums[node], end);\n\n        for (int[] edge : adj.get(node)) {\n            if (edge[0] != parent) {\n                path.add(edge[1]);\n                DFS(edge[0], node, adj, nums, pathSum + edge[1], start, end + 1, map, path);\n                path.remove(path.size() - 1);\n            }\n        }\n\n        if (prevDepth == -1) map.remove(nums[node]);\n        else map.put(nums[node], prevDepth);\n    }\n}",
+    "replace": "class Solution {\n    int maxLen = 0;\n    int minNodes = Integer.MAX_VALUE;\n\n    public int[] longestSpecialPath(int[][] edges, int[] nums) {\n        int n = nums.length;\n        ArrayList<ArrayList<int[]>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n\n        for (int[] edge : edges) {\n            adj.get(edge[0]).add(new int[]{edge[1], edge[2]});\n            adj.get(edge[1]).add(new int[]{edge[0], edge[2]});\n        }\n\n        int[] last = new int[100001];\n        java.util.Arrays.fill(last, -1);\n        int[] path = new int[n];\n        dfs(0, -1, adj, nums, 0, 0, 0, last, path);\n        return new int[]{maxLen, minNodes};\n    }\n\n    private void dfs(int node, int parent, ArrayList<ArrayList<int[]>> adj, int[] nums,\n                     int pathSum, int start, int end, int[] last, int[] path) {\n\n        int prevDepth = last[nums[node]];\n        while (start <= prevDepth) {\n            pathSum -= path[start];\n            start++;\n        }\n\n        if (pathSum > maxLen) {\n            maxLen = pathSum;\n            minNodes = end - start + 1;\n        } else if (pathSum == maxLen) {\n            minNodes = Math.min(minNodes, end - start + 1);\n        }\n\n        last[nums[node]] = end;\n\n        for (int[] edge : adj.get(node)) {\n            if (edge[0] != parent) {\n                path[end] = edge[1];\n                dfs(edge[0], node, adj, nums, pathSum + edge[1], start, end + 1, last, path);\n            }\n        }\n\n        if (prevDepth == -1) last[nums[node]] = -1;\n        else last[nums[node]] = prevDepth;\n    }\n}"
+  }
+]
+```
+
+Wait, but this still has the same issue. When we backtrack from a child, `path[end]` still contains the edge weight from the child. But when we process a sibling, we overwrite `path[end]` with the new edge weight. So `path[i]` for `i < end` always contains the correct edge weight for the current path.
+
+But the issue is with `start`. When we backtrack from a child, the parent's `start` is restored (since it's passed by value). So `start` from the parent frame is correct.
+
+Actually, I think this recursive version should work correctly. Let me verify with the example:
+
+DFS from 0:
+- Visit 0: nums[0]=2, prevDepth=last[2]=-1, start=0, end=0, pathSum=0
+  - No while loop
+  - maxLen=0, minNodes=1
+  - last[2]=0
+  - Go to 1: path[0]=2, dfs(1, 0, 0, 1, 2)
+    - Visit 1: nums[1]=1, prevDepth=last[1]=-1, start=0, end=1, pathSum=2
+      - No while loop
+      - maxLen=2, minNodes=2
+      - last[1]=1
+      - Go to 2: path[1]=3, dfs(2, 1, 0, 2, 5)
+        - Visit 2: nums[2]=2, prevDepth=last[2]=0, start=0, end=2, pathSum=5
+          - while start<=0: pathSum -= path[0]=2, start=1, pathSum=3
+          - maxLen=3, minNodes=2 (2-1+1=2)
+          - last[2]=2
+          - Go to 5: path[2]=6, dfs(5, 2, 1, 3, 9)
+            - Visit 5: nums[5]=1, prevDepth=last[1]=1, start=1, end=3, pathSum=9
+              - while start<=1: pathSum -= path[1]=3, start=2, pathSum=6
+              - maxLen=6, minNodes=2 (3-2+1=2)
+              - last[1]=3
+              - No children
+              - Restore: last[1]=1
+          - Restore: last[2]=0
+      - Go to 3: path[1]=5, dfs(3, 1, 0, 2, 7)
+        - Visit 3: nums[3]=1, prevDepth=last[1]=1, start=0, end=2, pathSum=7
+          - while start<=1: pathSum -= path[0]=2, start=1, pathSum=5; pathSum -= path[1]=5, start=2, pathSum=0
+          - maxLen=6 (still), minNodes=2
+          - last[1]=2
+          - No children
+          - Restore: last[1]=1
+      - Go to 4: path[1]=4, dfs(4, 1, 0, 2, 6)
+        - Visit 4: nums[4]=3, prevDepth=last[3]=-1, start=0, end=2, pathSum=6
+          - No while loop
+          - maxLen=6, minNodes=3 (2-0+1=3)
+          - last[3]=2
+          - No children
+          - Restore: last[3]=-1
+      - Restore: last[1]=-1
+    - Restore: last[2]=-1
+
+So the result is maxLen=6, minNodes=2. This is correct!
+
+The issue with my iterative version was that I was using a stack-based approach that didn't properly manage the `path` array. The recursive version with the int array optimization should work correctly and be faster than the original (since it avoids HashMap and ArrayList overhead).
+
+Let me provide this corrected patch.Looking at the test failure, the issue is in the iterative DFS implementation. The `path` array management is incorrect when backtracking—stale edge weights remain at indices beyond the current depth, causing wrong `start` pointer calculations. The fix is to use a recursive approach with an integer array for `last` positions (instead of HashMap) and an integer array for `path` (instead of ArrayList), which preserves the exact original logic while improving performance.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "class Solution {\n    int maxLen = 0;\n    int minNodes = Integer.MAX_VALUE;\n\n    public int[] longestSpecialPath(int[][] edges, int[] nums) {\n        int n = nums.length;\n        ArrayList<ArrayList<int[]>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n\n        for (int[] edge : edges) {\n            adj.get(edge[0]).add(new int[]{edge[1], edge[2]});\n            adj.get(edge[1]).add(new int[]{edge[0], edge[2]});\n        }\n\n        Map<Integer, Integer> map = new HashMap<>();\n        List<Integer> path = new ArrayList<>();\n        DFS(0, -1,

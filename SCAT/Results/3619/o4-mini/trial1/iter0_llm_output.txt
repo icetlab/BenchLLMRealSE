@@ -1,0 +1,11 @@
+I rewrote the method to use O(1) extra space by tracking only the current and previous segment lengths, removed the debug print, and preserved the original logic for computing the maximum.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int maxIncreasingSubarrays(List<Integer> nums) {\n        int n = nums.size();\n        List<Integer> lengths = new ArrayList<>();\n        \n        \n        int i = 0;\n        while(i < nums.size()) {\n            int start = i;\n            i++;\n\n            while(i < n && nums.get(i) > nums.get(i-1)) {\n                i++;\n            }\n            System.out.println(i-start);\n\n            lengths.add(i-start);\n        }\n        int max = lengths.get(0)/2;\n        for(int j = 1; j < lengths.size(); j++) {\n            max = Math.max(max,lengths.get(j)/2);\n            max = Math.max(max, (Math.min(lengths.get(j-1), lengths.get(j))));\n        }\n        return max;\n    }",
+    "replace": "    public int maxIncreasingSubarrays(List<Integer> nums) {\n        int n = nums.size();\n        if (n == 0) {\n            return 0;\n        }\n        int i = 1;\n        int currLen = 1;\n        // first increasing segment\n        while (i < n && nums.get(i) > nums.get(i - 1)) {\n            currLen++;\n            i++;\n        }\n        int prevLen = currLen;\n        int max = prevLen / 2;\n        // process remaining segments\n        while (i < n) {\n            currLen = 1;\n            i++;\n            while (i < n && nums.get(i) > nums.get(i - 1)) {\n                currLen++;\n                i++;\n            }\n            max = Math.max(max, currLen / 2);\n            max = Math.max(max, Math.min(prevLen, currLen));\n            prevLen = currLen;\n        }\n        return max;\n    }"
+  }
+]
+```

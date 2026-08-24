@@ -1,0 +1,16 @@
+I’ve replaced the use of `Hashtable` and the nested O(n₁·n₂) loops with a frequency map + divisor enumeration approach (O(n₂ + n₁·√M)), and switched to `HashMap` for faster lookups.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "import java.util.Hashtable;",
+    "replace": "import java.util.HashMap;\nimport java.util.Map;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "       Hashtable<Integer,Integer> ht = new Hashtable<>();\n\n       for(int i=0;i<nums2.length;i++)\n       {\n            int product=nums2[i]*k;\n            ht.put(i,product);\n       }\n\n       for(int nums:nums1)\n       {\n            for(Integer value:ht.values())\n            {\n                if(nums%value==0)\n                {\n                    count++;\n                }\n            }\n       }\n        return count;",
+    "replace": "       Map<Integer,Integer> freq = new HashMap<>();\n\n       for (int num : nums2) {\n           freq.put(num, freq.getOrDefault(num, 0) + 1);\n       }\n\n       for (int x : nums1) {\n           if (x % k != 0) continue;\n           int y = x / k;\n           int limit = (int) Math.sqrt(y);\n           for (int d = 1; d <= limit; d++) {\n               if (y % d == 0) {\n                   if (freq.containsKey(d)) {\n                       count += freq.get(d);\n                   }\n                   int other = y / d;\n                   if (other != d && freq.containsKey(other)) {\n                       count += freq.get(other);\n                   }\n               }\n           }\n       }\n        return count;"
+  }
+]
+```

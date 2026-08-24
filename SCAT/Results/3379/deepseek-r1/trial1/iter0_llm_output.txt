@@ -1,0 +1,11 @@
+The optimized version computes the score in a single pass directly from the string, avoiding temporary arrays and the `Arrays.stream` overhead, and removes the need for `java.util.Arrays`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    public int scoreOfString(String s) {\n        char[] newarray=s.toCharArray();\n        int[] holdval=new int[s.length()-1];\n        for(int i=0;i<newarray.length-1;i++){\n            //System.out.println(i+\" \"+(int)newarray[i]+\" \"+(int)newarray[i+1]);\n            var val=(int)newarray[i]-(int)newarray[i+1];\n            holdval[i]=Math.abs(val);\n        }\n        var sums=Arrays.stream(holdval).sum();\n        return sums;\n    }",
+    "replace": "    public int scoreOfString(String s) {\n        int sum = 0;\n        for (int i = 0; i < s.length() - 1; i++) {\n            sum += Math.abs(s.charAt(i) - s.charAt(i + 1));\n        }\n        return sum;\n    }"
+  }
+]
+```

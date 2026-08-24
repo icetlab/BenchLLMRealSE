@@ -1,0 +1,167 @@
+>> The source file (Solution.java) is:
+class Solution {
+    Set<Integer> yCells = new HashSet<>();
+
+    public int minimumOperationsToWriteY(int[][] grid) {
+        int minPrice = Integer.MAX_VALUE;
+        int currPrice = 0;
+        int n = grid.length;
+        markY(grid);
+        //y = 0, other 1
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (yCells.contains(i * n + j)) {
+                    if (grid[i][j] != 0) {
+                        currPrice++;
+                    }
+                } else {
+                    if (grid[i][j] != 1) {
+                        currPrice++;
+                    }
+                }
+            }
+        }
+        if (minPrice > currPrice) {
+            minPrice = currPrice;
+        }
+        currPrice = 0;
+
+        //y = 0, other 2
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (yCells.contains(i * n + j)) {
+                    if (grid[i][j] != 0) {
+                        currPrice++;
+                    }
+                } else {
+                    if (grid[i][j] != 2) {
+                        currPrice++;
+                    }
+                }
+            }
+        }
+        if (minPrice > currPrice) {
+            minPrice = currPrice;
+        }
+        currPrice = 0;
+
+        //y = 1, other 0
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (yCells.contains(i * n + j)) {
+                    if (grid[i][j] != 1) {
+                        currPrice++;
+                    }
+                } else {
+                    if (grid[i][j] != 0) {
+                        currPrice++;
+                    }
+                }
+            }
+        }
+        if (minPrice > currPrice) {
+            minPrice = currPrice;
+        }
+        currPrice = 0;
+
+        //y = 1, other 2
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (yCells.contains(i * n + j)) {
+                    if (grid[i][j] != 1) {
+                        currPrice++;
+                    }
+                } else {
+                    if (grid[i][j] != 2) {
+                        currPrice++;
+                    }
+                }
+            }
+        }
+        if (minPrice > currPrice) {
+            minPrice = currPrice;
+        }
+        currPrice = 0;
+
+        //y = 2, other 0
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (yCells.contains(i * n + j)) {
+                    if (grid[i][j] != 2) {
+                        currPrice++;
+                    }
+                } else {
+                    if (grid[i][j] != 0) {
+                        currPrice++;
+                    }
+                }
+            }
+        }
+        if (minPrice > currPrice) {
+            minPrice = currPrice;
+        }
+        currPrice = 0;
+
+        //y = 2, other 1
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (yCells.contains(i * n + j)) {
+                    if (grid[i][j] != 2) {
+                        currPrice++;
+                    }
+                } else {
+                    if (grid[i][j] != 1) {
+                        currPrice++;
+                    }
+                }
+            }
+        }
+        if (minPrice > currPrice) {
+            minPrice = currPrice;
+        }
+        return minPrice;
+
+    }
+
+    public void markY(int[][] grid) {
+        int mid = grid.length / 2;
+        int n = grid.length;
+        int i = 0;
+        int j = 0;
+        while (i != mid) {
+            yCells.add(i * n + j);
+            i++;
+            j++;
+        }
+        i = 0;
+        j = n - 1;
+        while (i != j) {
+            yCells.add(i * n + j);
+            i++;
+            j--;
+        }
+        i = mid;
+        j = mid;
+        while (i < n) {
+            yCells.add(i * n + j);
+            i++;
+        }
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 0,0,0;0,0,0;0,0,0
+  expected output: 4
+Example 2:
+  input: 1,2,2;1,1,0;0,1,0
+  expected output: 3
+Example 3:
+  input: 0,1,0,1,0;2,1,0,1,2;2,2,2,0,1;2,2,2,2,2;2,1,2,2,2
+  expected output: 12
+Example 4:
+  input: 1,0,1,1,0;0,0,2,1,2;1,0,1,0,1;0,1,1,0,1;0,1,2,0,2
+  expected output: 13
+Example 5:
+  input: 0,0,0,0,0,2,1,1,2,2,2,1,2;0,1,0,0,2,1,0,1,1,1,0,0,2;2,2,0,1,1,2,0,1,2,2,0,2,0;0,0,1,0,0,2,1,1,2,0,0,2,2;1,1,2,2,1,2,2,2,1,2,1,0,2;1,0,1,0,0,1,1,1,0,1,0,0,1;0,0,1,2,2,0,2,2,1,1,1,0,1;2,1,0,2,2,2,1,0,2,2,1,1,0;0,1,1,2,1,1,0,2,1,1,1,2,1;1,0,2,0,1,2,2,1,1,0,1,0,1;2,1,0,2,0,1,0,2,2,2,2,2,1;0,1,0,2,1,2,2,0,0,2,0,0,0;2,0,2,2,2,0,0,1,2,0,0,1,2
+  expected output: 107

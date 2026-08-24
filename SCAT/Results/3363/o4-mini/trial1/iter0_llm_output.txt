@@ -1,0 +1,21 @@
+I replaced the heavy ConcurrentSkipListMap/Set structure with a simple TreeMap of frequency counts and a running maxFreq, eliminating per-ID sets and accelerating updates and max lookup.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "    private final ConcurrentSkipListMap<Long, Set<Integer>> freq2IdsMap = new ConcurrentSkipListMap<>();\n    private final Map<Integer, Long> id2FreqMap = new HashMap<>();",
+    "replace": "    private final TreeMap<Long, Integer> freqCountMap = new TreeMap<>();\n    private final Map<Integer, Long> id2FreqMap = new HashMap<>();\n    private long maxFreq = 0;"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    public long[] mostFrequentIDs(int[] nums, int[] freq) {\n//        PriorityQueue<Pair<Long, Integer>> pq = new PriorityQueue<>((a, b) -> (int) (b.getKey() - a.getKey()));\n        long[] ans = new long[nums.length];\n        for (int i = 0; i < nums.length; i++) {\n            int id = nums[i];\n            Long oldFreq = id2FreqMap.getOrDefault(id, 0L);\n            Long newFreq = oldFreq + freq[i];\n            id2FreqMap.put(id, newFreq);\n            updateFreq2IdsMap(id, oldFreq, newFreq);\n            ans[i] = freq2IdsMap.size() == 0 || (freq2IdsMap.get(freq2IdsMap.lastKey()).size() == 0) ? 0L : freq2IdsMap.lastKey();\n        }\n        return ans;\n    }",
+    "replace": "    public long[] mostFrequentIDs(int[] nums, int[] freq) {\n        long[] ans = new long[nums.length];\n        for (int i = 0; i < nums.length; i++) {\n            int id = nums[i];\n            long oldFreq = id2FreqMap.getOrDefault(id, 0L);\n            long newFreq = oldFreq + freq[i];\n            id2FreqMap.put(id, newFreq);\n            // decrement count for old frequency\n            if (oldFreq > 0) {\n                int count = freqCountMap.get(oldFreq) - 1;\n                if (count == 0) {\n                    freqCountMap.remove(oldFreq);\n                    if (oldFreq == maxFreq) {\n                        maxFreq = freqCountMap.isEmpty() ? 0 : freqCountMap.lastKey();\n                    }\n                } else {\n                    freqCountMap.put(oldFreq, count);\n                }\n            }\n            // increment count for new frequency\n            if (newFreq > 0) {\n                freqCountMap.put(newFreq, freqCountMap.getOrDefault(newFreq, 0) + 1);\n                if (newFreq > maxFreq) {\n                    maxFreq = newFreq;\n                }\n            }\n            ans[i] = maxFreq;\n        }\n        return ans;\n    }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "    private void updateFreq2IdsMap(int id, Long oldFreq, Long newFreq) {\n        if (freq2IdsMap.containsKey(oldFreq)) {\n            Set<Integer> idSet = freq2IdsMap.get(oldFreq);\n            idSet.remove(id);\n            if (idSet.size() == 0) {\n                freq2IdsMap.remove(oldFreq);\n            }\n            if (newFreq == 0) return;\n        }\n\n        freq2IdsMap.computeIfPresent(newFreq, (k, v) -> {\n            v.add(id);\n            return v;\n        });\n        freq2IdsMap.computeIfAbsent(newFreq, v -> {\n            Set<Integer> set = new HashSet<>();\n            set.add(id);\n            return set;\n        });\n\n//        if (!freq2IdsMap.containsKey(newFreq)) {\n//            Set<Integer> set = new HashSet<>();\n//            set.add(id);\n//            freq2IdsMap.put(newFreq, set);\n//        } else {\n//            freq2IdsMap.get(newFreq).add(id);\n//        }\n    }",
+    "replace": ""
+  }
+]
+```

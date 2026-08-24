@@ -1,0 +1,15 @@
+Looking at the error, the issue is that when using `ArrayList` instead of `HashSet`, the `remove(node)` call in the DFS method is being interpreted as removing by index rather than by value. When `node` is -1 (for the root's parent), it tries to remove at index -1, causing the `ArrayIndexOutOfBoundsException`.
+
+The fix is to use `remove(Integer.valueOf(node))` to remove by value, and also handle the case where `parent` is -1 (root node) to avoid the removal operation entirely.
+
+Here's the corrected patch:
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "void dfs(int node, List<Integer>[] adj, String s, int[] closest, int parent, List<Integer>[] adj2) {\n        int val = s.charAt(node) - 'a';\n\n        if (closest[val] != -1) {\n            int newParent = closest[val];\n            adj2[parent].remove(Integer.valueOf(node));\n            adj2[newParent].add(node);\n        } \n\n        int temp = closest[val];\n\n        closest[val] = node;\n\n        for(int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, node, adj2);\n        }\n\n        closest[val] = temp;\n    }",
+    "replace": "void dfs(int node, List<Integer>[] adj, String s, int[] closest, int parent, List<Integer>[] adj2) {\n        int val = s.charAt(node) - 'a';\n\n        if (closest[val] != -1) {\n            int newParent = closest[val];\n            if (parent != -1) {\n                adj2[parent].remove(Integer.valueOf(node));\n            }\n            adj2[newParent].add(node);\n        } \n\n        int temp = closest[val];\n\n        closest[val] = node;\n\n        for(int neigh : adj[node]) {\n            dfs(neigh, adj, s, closest, node, adj2);\n        }\n\n        closest[val] = temp;\n    }"
+  }
+]
+```

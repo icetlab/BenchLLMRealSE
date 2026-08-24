@@ -1,0 +1,11 @@
+The recursive helper is replaced by an iterative traversal of the set bits of `k - 1`, avoiding repeated `Math.pow` calls and recursion overhead while preserving the original result.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        if(k == 1){\n            return 0;\n        }\n        int x = 1;\n        while((long)Math.pow(2,x) < k){\n            x++;\n        }\n        x--;\n        int a = 0;\n        if(operations[x] == 1){\n            k -= Math.pow(2,x);\n            return 1 + findit(k,operations);\n        }\n        else{\n            k -= Math.pow(2,x);\n            return findit(k,operations);\n        }",
+    "replace": "        int ans = 0;\n        long m = k - 1;\n        while (m > 0) {\n            long bit = Long.highestOneBit(m);\n            int x = Long.numberOfTrailingZeros(bit);\n            if (operations[x] == 1) {\n                ans++;\n            }\n            m -= bit;\n        }\n        return ans;"
+  }
+]
+```

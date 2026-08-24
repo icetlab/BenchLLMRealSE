@@ -1,0 +1,13 @@
+The original code is inefficient because it converts the primitive `int[]` array to an `ArrayList<Integer>`, which involves overhead from boxing integers and allocating a new data structure. Furthermore, it uses `ArrayList.remove(0)`, an O(N) operation, and then sorts the entire remaining list (O(N log N)) just to find the two smallest elements.
+
+My improvement replaces this entire process with a much more efficient single-pass algorithm. It works directly on the input `int[]` array, avoiding any conversions or extra allocations. It identifies the two smallest elements from the second element onwards in O(N) time by iterating through the subarray once and keeping track of the two minimums found. This reduces the overall time complexity from O(N log N) to O(N) and eliminates significant overhead, resulting in a much faster and more memory-efficient solution.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        ArrayList<Integer> arr= new ArrayList<>();\n        for(int i : nums){\n            arr.add(i);\n        }\n        int first =arr.remove(0);\n        Collections.sort(arr);\n        int result = first+arr.get(0)+arr.get(1);\n        return result;",
+    "replace": "        int first = nums[0];\n        int min1 = Integer.MAX_VALUE;\n        int min2 = Integer.MAX_VALUE;\n\n        for (int i = 1; i < nums.length; i++) {\n            if (nums[i] < min1) {\n                min2 = min1;\n                min1 = nums[i];\n            } else if (nums[i] < min2) {\n                min2 = nums[i];\n            }\n        }\n\n        return first + min1 + min2;"
+  }
+]
+```

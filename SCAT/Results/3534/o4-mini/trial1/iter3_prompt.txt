@@ -1,0 +1,81 @@
+>>>> The format of your generated code changes does not meet the requirements, with the following error:
+Block 0: search text not found in source.
+search='if (bVal == a || !freq.containsKey(bVal) || seen.contains(bVal)) continue;\n                    int lenB = t.length();'
+>>>> Your previous output was:
+I’ve corrected the cross‐length detection by computing the true digit length of the swap result (without leading zeros), ensuring pairs like 30↔3 are counted.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "if (bVal == a || !freq.containsKey(bVal) || seen.contains(bVal)) continue;\n                    int lenB = t.length();",
+    "replace": "if (bVal == a || !freq.containsKey(bVal) || seen.contains(bVal)) continue;\n                    int lenB = Integer.toString(bVal).length();"
+  }
+]
+```
+>>>> Analyze the error. If the search block was not found, try to provide a more flexible search pattern or break the change into smaller chunks. Make sure to maintain the same JSON format with filepath, search, and replace fields.
+>>>> Original prompt was:
+>> The source file (Solution.java) is:
+class Solution {
+    public int countPairs(int[] nums) {
+        int cnt=0;
+        int n = nums.length;
+        for(int i=0;i<n;i++){
+            for(int j=i+1;j<n;j++){
+                if(f(nums[i],nums[j])){
+                    cnt++;
+                }
+            }
+        }
+        return cnt;
+    }
+    public boolean f(int a,int b){
+        String x = Integer.toString(a);
+        String y = Integer.toString(b);
+        if(x.equals(y)) return true;
+        if(same(x,y)){
+            return true;
+        }
+        if(same(y,x)){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean same(String a, String b){
+        for(int i=0;i<a.length();i++){
+            for(int j=i+1;j<a.length();j++){
+                char arr[] = a.toCharArray();
+                swap(arr,i,j);
+                String curr = new String(arr);
+                if(Integer.parseInt(curr)==Integer.parseInt(b)) return true;
+                swap(arr,i,j);
+            }
+        }
+        return false;
+    }
+
+    void swap(char arr[],int i,int j){
+        char temp=  arr[j];
+        arr[j] = arr[i];
+        arr[i] = temp;
+    }
+}
+---------
+>> Example test cases are:
+Example 1:
+  input: 3,12,30,17,21
+  expected output: 2
+Example 2:
+  input: 1,1,1,1,1
+  expected output: 10
+Example 3:
+  input: 123,231
+  expected output: 0
+Example 4:
+  input: 1,2
+  expected output: 0
+Example 5:
+  input: 99,9
+  expected output: 0
+

@@ -1,0 +1,18 @@
+The primary performance issue is in the dynamic programming part of the solution. The inner loop that calculates the minimum cost iterates from the current position `i` to the end of the string. This results in an overall time complexity of approximately O(S^2), where S is the length of the source string, which is too slow for large inputs. This appears to be a typo where the loop bound depends on the loop variable `j` instead of the outer loop's start index `i`. By correcting the loop condition to be based on `i`, the complexity of the dynamic programming part is reduced to O(S * L), where L is the maximum word length considered (100 in this case). This change provides a significant performance improvement for long input strings.
+
+Additionally, a minor optimization is made by merging two consecutive loops that populate the Trie data structure. This reduces loop setup overhead and makes the code slightly more concise and efficient.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        for (int i = 0; i < n; i++) {\n            insert(root, original[i], currentIndex);\n        }\n\n         for (int i = 0; i < n; i++) {\n            insert(root, changed[i], currentIndex);\n        }",
+    "replace": "        for (int i = 0; i < n; i++) {\n            insert(root, original[i], currentIndex);\n            insert(root, changed[i], currentIndex);\n        }"
+  },
+  {
+    "filepath": "Solution.java",
+    "search": "            boolean ptr1Found = true;\n            boolean ptr2Found = true;\n\n            for (int j = i; j <= Math.min(j + 100, source.length() - 1); j++) {",
+    "replace": "            boolean ptr1Found = true;\n            boolean ptr2Found = true;\n\n            for (int j = i; j <= Math.min(i + 100, source.length() - 1); j++) {"
+  }
+]
+```

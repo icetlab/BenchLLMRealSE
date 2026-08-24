@@ -1,0 +1,11 @@
+The main performance bottleneck is the nested loop that checks each occurrence of pattern `a` against all occurrences of pattern `b`. This is O(n*m) where n and m are the respective occurrence counts. By using a two‑pointer technique on the two sorted lists, we can reduce this to O(n+m) and still correctly identify all indices that have a matching `b` occurrence within distance `k`.
+
+```json
+[
+  {
+    "filepath": "Solution.java",
+    "search": "        List<Integer> answer =  new ArrayList<>();\n        int i=0;\n        while(i <  aArray.size())\n        {\n            for(int j=0;j<  bArray.size();j++)\n            {\n                if(Math.abs(aArray.get(i) -  bArray.get(j)) <=k )\n                {\n                    answer.add(aArray.get(i));\n                    break;\n                }\n            }\n            i++;\n        }",
+    "replace": "        List<Integer> answer = new ArrayList<>();\n        int idxA = 0;\n        int nA = aArray.size();\n        for (int j = 0; j < bArray.size(); j++) {\n            int bVal = bArray.get(j);\n            // Advance idxA to first a index that is >= bVal - k\n            while (idxA < nA && aArray.get(idxA) < bVal - k) {\n                idxA++;\n            }\n            // Add all a indices within [bVal - k, bVal + k]\n            while (idxA < nA && aArray.get(idxA) <= bVal + k) {\n                answer.add(aArray.get(idxA));\n                idxA++;\n            }\n        }"
+  }
+]
+```
