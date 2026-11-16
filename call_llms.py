@@ -15,7 +15,7 @@ def improve_code_with_gpt(prompt):
         api_key=""
     )
     response = client.responses.create(
-        model="o4-mini",
+        model="gpt-5.6-terra",
         reasoning={"effort": "medium"},
         input=[
             {"role": "system", "content": persona},
